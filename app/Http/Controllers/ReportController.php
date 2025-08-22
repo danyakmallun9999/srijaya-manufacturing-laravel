@@ -132,8 +132,7 @@ class ReportController extends Controller
         $profit = $revenue - $totalExpenses;
 
         // Monthly breakdown
-        $monthlyData = DB::table('incomes')
-            ->selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as revenue')
+        $monthlyData = Income::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(amount) as revenue')
             ->whereBetween('date', [$startDate, $endDate])
             ->groupBy('month')
             ->orderBy('month')

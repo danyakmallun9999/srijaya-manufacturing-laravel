@@ -11,4 +11,12 @@ class Customer extends Model
 
     // Tambahkan properti ini
     protected $fillable = ['name', 'phone', 'address'];
+
+    /**
+     * Get the orders for the customer.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

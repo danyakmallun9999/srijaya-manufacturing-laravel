@@ -27,6 +27,15 @@ class CustomerController extends Controller
     }
 
     /**
+     * Menampilkan detail customer.
+     */
+    public function show(Customer $customer)
+    {
+        $customer->load('orders');
+        return view('customers.show', compact('customer'));
+    }
+
+    /**
      * Menyimpan customer baru ke database.
      */
     public function store(Request $request)

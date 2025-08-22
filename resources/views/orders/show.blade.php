@@ -1,416 +1,854 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detail Order: <span class="font-mono">{{ $order->order_number }}</span>
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Detail Order
+                </h2>
+                <p class="text-sm text-gray-600 mt-1">{{ $order->order_number }}</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="px-3 py-1 rounded-full text-sm font-medium
+                    @if($order->status === 'Selesai')
+                        bg-emerald-100 text-emerald-800
+                    @elseif($order->status === 'Dalam Produksi')
+                        bg-blue-100 text-blue-800
+                    @elseif($order->status === 'Pending')
+                        bg-amber-100 text-amber-800
+                    @else
+                        bg-gray-100 text-gray-800
+                    @endif">
+                    {{ $order->status }}
+                </span>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: 'info' }">
 
             @if (session('success'))
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-                    <p>{{ session('success') }}</p>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6" role="alert">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-emerald-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-emerald-800 font-medium">{{ session('success') }}</p>
+                    </div>
                 </div>
             @endif
 
-            <div class="mb-4 border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <a href="#" @click.prevent="tab = 'info'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'info', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'info' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Info Order</a>
-                    <a href="#" @click.prevent="tab = 'pembelian'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'pembelian', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'pembelian' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Pembelian</a>
-                    <a href="#" @click.prevent="tab = 'biaya'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'biaya', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'biaya' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Biaya Produksi</a>
-                    <a href="#" @click.prevent="tab = 'pemasukan'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'pemasukan', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'pemasukan' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Pemasukan</a>
-                    <a href="#" @click.prevent="tab = 'invoice'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'invoice', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'invoice' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Invoice</a>
-                    <a href="#" @click.prevent="tab = 'ringkasan'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'ringkasan', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'ringkasan' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Ringkasan</a>
+            <!-- Progress Bar Status Order -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Progress Status Order</h3>
+                    @php
+                        $stepNumber = 1;
+                        if ($order->status === 'Menunggu Produksi') $stepNumber = 2;
+                        elseif ($order->status === 'Dalam Produksi') $stepNumber = 3;
+                        elseif ($order->status === 'Selesai') $stepNumber = 4;
+                        elseif ($order->status === 'Lunas') $stepNumber = 5;
+                    @endphp
+                    <span class="text-sm text-gray-500">Step {{ $stepNumber }} dari 5</span>
+                </div>
+                
+                <div class="relative">
+                    <div class="flex items-center justify-between mb-2">
+                        @php
+                            $statuses = ['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Lunas'];
+                            $currentIndex = array_search($order->status, $statuses);
+                            $currentIndex = $currentIndex !== false ? $currentIndex : 0;
+                        @endphp
+                        
+                        @foreach($statuses as $index => $status)
+                            @php
+                                $circleClass = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium';
+                                if ($index <= $currentIndex) {
+                                    if ($index == $currentIndex) {
+                                        $circleClass .= ' bg-blue-600 text-white ring-4 ring-blue-100';
+                                    } else {
+                                        $circleClass .= ' bg-emerald-500 text-white';
+                                    }
+                                } else {
+                                    $circleClass .= ' bg-gray-200 text-gray-400';
+                                }
+                            @endphp
+                            <div class="flex flex-col items-center">
+                                <div class="{{ $circleClass }}">
+                                    @if($index < $currentIndex)
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    @else
+                                        {{ $index + 1 }}
+                                    @endif
+                                </div>
+                                <span class="text-xs text-gray-600 mt-2 text-center max-w-20">{{ $status }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    <!-- Progress Line -->
+                    <div class="absolute top-5 left-5 right-5 h-0.5 bg-gray-200 -z-10">
+                        <div class="h-full bg-emerald-500 transition-all duration-500 ease-in-out" 
+                             style="width: {{ ($currentIndex / (count($statuses) - 1)) * 100 }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+                <nav class="flex space-x-1 p-2" aria-label="Tabs">
+                    <button @click="tab = 'info'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'info', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'info' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Info Order</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'pembelian'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pembelian', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pembelian' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span>Pembelian</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'biaya'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'biaya', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'biaya' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            <span>Biaya Produksi</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'pemasukan'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pemasukan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pemasukan' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            <span>Pemasukan</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'invoice'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'invoice', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'invoice' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span>Invoice</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'ringkasan'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'ringkasan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'ringkasan' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span>Ringkasan</span>
+                        </div>
+                    </button>
                 </nav>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <div x-show="tab === 'info'">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Utama</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <p><strong>Customer:</strong> {{ $order->customer->name ?? 'N/A' }}</p>
-                            <p><strong>Produk:</strong> {{ $order->product_name }}</p>
-                            <p><strong>Spesifikasi:</strong> {{ $order->product_specification ?: '-' }}</p>
-                            <p><strong>Jumlah:</strong> {{ $order->quantity }} pcs</p>
+            <!-- Tab Content -->
+            <div x-show="tab === 'info'" class="space-y-6">
+                <!-- Info Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Customer & Product Info -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Informasi Customer & Produk</h3>
                         </div>
-                        <div>
-                            <p><strong>Tanggal Order:</strong>
-                                {{ \Carbon\Carbon::parse($order->order_date)->format('d M Y') }}</p>
-                            <p><strong>Deadline:</strong>
-                                {{ $order->deadline ? \Carbon\Carbon::parse($order->deadline)->format('d M Y') : '-' }}
-                            </p>
-                            <p><strong>Status Saat Ini:</strong> <span
-                                    class="font-semibold text-indigo-600">{{ $order->status }}</span></p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Customer</span>
+                                <span class="text-sm text-gray-900 font-medium">{{ $order->customer->name ?? 'N/A' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Produk</span>
+                                <span class="text-sm text-gray-900 font-medium">{{ $order->product_name }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Spesifikasi</span>
+                                <span class="text-sm text-gray-900">{{ $order->product_specification ?: '-' }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-sm font-medium text-gray-600">Jumlah</span>
+                                <span class="text-sm text-gray-900 font-medium">{{ $order->quantity }} pcs</span>
+                            </div>
                         </div>
                     </div>
-                    <hr class="my-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Update Status Order</h3>
-                            <form action="{{ route('orders.updateStatus', $order) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <div class="flex items-center space-x-4">
-                                    <select name="status"
-                                        class="block w-full md:w-1/3 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                        @foreach (['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Dikirim', 'Lunas', 'Closed'] as $status)
-                                            <option value="{{ $status }}"
-                                                {{ $order->status == $status ? 'selected' : '' }}>{{ $status }}</option>
-                                        @endforeach
-                                    </select>
-                                    <x-primary-button>Update</x-primary-button>
-                                </div>
-                            </form>
+
+                    <!-- Order Details -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Detail Order</h3>
                         </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Update Harga Jual</h3>
-                            <form action="{{ route('orders.updatePrice', $order) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-1">
-                                        <x-input-label value="Harga per Unit" />
-                                        <x-text-input type="number" name="total_price" 
-                                            value="{{ $order->total_price }}" 
-                                            class="block mt-1 w-full" step="100" />
-                                    </div>
-                                    <x-primary-button>Update</x-primary-button>
-                                </div>
-                            </form>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Tanggal Order</span>
+                                <span class="text-sm text-gray-900 font-medium">{{ \Carbon\Carbon::parse($order->order_date)->format('d M Y') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Deadline</span>
+                                <span class="text-sm text-gray-900 font-medium">
+                                    {{ $order->deadline ? \Carbon\Carbon::parse($order->deadline)->format('d M Y') : '-' }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-sm font-medium text-gray-600">Status</span>
+                                @php
+                                    $statusClass = 'px-3 py-1 rounded-full text-sm font-medium';
+                                    if ($order->status === 'Selesai') {
+                                        $statusClass .= ' bg-emerald-100 text-emerald-800';
+                                    } elseif ($order->status === 'Dalam Produksi') {
+                                        $statusClass .= ' bg-blue-100 text-blue-800';
+                                    } elseif ($order->status === 'Pending') {
+                                        $statusClass .= ' bg-amber-100 text-amber-800';
+                                    } else {
+                                        $statusClass .= ' bg-gray-100 text-gray-800';
+                                    }
+                                @endphp
+                                <span class="{{ $statusClass }}">
+                                    {{ $order->status }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div x-show="tab === 'pembelian'">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Pembelian Material</h3>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Material</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Supplier</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jumlah</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Harga</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Total</th>
-                                        <th class="px-4 py-2"></th>
+                <!-- Action Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Update Status -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Update Status Order</h3>
+                        </div>
+                        
+                        <form action="{{ route('orders.updateStatus', $order) }}" method="POST" class="space-y-4">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
+                                <select name="status" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    @foreach (['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Dikirim', 'Lunas', 'Closed'] as $status)
+                                        <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
+                                            {{ $status }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                Update Status
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Update Price -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Update Harga Jual</h3>
+                        </div>
+                        
+                        <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                    <input type="number" name="total_price" value="{{ $order->total_price }}" 
+                                           class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                           step="100" placeholder="0">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-600 text-white px-4 py-2 rounded-xl hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors">
+                                Update Harga
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="tab === 'pembelian'" class="space-y-6">
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Pembelian Material</h3>
+                        </div>
+                        @if ($order->purchases->count() > 0)
+                            <div class="bg-blue-50 px-4 py-2 rounded-xl">
+                                <p class="text-sm font-semibold text-blue-900">
+                                    Total: Rp {{ number_format($order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}),0,',','.') }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @if($order->purchases->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Material</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Supplier</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Jumlah</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Harga</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse ($order->purchases as $purchase)
-                                        <tr>
-                                            <td class="px-4 py-2">{{ $purchase->material_name }}</td>
-                                            <td class="px-4 py-2">{{ $purchase->supplier }}</td>
-                                            <td class="px-4 py-2">{{ $purchase->quantity }}</td>
-                                            <td class="px-4 py-2">Rp
-                                                {{ number_format($purchase->price, 0, ',', '.') }}</td>
-                                            <td class="px-4 py-2">Rp
-                                                {{ number_format($purchase->quantity * $purchase->price, 0, ',', '.') }}
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($order->purchases as $purchase)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $purchase->material_name }}</div>
                                             </td>
-                                            <td class="px-4 py-2 text-right">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">{{ $purchase->supplier }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-900">{{ $purchase->quantity }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-900">Rp {{ number_format($purchase->price, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">Rp {{ number_format($purchase->quantity * $purchase->price, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
                                                 <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pembelian material ini?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Hapus</button>
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                                        Hapus
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="px-4 py-2 text-center text-gray-500">Belum ada data pembelian.</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
-                            @if ($order->purchases->count() > 0)
-                                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <p class="text-lg font-semibold">
-                                        Total Pembelian: Rp
-                                        {{ number_format($order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}),0,',','.') }}
-                                    </p>
-                                </div>
-                            @endif
                         </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Pembelian</h3>
-                            <form action="{{ route('purchases.store', $order) }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <x-input-label value="Nama Material" />
-                                    <x-text-input name="material_name" class="block mt-1 w-full" required />
-                                </div>
-                                <div>
-                                    <x-input-label value="Supplier" />
-                                    <x-text-input type="text" name="supplier" class="block mt-1 w-full"
-                                        required />
-                                </div>
-                                <div>
-                                    <x-input-label value="Jumlah" />
-                                    <x-text-input type="number" name="quantity" class="block mt-1 w-full"
-                                        step="0.01" required />
-                                </div>
-                                <div>
-                                    <x-input-label value="Harga per Unit" />
-                                    <x-text-input type="number" name="price" class="block mt-1 w-full"
-                                        step="100" required />
-                                </div>
-                                <div><x-primary-button>Tambah</x-primary-button></div>
-                            </form>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-lg font-medium">Belum ada data pembelian</p>
+                            <p class="text-gray-400 text-sm mt-1">Tambahkan pembelian material pertama untuk order ini</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
-                <div x-show="tab === 'biaya'">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Biaya Produksi</h3>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jenis Biaya</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Deskripsi</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jumlah</th>
+                <!-- Add Purchase Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Tambah Pembelian Material</h3>
+                    </div>
+                    
+                    <form action="{{ route('purchases.store', $order) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
+                            <input type="text" name="material_name" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+                            <input type="text" name="supplier" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                            <input type="number" name="quantity" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" step="0.01" required />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                <input type="number" name="price" class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" step="100" required />
+                            </div>
+                        </div>
+                        <div class="md:col-span-2 lg:col-span-4">
+                            <button type="submit" class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                Tambah Pembelian
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div x-show="tab === 'biaya'" class="space-y-6">
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Biaya Produksi</h3>
+                        </div>
+                        @if ($order->productionCosts->count() > 0)
+                            <div class="bg-purple-50 px-4 py-2 rounded-xl">
+                                <p class="text-sm font-semibold text-purple-900">
+                                    Total: Rp {{ number_format($order->productionCosts->sum('amount'), 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @if($order->productionCosts->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis Biaya</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Deskripsi</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Jumlah</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse ($order->productionCosts as $cost)
-                                        <tr>
-                                            <td class="px-4 py-2">{{ $cost->type }}</td>
-                                            <td class="px-4 py-2">{{ $cost->description ?: '-' }}</td>
-                                            <td class="px-4 py-2">Rp {{ number_format($cost->amount, 0, ',', '.') }}
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($order->productionCosts as $cost)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $cost->type }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">{{ $cost->description ?: '-' }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">Rp {{ number_format($cost->amount, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <form action="{{ route('costs.destroy', $cost) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus biaya produksi ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="px-4 py-2 text-center text-gray-500">Belum ada
-                                                data biaya produksi.</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
-                            @if ($order->productionCosts->count() > 0)
-                                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <p class="text-lg font-semibold">
-                                        Total Biaya Produksi: Rp
-                                        {{ number_format($order->productionCosts->sum('amount'), 0, ',', '.') }}
-                                    </p>
-                                </div>
-                            @endif
                         </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Biaya Produksi</h3>
-                            <form action="{{ route('costs.store', $order) }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <x-input-label value="Jenis Biaya" />
-                                    <select name="type"
-                                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        required>
-                                        <option value="">-- Pilih --</option>
-                                        <option value="Tenaga Kerja">Tenaga Kerja</option>
-                                        <option value="Overhead">Overhead</option>
-                                        <option value="Transportasi">Transportasi</option>
-                                        <option value="Lainnya">Lainnya</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <x-input-label value="Deskripsi" />
-                                    <x-text-input type="text" name="description" class="block mt-1 w-full" />
-                                </div>
-                                <div>
-                                    <x-input-label value="Jumlah" />
-                                    <x-text-input type="number" name="amount" class="block mt-1 w-full"
-                                        step="100" required />
-                                </div>
-                                <div><x-primary-button>Tambah</x-primary-button></div>
-                            </form>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-lg font-medium">Belum ada data biaya produksi</p>
+                            <p class="text-gray-400 text-sm mt-1">Tambahkan biaya produksi pertama untuk order ini</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
-                <div x-show="tab === 'pemasukan'">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Pemasukan</h3>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jenis Pemasukan</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Tanggal</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jumlah</th>
+                <!-- Add Production Cost Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Tambah Biaya Produksi</h3>
+                    </div>
+                    
+                    <form action="{{ route('costs.store', $order) }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Biaya</label>
+                            <select name="type" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+                                <option value="">-- Pilih --</option>
+                                <option value="Tenaga Kerja">Tenaga Kerja</option>
+                                <option value="Overhead">Overhead</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                            <input type="text" name="description" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Deskripsi biaya (opsional)" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                <input type="number" name="amount" class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" step="100" required />
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <button type="submit" class="w-full bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors font-medium">
+                                Tambah Biaya Produksi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div x-show="tab === 'pemasukan'" class="space-y-6">
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Pemasukan</h3>
+                        </div>
+                        @if ($order->incomes->count() > 0)
+                            <div class="bg-emerald-50 px-4 py-2 rounded-xl">
+                                <p class="text-sm font-semibold text-emerald-900">
+                                    Total: Rp {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @if($order->incomes->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Jenis Pemasukan</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tanggal</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Jumlah</th>
+                                        <th class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse ($order->incomes as $income)
-                                        <tr>
-                                            <td class="px-4 py-2">{{ $income->type }}</td>
-                                            <td class="px-4 py-2">
-                                                {{ \Carbon\Carbon::parse($income->date)->format('d M Y') }}</td>
-                                            <td class="px-4 py-2">Rp {{ number_format($income->amount, 0, ',', '.') }}
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($order->incomes as $income)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $income->type }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">{{ \Carbon\Carbon::parse($income->date)->format('d M Y') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-emerald-900">Rp {{ number_format($income->amount, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <form action="{{ route('incomes.destroy', $income) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pemasukan ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                                        Hapus
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="3" class="px-4 py-2 text-center text-gray-500">Belum ada
-                                                data pemasukan.</td>
-                                        </tr>
-                                    @endforelse
+                                    @endforeach
                                 </tbody>
                             </table>
-                            @if ($order->incomes->count() > 0)
-                                <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <p class="text-lg font-semibold">
-                                        Total Pemasukan: Rp
-                                        {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}
-                                    </p>
-                                </div>
-                            @endif
                         </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Pemasukan</h3>
-                            <form action="{{ route('incomes.store', $order) }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <x-input-label value="Jenis Pemasukan" />
-                                    <select name="type"
-                                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        required>
-                                        <option value="">-- Pilih --</option>
-                                        <option value="DP">DP</option>
-                                        <option value="Cicilan">Cicilan</option>
-                                        <option value="Lunas">Lunas</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <x-input-label value="Tanggal" />
-                                    <x-text-input type="date" name="date" class="block mt-1 w-full" required />
-                                </div>
-                                <div>
-                                    <x-input-label value="Jumlah" />
-                                    <x-text-input type="number" name="amount" class="block mt-1 w-full"
-                                        step="100" required />
-                                </div>
-                                <div>
-                                    <p class="mb-2 text-sm text-gray-600">Sisa pembayaran: <span class="font-semibold text-red-600">Rp {{ number_format(($order->total_price ?? 0) * ($order->quantity ?? 1) - $order->incomes->sum('amount'), 0, ',', '.') }}</span></p>
-                                </div>
-                                <div><x-primary-button>Tambah</x-primary-button></div>
-                            </form>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-lg font-medium">Belum ada data pemasukan</p>
+                            <p class="text-gray-400 text-sm mt-1">Tambahkan pemasukan pertama untuk order ini</p>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
-                <div x-show="tab === 'invoice'">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Invoice</h3>
-                            @if($order->invoices->count() > 0)
-                                <div class="space-y-4">
-                                    @foreach($order->invoices as $invoice)
-                                        <div class="border rounded-lg p-4 bg-gray-50">
-                                            <div class="flex justify-between items-start">
-                                                <div>
-                                                    <h4 class="font-semibold text-lg">{{ $invoice->invoice_number }}</h4>
-                                                    <p class="text-sm text-gray-600">
-                                                        Tanggal: {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y') }}
-                                                    </p>
-                                                    <p class="text-sm text-gray-600">
-                                                        Jatuh Tempo: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}
-                                                    </p>
-                                                    <p class="text-lg font-bold text-green-600">
-                                                        Total: Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
-                                                    </p>
-                                                </div>
-                                                <div class="text-right">
-                                                    <span class="px-3 py-1 rounded-full text-sm font-medium
-                                                        @if($invoice->status === 'Paid') bg-green-100 text-green-800
-                                                        @elseif($invoice->status === 'Overdue') bg-red-100 text-red-800
-                                                        @elseif($invoice->status === 'Sent') bg-blue-100 text-blue-800
-                                                        @else bg-gray-100 text-gray-800 @endif">
-                                                        {{ $invoice->status }}
-                                                    </span>
-                                                    <div class="mt-2 space-x-2">
-                                                        <a href="{{ route('invoices.show', $invoice) }}" 
-                                                           class="text-blue-600 hover:text-blue-800 text-sm">Detail</a>
-                                                        @if($invoice->status !== 'Paid')
-                                                            <a href="{{ route('invoices.download', $invoice) }}" 
-                                                               class="text-green-600 hover:text-green-800 text-sm">Download</a>
-                                                        @endif
-                                                    </div>
-                                                </div>
+                <!-- Add Income Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Tambah Pemasukan</h3>
+                    </div>
+                    
+                    <form action="{{ route('incomes.store', $order) }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pemasukan</label>
+                            <select name="type" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
+                                <option value="">-- Pilih --</option>
+                                <option value="DP">DP</option>
+                                <option value="Cicilan">Cicilan</option>
+                                <option value="Lunas">Lunas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
+                            <input type="date" name="date" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                <input type="number" name="amount" class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" step="100" required />
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Summary -->
+                        <div class="md:col-span-3">
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Harga Jual:</span>
+                                        <span class="font-medium text-gray-900">Rp {{ number_format(($order->total_price ?? 0) * ($order->quantity ?? 1), 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total Pemasukan:</span>
+                                        <span class="font-medium text-emerald-600">Rp {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Sisa Pembayaran:</span>
+                                        @php
+                                            $sisaBayarClass = 'font-medium';
+                                            $sisaBayarAmount = ($order->total_price ?? 0) * ($order->quantity ?? 1) - $order->incomes->sum('amount');
+                                            if ($sisaBayarAmount <= 0) {
+                                                $sisaBayarClass .= ' text-emerald-600';
+                                            } else {
+                                                $sisaBayarClass .= ' text-red-600';
+                                            }
+                                        @endphp
+                                        <span class="{{ $sisaBayarClass }}">
+                                            Rp {{ number_format($sisaBayarAmount, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="md:col-span-3">
+                            <button type="submit" class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                Tambah Pemasukan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div x-show="tab === 'invoice'" class="space-y-6">
+                <!-- Invoice List Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Invoice</h3>
+                        </div>
+                    </div>
+                    
+                    @if($order->invoices->count() > 0)
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            @foreach($order->invoices as $invoice)
+                                <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-semibold text-lg text-gray-900">{{ $invoice->invoice_number }}</h4>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                                                <span>Tanggal: {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y') }}</span>
+                                                <span>Jatuh Tempo: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</span>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="text-center py-8">
-                                    <p class="text-gray-500 mb-4">Belum ada invoice untuk order ini.</p>
-                                    @if($order->total_price && $order->status === 'Selesai')
-                                        <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
-                                            @csrf
-                                            <x-primary-button>Generate Invoice</x-primary-button>
-                                        </form>
-                                    @else
-                                        <p class="text-sm text-gray-400">
-                                            Invoice dapat dibuat setelah order selesai dan harga jual ditentukan.
+                                        @php
+                                            $invoiceStatusClass = 'px-3 py-1 rounded-full text-sm font-medium';
+                                            if ($invoice->status === 'Paid') {
+                                                $invoiceStatusClass .= ' bg-emerald-100 text-emerald-800';
+                                            } elseif ($invoice->status === 'Overdue') {
+                                                $invoiceStatusClass .= ' bg-red-100 text-red-800';
+                                            } elseif ($invoice->status === 'Sent') {
+                                                $invoiceStatusClass .= ' bg-blue-100 text-blue-800';
+                                            } else {
+                                                $invoiceStatusClass .= ' bg-gray-100 text-gray-800';
+                                            }
+                                        @endphp
+                                        <span class="{{ $invoiceStatusClass }}">
+                                            {{ $invoice->status }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <p class="text-2xl font-bold text-emerald-600">
+                                            Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
                                         </p>
-                                    @endif
+                                    </div>
+                                    
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('invoices.show', $invoice) }}" 
+                                           class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
+                                            Detail
+                                        </a>
+                                        @if($invoice->status !== 'Paid')
+                                            <a href="{{ route('invoices.download', $invoice) }}" 
+                                               class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
+                                                Download
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
-                            @endif
+                            @endforeach
                         </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Invoice</h3>
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <h4 class="font-semibold text-blue-900 mb-2">Cara Kerja Invoice:</h4>
-                                <ul class="text-sm text-blue-800 space-y-1">
-                                    <li>• Invoice dibuat otomatis setelah order selesai</li>
-                                    <li>• Nomor invoice: INV-YYYYMMDD-XXXX</li>
-                                    <li>• Jatuh tempo default: 30 hari</li>
-                                    <li>• Status: Draft → Sent → Paid</li>
-                                    <li>• Invoice dapat didownload sebagai PDF</li>
-                                </ul>
+                    @else
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
                             </div>
-                            @if($order->total_price)
-                                <div class="mt-4 bg-green-50 p-4 rounded-lg">
-                                    <h4 class="font-semibold text-green-900 mb-2">Harga Jual:</h4>
-                                    <p class="text-2xl font-bold text-green-800">
-                                        Rp {{ number_format($order->total_price, 0, ',', '.') }}
-                                    </p>
-                                    <p class="text-sm text-green-700">
-                                        Total: Rp {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}
+                            <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
+                            @if($order->total_price && $order->status === 'Selesai')
+                                <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
+                                        Generate Invoice
+                                    </button>
+                                </form>
+                            @else
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-md mx-auto">
+                                    <p class="text-sm text-amber-800">
+                                        Invoice dapat dibuat setelah order selesai dan harga jual ditentukan.
                                     </p>
                                 </div>
                             @endif
                         </div>
-                    </div>
+                    @endif
                 </div>
 
-                <div x-show="tab === 'ringkasan'">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Ringkasan Keuangan & HPP</h3>
+                <!-- Invoice Info Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Informasi Invoice</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 p-4 rounded-xl">
+                            <h4 class="font-semibold text-blue-900 mb-3">Cara Kerja Invoice:</h4>
+                            <ul class="text-sm text-blue-800 space-y-2">
+                                <li class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    Invoice dibuat otomatis setelah order selesai
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    Nomor invoice: INV-YYYYMMDD-XXXX
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    Jatuh tempo default: 30 hari
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    Status: Draft → Sent → Paid
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    Invoice dapat didownload sebagai PDF
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        @if($order->total_price)
+                            <div class="bg-emerald-50 p-4 rounded-xl">
+                                <h4 class="font-semibold text-emerald-900 mb-3">Harga Jual:</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-emerald-700">Harga per Unit:</span>
+                                        <span class="text-lg font-bold text-emerald-800">
+                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-emerald-700">Quantity:</span>
+                                        <span class="font-medium text-emerald-800">{{ $order->quantity }} pcs</span>
+                                    </div>
+                                    <hr class="border-emerald-200">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-semibold text-emerald-700">Total:</span>
+                                        <span class="text-xl font-bold text-emerald-800">
+                                            Rp {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-gray-50 p-4 rounded-xl">
+                                <h4 class="font-semibold text-gray-700 mb-2">Harga Jual Belum Ditentukan</h4>
+                                <p class="text-sm text-gray-600">
+                                    Silakan update harga jual di tab Info Order terlebih dahulu sebelum membuat invoice.
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="tab === 'ringkasan'" class="space-y-6">
+                <!-- Financial Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @php
                         $totalPembelian = $order->purchases->sum(function ($purchase) {
                             return $purchase->quantity * $purchase->price;
@@ -422,65 +860,167 @@
                         $totalMargin = $totalHargaJual - $totalHPP;
                         $sisaBayar = $totalHargaJual - $totalPemasukan;
                     @endphp
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-blue-600">Total Pembelian Material</h4>
-                            <p class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalPembelian,0,',','.') }}</p>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-blue-800">Total Pembelian Material</h4>
                         </div>
-                        <div class="bg-red-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-red-600">Total Biaya Produksi Lain</h4>
-                            <p class="text-2xl font-bold text-red-900">Rp {{ number_format($totalBiayaProduksi,0,',','.') }}</p>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-yellow-600">HPP (Total)</h4>
-                            <p class="text-2xl font-bold text-yellow-900">Rp {{ number_format($totalHPP,0,',','.') }}</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-green-600">Total Harga Jual</h4>
-                            <p class="text-2xl font-bold text-green-900">Rp {{ number_format($totalHargaJual,0,',','.') }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-600">Total Pemasukan</h4>
-                            <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPemasukan,0,',','.') }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-600">Sisa Pembayaran</h4>
-                            <p class="text-2xl font-bold {{ $sisaBayar <= 0 ? 'text-green-600' : 'text-red-600' }}">Rp {{ number_format($sisaBayar,0,',','.') }}</p>
-                        </div>
+                        <p class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalPembelian,0,',','.') }}</p>
                     </div>
-                    <div class="bg-white border rounded-lg p-6 mt-4">
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">Analisis Margin, Laba/Rugi & Status</h4>
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span>Total Margin (Laba Kotor):</span>
-                                <span class="font-semibold">Rp {{ number_format($totalMargin,0,',','.') }}</span>
+                    
+                    <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 border border-red-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
                             </div>
-                            <div class="flex justify-between">
-                                <span>Laba/Rugi (Profit/Loss):</span>
-                                <span class="font-bold {{ $totalMargin > 0 ? 'text-green-600' : ($totalMargin < 0 ? 'text-red-600' : 'text-gray-600') }}">
-                                    Rp {{ number_format($totalMargin,0,',','.') }}
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span>Status Order:</span>
-                                @if($totalMargin > 0)
-                                    <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">UNTUNG</span>
-                                @elseif($totalMargin < 0)
-                                    <span class="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-semibold">RUGI</span>
-                                @else
-                                    <span class="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-semibold">IMPAS</span>
-                                @endif
-                            </div>
+                            <h4 class="text-sm font-semibold text-red-800">Total Biaya Produksi</h4>
                         </div>
-                        <hr class="my-4">
-                        <div class="text-sm text-gray-500">
-                            <p><b>HPP (Harga Pokok Produksi)</b> = Total Pembelian Material + Total Biaya Produksi Lain</p>
-                            <p><b>Total Margin</b> = Total Harga Jual - HPP (Total)</p>
-                            <p><b>Laba/Rugi</b> = Total Margin (positif = untung, negatif = rugi, nol = impas)</p>
+                        <p class="text-2xl font-bold text-red-900">Rp {{ number_format($totalBiayaProduksi,0,',','.') }}</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 border border-amber-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-amber-800">HPP (Total)</h4>
                         </div>
+                        <p class="text-2xl font-bold text-amber-900">Rp {{ number_format($totalHPP,0,',','.') }}</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl p-6 border border-emerald-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-emerald-800">Total Harga Jual</h4>
+                        </div>
+                        <p class="text-2xl font-bold text-emerald-900">Rp {{ number_format($totalHargaJual,0,',','.') }}</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-gray-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-gray-800">Total Pemasukan</h4>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPemasukan,0,',','.') }}</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-semibold text-indigo-800">Sisa Pembayaran</h4>
+                        </div>
+                        @php
+                            $sisaBayarClass = 'text-2xl font-bold';
+                            if ($sisaBayar <= 0) {
+                                $sisaBayarClass .= ' text-emerald-600';
+                            } else {
+                                $sisaBayarClass .= ' text-red-600';
+                            }
+                        @endphp
+                        <p class="{{ $sisaBayarClass }}">Rp {{ number_format($sisaBayar,0,',','.') }}</p>
                     </div>
                 </div>
 
+                <!-- Analysis Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Analisis Margin, Laba/Rugi & Status</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-gray-700 font-medium">Total Margin (Laba Kotor):</span>
+                                <span class="text-lg font-semibold text-gray-900">Rp {{ number_format($totalMargin,0,',','.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                                <span class="text-gray-700 font-medium">Laba/Rugi (Profit/Loss):</span>
+                                @php
+                                    $profitLossClass = 'text-lg font-bold';
+                                    if ($totalMargin > 0) {
+                                        $profitLossClass .= ' text-emerald-600';
+                                    } elseif ($totalMargin < 0) {
+                                        $profitLossClass .= ' text-red-600';
+                                    } else {
+                                        $profitLossClass .= ' text-gray-600';
+                                    }
+                                @endphp
+                                <span class="{{ $profitLossClass }}">
+                                    Rp {{ number_format($totalMargin,0,',','.') }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="text-gray-700 font-medium">Status Order:</span>
+                                @if($totalMargin > 0)
+                                    <span class="inline-flex items-center px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold">
+                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        UNTUNG
+                                    </span>
+                                @elseif($totalMargin < 0)
+                                    <span class="inline-flex items-center px-4 py-2 rounded-full bg-red-100 text-red-800 text-sm font-semibold">
+                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        RUGI
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-4 py-2 rounded-full bg-gray-100 text-gray-800 text-sm font-semibold">
+                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        IMPAS
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <h4 class="font-semibold text-gray-900 mb-3">Penjelasan Istilah:</h4>
+                            <div class="space-y-2 text-sm text-gray-700">
+                                <div class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    <span><b>HPP (Harga Pokok Produksi)</b> = Total Pembelian Material + Total Biaya Produksi Lain</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    <span><b>Total Margin</b> = Total Harga Jual - HPP (Total)</span>
+                                </div>
+                                <div class="flex items-start">
+                                    <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                    <span><b>Laba/Rugi</b> = Total Margin (positif = untung, negatif = rugi, nol = impas)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
