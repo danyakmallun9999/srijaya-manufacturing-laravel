@@ -33,6 +33,11 @@ class IncomeController extends Controller
         $totalIncomesBaru = $order->incomes()->sum('amount');
         if ($totalIncomesBaru >= $totalOrder && $totalOrder > 0) {
             $order->update(['status' => 'Lunas']);
+            // Tandai invoice (jika ada) sebagai Paid
+            $latestInvoice = $order->latestInvoice;
+            if ($latestInvoice) {
+                $latestInvoice->update(['status' => 'Paid']);
+            }
         }
 
         return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.');

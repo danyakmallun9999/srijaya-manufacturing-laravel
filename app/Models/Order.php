@@ -9,6 +9,35 @@ class Order extends Model
 {
     use HasFactory;
 
+    public const STATUSES = [
+        'Draft',
+        'Menunggu Produksi',
+        'Dalam Produksi',
+        'Selesai',
+        'Dikirim',
+        'Lunas',
+        'Closed',
+    ];
+
+    public const PROGRESS_STATUSES = [
+        'Draft',
+        'Menunggu Produksi',
+        'Dalam Produksi',
+        'Selesai',
+        'Dikirim',
+        'Lunas',
+    ];
+
+    public const STATUS_BADGE_CLASSES = [
+        'Draft' => 'bg-gray-100 text-gray-800',
+        'Menunggu Produksi' => 'bg-amber-100 text-amber-800',
+        'Dalam Produksi' => 'bg-blue-100 text-blue-800',
+        'Selesai' => 'bg-emerald-100 text-emerald-800',
+        'Dikirim' => 'bg-indigo-100 text-indigo-800',
+        'Lunas' => 'bg-emerald-100 text-emerald-800',
+        'Closed' => 'bg-gray-200 text-gray-700',
+    ];
+
     protected $fillable = [
         'order_number',
         'customer_id',
@@ -68,5 +97,34 @@ class Order extends Model
     public function latestInvoice()
     {
         return $this->hasOne(Invoice::class)->latestOfMany();
+    }
+
+    /**
+     * Map status to progress index (0-based). Falls back to 0 for unknown statuses.
+     */
+    public static function getProgressIndex(string $status): int
+    {
+        $index = array_search($status, self::PROGRESS_STATUSES, true);
+        return $index !== false ? (int) $index : 0;
+    }
+
+    /**
+     * Whether invoice generation is allowed for this order.
+     * Default policy: allowed when price is set and status is Selesai or Dikirim.
+     */
+    public function isInvoiceAllowed(): bool
+    {
+        if (!$this->total_price) {
+            return false;
+        }
+        return in_array($this->status, ['Selesai', 'Dikirim'], true);
+    }
+
+    /**
+     * Get CSS badge classes for current status.
+     */
+    public function getStatusBadgeClass(): string
+    {
+        return self::STATUS_BADGE_CLASSES[$this->status] ?? 'bg-gray-100 text-gray-800';
     }
 }

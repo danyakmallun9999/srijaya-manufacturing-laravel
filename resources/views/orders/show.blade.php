@@ -9,14 +9,7 @@
             </div>
             <div class="flex items-center space-x-3">
                 <span
-                    class="px-3 py-1 rounded-full text-sm font-medium
-                    @if ($order->status === 'Selesai') bg-emerald-100 text-emerald-800
-                    @elseif($order->status === 'Dalam Produksi')
-                        bg-blue-100 text-blue-800
-                    @elseif($order->status === 'Pending')
-                        bg-amber-100 text-amber-800
-                    @else
-                        bg-gray-100 text-gray-800 @endif">
+                    class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
                     {{ $order->status }}
                 </span>
             </div>
@@ -60,10 +53,9 @@
 
                 <div class="relative px-4">
                     @php
-                        $statuses = ['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Lunas'];
-                        $statusLabels = ['Draft', 'Menunggu', 'Produksi', 'Selesai', 'Lunas']; // Shorter labels
-                        $currentIndex = array_search($order->status, $statuses);
-                        $currentIndex = $currentIndex !== false ? $currentIndex : 0;
+                        $statuses = \App\Models\Order::PROGRESS_STATUSES;
+                        $statusLabels = ['Draft', 'Menunggu', 'Produksi', 'Selesai', 'Dikirim', 'Lunas'];
+                        $currentIndex = \App\Models\Order::getProgressIndex($order->status);
                     @endphp
 
                     <!-- Progress Line Background -->
@@ -269,19 +261,7 @@
                             </div>
                             <div class="flex justify-between items-center py-3">
                                 <span class="text-sm font-medium text-gray-600">Status</span>
-                                @php
-                                    $statusClass = 'px-3 py-1 rounded-full text-sm font-medium';
-                                    if ($order->status === 'Selesai') {
-                                        $statusClass .= ' bg-emerald-100 text-emerald-800';
-                                    } elseif ($order->status === 'Dalam Produksi') {
-                                        $statusClass .= ' bg-blue-100 text-blue-800';
-                                    } elseif ($order->status === 'Pending') {
-                                        $statusClass .= ' bg-amber-100 text-amber-800';
-                                    } else {
-                                        $statusClass .= ' bg-gray-100 text-gray-800';
-                                    }
-                                @endphp
-                                <span class="{{ $statusClass }}">
+                                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
                                     {{ $order->status }}
                                 </span>
                             </div>
@@ -312,7 +292,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
                                 <select name="status"
                                     class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                    @foreach (['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Dikirim', 'Lunas', 'Closed'] as $status)
+                                    @foreach (\App\Models\Order::STATUSES as $status)
                                         <option value="{{ $status }}"
                                             {{ $order->status == $status ? 'selected' : '' }}>
                                             {{ $status }}
@@ -929,7 +909,7 @@
                                 </svg>
                             </div>
                             <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
-                            @if ($order->total_price && $order->status === 'Selesai')
+                            @if ($order->isInvoiceAllowed())
                                 <form action="{{ route('invoices.generate', $order) }}" method="POST"
                                     class="inline">
                                     @csrf
