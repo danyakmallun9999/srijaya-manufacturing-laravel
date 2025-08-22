@@ -2,9 +2,9 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Detail Order
-                </h2>
+        </h2>
                 <p class="text-sm text-gray-600 mt-1">{{ $order->order_number }}</p>
             </div>
             <div class="flex items-center space-x-3">
@@ -216,7 +216,7 @@
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
                                 <span class="text-sm font-medium text-gray-600">Deadline</span>
                                 <span class="text-sm text-gray-900 font-medium">
-                                    {{ $order->deadline ? \Carbon\Carbon::parse($order->deadline)->format('d M Y') : '-' }}
+                                {{ $order->deadline ? \Carbon\Carbon::parse($order->deadline)->format('d M Y') : '-' }}
                                 </span>
                             </div>
                             <div class="flex justify-between items-center py-3">
@@ -255,22 +255,22 @@
                         </div>
                         
                         <form action="{{ route('orders.updateStatus', $order) }}" method="POST" class="space-y-4">
-                            @csrf
-                            @method('PATCH')
+                                @csrf
+                                @method('PATCH')
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
                                 <select name="status" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                                    @foreach (['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Dikirim', 'Lunas', 'Closed'] as $status)
+                                        @foreach (['Draft', 'Menunggu Produksi', 'Dalam Produksi', 'Selesai', 'Dikirim', 'Lunas', 'Closed'] as $status)
                                         <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
                                             {{ $status }}
                                         </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                                        @endforeach
+                                    </select>
+                                </div>
                             <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                                 Update Status
                             </button>
-                        </form>
+                            </form>
                     </div>
 
                     <!-- Update Price -->
@@ -285,8 +285,8 @@
                         </div>
                         
                         <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4">
-                            @csrf
-                            @method('PATCH')
+                                @csrf
+                                @method('PATCH')
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
                                 <div class="relative">
@@ -299,7 +299,7 @@
                             <button type="submit" class="w-full bg-amber-600 text-white px-4 py-2 rounded-xl hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors">
                                 Update Harga
                             </button>
-                        </form>
+                            </form>
                     </div>
                 </div>
             </div>
@@ -323,8 +323,8 @@
                                 </p>
                             </div>
                         @endif
-                    </div>
-                    
+                </div>
+
                     @if($order->purchases->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
@@ -379,8 +379,8 @@
                             </div>
                             <p class="text-gray-500 text-lg font-medium">Belum ada data pembelian</p>
                             <p class="text-gray-400 text-sm mt-1">Tambahkan pembelian material pertama untuk order ini</p>
-                        </div>
-                    @endif
+                                </div>
+                            @endif
                 </div>
 
                 <!-- Add Purchase Form Card -->
@@ -399,16 +399,16 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
                             <input type="text" name="material_name" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
                             <input type="text" name="supplier" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
                             <input type="number" name="quantity" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" step="0.01" required />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
@@ -419,8 +419,8 @@
                             <button type="submit" class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
                                 Tambah Pembelian
                             </button>
-                        </div>
-                    </form>
+                                </div>
+                            </form>
                 </div>
             </div>
 
@@ -443,8 +443,8 @@
                                 </p>
                             </div>
                         @endif
-                    </div>
-                    
+                </div>
+
                     @if($order->productionCosts->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
@@ -491,8 +491,8 @@
                             </div>
                             <p class="text-gray-500 text-lg font-medium">Belum ada data biaya produksi</p>
                             <p class="text-gray-400 text-sm mt-1">Tambahkan biaya produksi pertama untuk order ini</p>
-                        </div>
-                    @endif
+                                </div>
+                            @endif
                 </div>
 
                 <!-- Add Production Cost Form Card -->
@@ -511,18 +511,18 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Biaya</label>
                             <select name="type" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
-                                <option value="">-- Pilih --</option>
-                                <option value="Tenaga Kerja">Tenaga Kerja</option>
-                                <option value="Overhead">Overhead</option>
-                                <option value="Transportasi">Transportasi</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
-                        </div>
-                        <div>
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Tenaga Kerja">Tenaga Kerja</option>
+                                        <option value="Overhead">Overhead</option>
+                                        <option value="Transportasi">Transportasi</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                             <input type="text" name="description" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Deskripsi biaya (opsional)" />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
@@ -533,8 +533,8 @@
                             <button type="submit" class="w-full bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors font-medium">
                                 Tambah Biaya Produksi
                             </button>
-                        </div>
-                    </form>
+                                </div>
+                            </form>
                 </div>
             </div>
 
@@ -557,8 +557,8 @@
                                 </p>
                             </div>
                         @endif
-                    </div>
-                    
+                </div>
+
                     @if($order->incomes->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full">
@@ -605,8 +605,8 @@
                             </div>
                             <p class="text-gray-500 text-lg font-medium">Belum ada data pemasukan</p>
                             <p class="text-gray-400 text-sm mt-1">Tambahkan pemasukan pertama untuk order ini</p>
-                        </div>
-                    @endif
+                                </div>
+                            @endif
                 </div>
 
                 <!-- Add Income Form Card -->
@@ -625,17 +625,17 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pemasukan</label>
                             <select name="type" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>
-                                <option value="">-- Pilih --</option>
-                                <option value="DP">DP</option>
-                                <option value="Cicilan">Cicilan</option>
-                                <option value="Lunas">Lunas</option>
-                            </select>
-                        </div>
-                        <div>
+                                        <option value="">-- Pilih --</option>
+                                        <option value="DP">DP</option>
+                                        <option value="Cicilan">Cicilan</option>
+                                        <option value="Lunas">Lunas</option>
+                                    </select>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
                             <input type="date" name="date" class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
-                        </div>
-                        <div>
+                                </div>
+                                <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
@@ -678,8 +678,8 @@
                             <button type="submit" class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
                                 Tambah Pemasukan
                             </button>
-                        </div>
-                    </form>
+                                </div>
+                            </form>
                 </div>
             </div>
 
@@ -694,21 +694,21 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg font-semibold text-gray-900">Daftar Invoice</h3>
-                        </div>
                     </div>
-                    
-                    @if($order->invoices->count() > 0)
+                </div>
+
+                            @if($order->invoices->count() > 0)
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            @foreach($order->invoices as $invoice)
+                                    @foreach($order->invoices as $invoice)
                                 <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                                     <div class="flex justify-between items-start mb-3">
-                                        <div>
+                                                <div>
                                             <h4 class="font-semibold text-lg text-gray-900">{{ $invoice->invoice_number }}</h4>
                                             <div class="flex items-center space-x-4 text-sm text-gray-600 mt-1">
                                                 <span>Tanggal: {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y') }}</span>
                                                 <span>Jatuh Tempo: {{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</span>
                                             </div>
-                                        </div>
+                                                </div>
                                         @php
                                             $invoiceStatusClass = 'px-3 py-1 rounded-full text-sm font-medium';
                                             if ($invoice->status === 'Paid') {
@@ -722,8 +722,8 @@
                                             }
                                         @endphp
                                         <span class="{{ $invoiceStatusClass }}">
-                                            {{ $invoice->status }}
-                                        </span>
+                                                        {{ $invoice->status }}
+                                                    </span>
                                     </div>
                                     
                                     <div class="mb-4">
@@ -733,21 +733,21 @@
                                     </div>
                                     
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('invoices.show', $invoice) }}" 
+                                                        <a href="{{ route('invoices.show', $invoice) }}" 
                                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
                                             Detail
                                         </a>
-                                        @if($invoice->status !== 'Paid')
-                                            <a href="{{ route('invoices.download', $invoice) }}" 
+                                                        @if($invoice->status !== 'Paid')
+                                                            <a href="{{ route('invoices.download', $invoice) }}" 
                                                class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
                                                 Download
                                             </a>
-                                        @endif
-                                    </div>
+                                                        @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
+                            @else
                         <div class="text-center py-12">
                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -755,18 +755,18 @@
                                 </svg>
                             </div>
                             <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
-                            @if($order->total_price && $order->status === 'Selesai')
-                                <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
-                                    @csrf
+                                    @if($order->total_price && $order->status === 'Selesai')
+                                        <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
+                                            @csrf
                                     <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
                                         Generate Invoice
                                     </button>
-                                </form>
-                            @else
+                                        </form>
+                                    @else
                                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-md mx-auto">
                                     <p class="text-sm text-amber-800">
-                                        Invoice dapat dibuat setelah order selesai dan harga jual ditentukan.
-                                    </p>
+                                            Invoice dapat dibuat setelah order selesai dan harga jual ditentukan.
+                                        </p>
                                 </div>
                             @endif
                         </div>
@@ -808,17 +808,17 @@
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                                     Invoice dapat didownload sebagai PDF
                                 </li>
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
                         
-                        @if($order->total_price)
+                            @if($order->total_price)
                             <div class="bg-emerald-50 p-4 rounded-xl">
                                 <h4 class="font-semibold text-emerald-900 mb-3">Harga Jual:</h4>
                                 <div class="space-y-2">
                                     <div class="flex justify-between">
                                         <span class="text-sm text-emerald-700">Harga per Unit:</span>
                                         <span class="text-lg font-bold text-emerald-800">
-                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}
+                                        Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                         </span>
                                     </div>
                                     <div class="flex justify-between">
@@ -840,11 +840,11 @@
                                 <p class="text-sm text-gray-600">
                                     Silakan update harga jual di tab Info Order terlebih dahulu sebelum membuat invoice.
                                 </p>
-                            </div>
-                        @endif
+                                </div>
+                            @endif
+                    </div>
                     </div>
                 </div>
-            </div>
 
             <div x-show="tab === 'ringkasan'" class="space-y-6">
                 <!-- Financial Summary Cards -->
@@ -870,7 +870,7 @@
                             </div>
                             <h4 class="text-sm font-semibold text-blue-800">Total Pembelian Material</h4>
                         </div>
-                        <p class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalPembelian,0,',','.') }}</p>
+                            <p class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalPembelian,0,',','.') }}</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 border border-red-200">
@@ -882,7 +882,7 @@
                             </div>
                             <h4 class="text-sm font-semibold text-red-800">Total Biaya Produksi</h4>
                         </div>
-                        <p class="text-2xl font-bold text-red-900">Rp {{ number_format($totalBiayaProduksi,0,',','.') }}</p>
+                            <p class="text-2xl font-bold text-red-900">Rp {{ number_format($totalBiayaProduksi,0,',','.') }}</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-6 border border-amber-200">
@@ -918,7 +918,7 @@
                             </div>
                             <h4 class="text-sm font-semibold text-gray-800">Total Pemasukan</h4>
                         </div>
-                        <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPemasukan,0,',','.') }}</p>
+                            <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPemasukan,0,',','.') }}</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200">
@@ -939,6 +939,18 @@
                             }
                         @endphp
                         <p class="{{ $sisaBayarClass }}">Rp {{ number_format($sisaBayar,0,',','.') }}</p>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-3">Breakdown HPP</h3>
+                        <canvas id="hppBreakdownChart" height="120"></canvas>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-3">Pemasukan per Tanggal</h3>
+                        <canvas id="incomeTrendChart" height="120"></canvas>
                     </div>
                 </div>
 
@@ -1022,6 +1034,57 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    // HPP breakdown doughnut
+                    const hppCtx = document.getElementById('hppBreakdownChart');
+                    if (hppCtx && window.Chart) {
+                        const data = {
+                            labels: ['Pembelian Material', 'Biaya Produksi Lain'],
+                            datasets: [{
+                                data: [{{ (float) $totalPembelian }}, {{ (float) $totalBiayaProduksi }}],
+                                backgroundColor: ['#60a5fa', '#fca5a5'],
+                                borderWidth: 0,
+                            }]
+                        };
+                        new Chart(hppCtx, { type: 'doughnut', data, options: { plugins: { legend: { position: 'bottom' } } } });
+                    }
+
+                    // Income trend line (per tanggal input)
+                    const incomeCtx = document.getElementById('incomeTrendChart');
+                    if (incomeCtx && window.Chart) {
+                        const incomeMap = @json(
+                            $order->incomes
+                                ->sortBy('date')
+                                ->groupBy(function($i){ return \Carbon\Carbon::parse($i->date)->format('Y-m-d'); })
+                                ->map->sum('amount')
+                        );
+                        const labels = Object.keys(incomeMap);
+                        const values = Object.values(incomeMap);
+                        new Chart(incomeCtx, {
+                            type: 'line',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: 'Pemasukan',
+                                    data: values,
+                                    borderColor: '#10b981',
+                                    backgroundColor: 'rgba(16,185,129,0.15)',
+                                    borderWidth: 2,
+                                    tension: 0.3,
+                                    fill: true,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: { y: { beginAtZero: true } },
+                                plugins: { legend: { display: false } }
+                            }
+                        });
+                    }
+                });
+            </script>
         </div>
     </div>
 </x-app-layout>

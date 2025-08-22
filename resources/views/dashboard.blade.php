@@ -4,35 +4,28 @@
             <h2 class="text-2xl font-bold text-gray-900 leading-tight">
                 Dashboard
             </h2>
-            <div class="mt-2 sm:mt-0 text-sm text-gray-500">
-                {{ now()->format('l, d F Y') }}
-            </div>
+            <form method="GET" class="mt-3 sm:mt-0 flex items-center gap-2">
+                <select name="period" class="border-gray-300 rounded-lg text-sm">
+                    <option value="1m" {{ ($period ?? '3m') === '1m' ? 'selected' : '' }}>1 Bulan</option>
+                    <option value="3m" {{ ($period ?? '3m') === '3m' ? 'selected' : '' }}>Quartal (3 Bulan)</option>
+                    <option value="6m" {{ ($period ?? '3m') === '6m' ? 'selected' : '' }}>6 Bulan</option>
+                    <option value="1y" {{ ($period ?? '3m') === '1y' ? 'selected' : '' }}>1 Tahun</option>
+                </select>
+                <select name="mode" class="border-gray-300 rounded-lg text-sm">
+                    <option value="aggregate" {{ ($mode ?? 'aggregate') === 'aggregate' ? 'selected' : '' }}>Agregat</option>
+                    <option value="per_production" {{ ($mode ?? 'aggregate') === 'per_production' ? 'selected' : '' }}>Per-Produksi (Rata-rata per Order)</option>
+                </select>
+                <button class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">Terapkan</button>
+            </form>
+        </div>
+        <div class="mt-2 text-xs text-gray-500">
+            Periode: {{ isset($startDate) ? $startDate->format('d M Y') : '-' }} s/d {{ isset($endDate) ? $endDate->format('d M Y') : '-' }}
+            @if(($stats['is_per_production'] ?? false)) · Mode: Per-Produksi @else · Mode: Agregat @endif
         </div>
     </x-slot>
 
     <div class="py-6 sm:py-8 lg:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Welcome Section -->
-            <div class="mb-8">
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 class="text-xl sm:text-2xl font-bold mb-2">Selamat Datang Kembali!</h1>
-                            <p class="text-blue-100 text-sm sm:text-base">Berikut adalah ringkasan bisnis Anda hari ini.
-                            </p>
-                        </div>
-                        <div class="mt-4 sm:mt-0">
-                            <svg class="h-12 w-12 sm:h-16 sm:w-16 text-white opacity-80" fill="currentColor"
-                                viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h12a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                 <!-- Total Orders Card -->
@@ -75,7 +68,9 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-gray-500 mb-1">Total Pemasukan</p>
+                                <p class="text-sm font-medium text-gray-500 mb-1">
+                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Pemasukan Order' : 'Total Pemasukan' }}
+                                </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
                                     {{ number_format($stats['total_revenue'] ?? 0, 0, ',', '.') }}</p>
                             </div>
@@ -99,7 +94,9 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-gray-500 mb-1">Total Pengeluaran</p>
+                                <p class="text-sm font-medium text-gray-500 mb-1">
+                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Pengeluaran Order' : 'Total Pengeluaran' }}
+                                </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
                                     {{ number_format($stats['total_expenses'] ?? 0, 0, ',', '.') }}</p>
                             </div>
@@ -123,9 +120,11 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-sm font-medium text-gray-500 mb-1">Profit</p>
+                                <p class="text-sm font-medium text-gray-500 mb-1">
+                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Profit per Order' : 'Total Profit' }}
+                                </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
-                                    {{ number_format(($stats['total_revenue'] ?? 0) - ($stats['total_expenses'] ?? 0), 0, ',', '.') }}
+                                    {{ number_format((($stats['total_revenue'] ?? 0) - ($stats['total_expenses'] ?? 0)), 0, ',', '.') }}
                                 </p>
                             </div>
                         </div>
@@ -133,84 +132,17 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <a href="{{ route('orders.index') }}"
-                        class="group flex items-center p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-200 border border-blue-200 hover:border-blue-300">
-                        <div class="flex-shrink-0">
-                            <div
-                                class="p-3 bg-blue-600 rounded-xl group-hover:bg-blue-700 transition-colors duration-200">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-semibold text-blue-900 group-hover:text-blue-800">Kelola Order</h4>
-                            <p class="text-sm text-blue-700">Lihat dan kelola semua pesanan</p>
-                        </div>
-                        <div class="ml-auto">
-                            <svg class="h-5 w-5 text-blue-600 group-hover:translate-x-1 transition-transform duration-200"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('customers.index') }}"
-                        class="group flex items-center p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-200 border border-green-200 hover:border-green-300">
-                        <div class="flex-shrink-0">
-                            <div
-                                class="p-3 bg-green-600 rounded-xl group-hover:bg-green-700 transition-colors duration-200">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-semibold text-green-900 group-hover:text-green-800">Kelola Customer</h4>
-                            <p class="text-sm text-green-700">Lihat dan kelola data pelanggan</p>
-                        </div>
-                        <div class="ml-auto">
-                            <svg class="h-5 w-5 text-green-600 group-hover:translate-x-1 transition-transform duration-200"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                    </a>
-
-                    <a href="{{ route('reports.index') }}"
-                        class="group flex items-center p-6 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl hover:from-purple-100 hover:to-purple-200 transition-all duration-200 border border-purple-200 hover:border-purple-300">
-                        <div class="flex-shrink-0">
-                            <div
-                                class="p-3 bg-purple-600 rounded-xl group-hover:bg-purple-700 transition-colors duration-200">
-                                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-semibold text-purple-900 group-hover:text-purple-800">Laporan</h4>
-                            <p class="text-sm text-purple-700">Lihat laporan dan analisis bisnis</p>
-                        </div>
-                        <div class="ml-auto">
-                            <svg class="h-5 w-5 text-purple-600 group-hover:translate-x-1 transition-transform duration-200"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </div>
-                    </a>
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:col-span-2">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">
+                        {{ ($charts['is_per_production'] ?? false) ? 'Rata-rata Pemasukan vs Pengeluaran per Order' : 'Pemasukan vs Pengeluaran (Total)' }}
+                    </h3>
+                    <canvas id="financeTrendChart" height="110"></canvas>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Jumlah Order</h3>
+                    <canvas id="ordersTrendChart" height="110"></canvas>
                 </div>
             </div>
 
@@ -366,4 +298,79 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const labels = @json(($charts['labels'] ?? []));
+            const revenue = @json(($charts['revenue'] ?? []));
+            const expenses = @json(($charts['expenses'] ?? []));
+            const orders = @json(($charts['orders'] ?? []));
+
+            const financeCtx = document.getElementById('financeTrendChart');
+            if (financeCtx && window.Chart) {
+                new Chart(financeCtx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: '{{ ($charts['is_per_production'] ?? false) ? 'Pemasukan / Order' : 'Pemasukan' }}',
+                                data: revenue,
+                                borderColor: '#22c55e',
+                                backgroundColor: 'rgba(34,197,94,0.15)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true,
+                            },
+                            {
+                                label: '{{ ($charts['is_per_production'] ?? false) ? 'Pengeluaran / Order' : 'Pengeluaran' }}',
+                                data: expenses,
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239,68,68,0.15)',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: true,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { display: true }
+                        }
+                    }
+                });
+            }
+
+            const ordersCtx = document.getElementById('ordersTrendChart');
+            if (ordersCtx && window.Chart) {
+                new Chart(ordersCtx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Order',
+                            data: orders,
+                            backgroundColor: 'rgba(59,130,246,0.3)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 </x-app-layout>
