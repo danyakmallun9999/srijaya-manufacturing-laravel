@@ -37,24 +37,16 @@
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-semibold text-gray-900">Progress Status Order</h3>
                     @php
-                        $stepNumber = 1;
-                        if ($order->status === 'Menunggu Produksi') {
-                            $stepNumber = 2;
-                        } elseif ($order->status === 'Dalam Produksi') {
-                            $stepNumber = 3;
-                        } elseif ($order->status === 'Selesai') {
-                            $stepNumber = 4;
-                        } elseif ($order->status === 'Lunas') {
-                            $stepNumber = 5;
-                        }
+                        $stepNumber = \App\Models\Order::getProgressIndex($order->status) + 1;
+                        $totalSteps = count(\App\Models\Order::PROGRESS_STATUSES);
                     @endphp
-                    <span class="text-sm text-gray-500">Step {{ $stepNumber }} dari 5</span>
+                    <span class="text-sm text-gray-500">Step {{ $stepNumber }} dari {{ $totalSteps }}</span>
                 </div>
 
                 <div class="relative px-4">
                     @php
                         $statuses = \App\Models\Order::PROGRESS_STATUSES;
-                        $statusLabels = ['Draft', 'Menunggu', 'Produksi', 'Selesai', 'Dikirim', 'Lunas'];
+                        $statusLabels = ['Draft', 'Menunggu', 'Produksi', 'Selesai', 'Dikirim', 'Closed'];
                         $currentIndex = \App\Models\Order::getProgressIndex($order->status);
                     @endphp
 
@@ -67,26 +59,27 @@
                     </div>
 
                     <!-- Steps Container using CSS Grid for perfect alignment -->
-                    <div class="grid grid-cols-5 gap-4 relative z-10">
+                    <div class="grid grid-cols-6 gap-2 relative z-10">
                         @foreach ($statuses as $index => $status)
                             @php
                                 $circleClass =
-                                    'w-10 h-10 mx-auto rounded-full flex items-center justify-center text-sm font-medium border-2';
+                                    'w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-semibold border-2';
                                 if ($index <= $currentIndex) {
                                     if ($index == $currentIndex) {
-                                        $circleClass .= ' bg-blue-600 text-white border-blue-600 ring-4 ring-blue-100';
+                                        $circleClass .= ' bg-blue-600 text-white border-blue-600 ring-2 ring-blue-100';
                                     } else {
                                         $circleClass .= ' bg-emerald-500 text-white border-emerald-500';
                                     }
                                 } else {
                                     $circleClass .= ' bg-white text-gray-400 border-gray-300';
                                 }
+                                $label = $statusLabels[$index] ?? $status;
                             @endphp
 
                             <div class="flex flex-col items-center">
                                 <div class="{{ $circleClass }}">
                                     @if ($index < $currentIndex)
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd"
                                                 d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                                                 clip-rule="evenodd"></path>
@@ -96,14 +89,8 @@
                                     @endif
                                 </div>
 
-                                <!-- Using shorter labels with tooltip for full text -->
-                                <div class="text-center mt-2">
-                                    <span
-                                        class="text-xs text-gray-600 font-medium block">{{ $statusLabels[$index] }}</span>
-                                    @if ($statusLabels[$index] !== $status)
-                                        <span
-                                            class="text-xs text-gray-400 block leading-tight">{{ str_replace($statusLabels[$index], '', $status) }}</span>
-                                    @endif
+                                <div class="text-center mt-1 w-full">
+                                    <span class="text-[10px] text-gray-600 font-medium block truncate" title="{{ $status }}">{{ $label }}</span>
                                 </div>
                             </div>
                         @endforeach
@@ -762,7 +749,7 @@
                                 <option value="">-- Pilih --</option>
                                 <option value="DP">DP</option>
                                 <option value="Cicilan">Cicilan</option>
-                                <option value="Closed">Closed</option>
+                                <option value="Lunas">Lunas</option>
                             </select>
                         </div>
                         <div>

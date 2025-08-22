@@ -32,7 +32,7 @@ class IncomeController extends Controller
         // Update status order ke Lunas jika pembayaran sudah lunas
         $totalIncomesBaru = $order->incomes()->sum('amount');
         if ($totalIncomesBaru >= $totalOrder && $totalOrder > 0) {
-            $order->update(['status' => 'Lunas']);
+            $order->update(['status' => 'Closed']);
             // Tandai invoice (jika ada) sebagai Paid
             $latestInvoice = $order->latestInvoice;
             if ($latestInvoice) {

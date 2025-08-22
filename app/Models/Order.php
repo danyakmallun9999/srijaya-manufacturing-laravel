@@ -15,7 +15,6 @@ class Order extends Model
         'Dalam Produksi',
         'Selesai',
         'Dikirim',
-        'Lunas',
         'Closed',
     ];
 
@@ -25,7 +24,7 @@ class Order extends Model
         'Dalam Produksi',
         'Selesai',
         'Dikirim',
-        'Lunas',
+        'Closed',
     ];
 
     public const STATUS_BADGE_CLASSES = [
@@ -34,8 +33,7 @@ class Order extends Model
         'Dalam Produksi' => 'bg-blue-100 text-blue-800',
         'Selesai' => 'bg-emerald-100 text-emerald-800',
         'Dikirim' => 'bg-indigo-100 text-indigo-800',
-        'Lunas' => 'bg-emerald-100 text-emerald-800',
-        'Closed' => 'bg-gray-200 text-gray-700',
+        'Closed' => 'bg-emerald-100 text-emerald-800',
     ];
 
     protected $fillable = [
