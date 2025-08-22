@@ -85,7 +85,7 @@ class InvoiceController extends Controller
 
         // If invoice is paid, update order status
         if ($request->status === 'Paid') {
-            $invoice->order->update(['status' => 'Lunas']);
+            $invoice->order->update(['status' => 'Closed']);
         }
 
         return redirect()->route('invoices.show', $invoice)

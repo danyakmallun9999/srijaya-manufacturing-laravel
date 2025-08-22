@@ -17,11 +17,14 @@ class IncomeController extends Controller
             'date' => 'required|date',
         ]);
 
-        $totalIncomes = $order->incomes()->sum('amount');
-        $totalOrder = ($order->total_price ?? 0) * ($order->quantity ?? 1);
-        $sisaBayar = $totalOrder - $totalIncomes;
-        if ($validated['amount'] > $sisaBayar) {
-            return redirect()->back()->withInput()->withErrors(['amount' => 'Jumlah pemasukan melebihi sisa pembayaran!']);
+        $totalIncomes = (float) $order->incomes()->sum('amount');
+        $totalOrder = (float) (($order->total_price ?? 0) * ($order->quantity ?? 1));
+
+        if ($totalOrder > 0) {
+            $sisaBayar = $totalOrder - $totalIncomes;
+            if ($validated['amount'] > $sisaBayar) {
+                return redirect()->back()->withInput()->withErrors(['amount' => 'Jumlah pemasukan melebihi sisa pembayaran!']);
+            }
         }
 
         $order->incomes()->create($validated);

@@ -782,7 +782,7 @@
                                 <option value="">-- Pilih --</option>
                                 <option value="DP">DP</option>
                                 <option value="Cicilan">Cicilan</option>
-                                <option value="Lunas">Lunas</option>
+                                <option value="Closed">Closed</option>
                             </select>
                         </div>
                         <div>
@@ -1037,6 +1037,21 @@
                         $totalPemasukan = $order->incomes->sum('amount');
                         $totalMargin = $totalHargaJual - $totalHPP;
                         $sisaBayar = $totalHargaJual - $totalPemasukan;
+
+                        // Detailed HPP breakdown
+                        $purchaseBreakdown = [];
+                        foreach ($order->purchases as $purchase) {
+                            $label = 'Material: ' . $purchase->material_name;
+                            $purchaseBreakdown[$label] = ($purchaseBreakdown[$label] ?? 0) + ($purchase->quantity * $purchase->price);
+                        }
+                        $costBreakdown = [];
+                        foreach ($order->productionCosts as $cost) {
+                            $detail = trim($cost->description ?? '') !== '' ? $cost->description : $cost->type;
+                            $label = 'Biaya: ' . $detail;
+                            $costBreakdown[$label] = ($costBreakdown[$label] ?? 0) + $cost->amount;
+                        }
+                        $hppBreakdownLabels = array_keys(array_merge($purchaseBreakdown, $costBreakdown));
+                        $hppBreakdownValues = array_values(array_merge($purchaseBreakdown, $costBreakdown));
                     @endphp
 
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
@@ -1256,14 +1271,21 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
-                    // HPP breakdown doughnut
+                    // HPP breakdown doughnut (detailed)
                     const hppCtx = document.getElementById('hppBreakdownChart');
                     if (hppCtx && window.Chart) {
+                        const labels = @json($hppBreakdownLabels ?? []);
+                        const values = @json($hppBreakdownValues ?? []);
+
+                        // Generate palette
+                        const baseColors = ['#60a5fa','#93c5fd','#3b82f6','#2563eb','#1d4ed8','#fca5a5','#f87171','#ef4444','#dc2626','#fbbf24','#f59e0b','#10b981','#34d399','#059669','#6ee7b7','#a78bfa','#8b5cf6','#6366f1','#22d3ee','#06b6d4'];
+                        const colors = values.map((_, i) => baseColors[i % baseColors.length]);
+
                         const data = {
-                            labels: ['Pembelian Material', 'Biaya Produksi Lain'],
+                            labels,
                             datasets: [{
-                                data: [{{ (float) $totalPembelian }}, {{ (float) $totalBiayaProduksi }}],
-                                backgroundColor: ['#60a5fa', '#fca5a5'],
+                                data: values,
+                                backgroundColor: colors,
                                 borderWidth: 0,
                             }]
                         };
@@ -1272,8 +1294,17 @@
                             data,
                             options: {
                                 plugins: {
-                                    legend: {
-                                        position: 'bottom'
+                                    legend: { position: 'bottom' },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: (ctx) => {
+                                                const label = ctx.label || '';
+                                                const value = ctx.parsed || 0;
+                                                const total = values.reduce((a,b)=>a+b,0) || 1;
+                                                const pct = (value/total*100).toFixed(1);
+                                                return `${label}: Rp ${value.toLocaleString('id-ID')} (${pct}%)`;
+                                            }
+                                        }
                                     }
                                 }
                             }

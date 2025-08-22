@@ -57,8 +57,7 @@
                                                     'Dalam Produksi' => 'bg-yellow-100 text-yellow-800',
                                                     'Selesai' => 'bg-green-100 text-green-800',
                                                     'Dikirim' => 'bg-indigo-100 text-indigo-800',
-                                                    'Lunas' => 'bg-teal-100 text-teal-800',
-                                                    'Closed' => 'bg-gray-100 text-gray-800',
+                                                    'Closed' => 'bg-teal-100 text-teal-800',
                                                     default => 'bg-gray-100 text-gray-800',
                                                 };
                                             @endphp
