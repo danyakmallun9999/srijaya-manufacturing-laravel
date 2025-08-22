@@ -17,7 +17,21 @@ class IncomeController extends Controller
             'date' => 'required|date',
         ]);
 
+        $totalIncomes = $order->incomes()->sum('amount');
+        $totalOrder = ($order->total_price ?? 0) * ($order->quantity ?? 1);
+        $sisaBayar = $totalOrder - $totalIncomes;
+        if ($validated['amount'] > $sisaBayar) {
+            return redirect()->back()->withInput()->withErrors(['amount' => 'Jumlah pemasukan melebihi sisa pembayaran!']);
+        }
+
         $order->incomes()->create($validated);
+
+        // Update status order ke Lunas jika pembayaran sudah lunas
+        $totalIncomesBaru = $order->incomes()->sum('amount');
+        if ($totalIncomesBaru >= $totalOrder && $totalOrder > 0) {
+            $order->update(['status' => 'Lunas']);
+        }
+
         return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.');
     }
 

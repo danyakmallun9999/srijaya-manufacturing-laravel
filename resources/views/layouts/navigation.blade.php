@@ -21,9 +21,6 @@
                     <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
                         Customer
                     </x-nav-link>
-                    <x-nav-link :href="route('materials.index')" :active="request()->routeIs('materials.*')">
-                        Material
-                    </x-nav-link>
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                         Produk
                     </x-nav-link>
@@ -90,9 +87,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')">
                 Customer
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('materials.index')" :active="request()->routeIs('materials.*')">
-                Material
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                 Produk

@@ -31,14 +31,6 @@ class Order extends Model
     }
 
     /**
-     * Get the BOM items for the order.
-     */
-    public function orderBoms()
-    {
-        return $this->hasMany(OrderBom::class);
-    }
-
-    /**
      * Get the material purchases for the order.
      */
     public function purchases()

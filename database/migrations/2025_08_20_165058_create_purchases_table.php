@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('material_id')->constrained()->onDelete('cascade');
+            // $table->foreignId('material_id')->constrained('materials');
+            $table->string('material_name');
             $table->string('supplier')->nullable();
             $table->decimal('quantity', 8, 2);
             $table->decimal('price', 15, 2); // Harga total pembelian

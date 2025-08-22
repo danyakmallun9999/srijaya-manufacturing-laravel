@@ -26,20 +26,7 @@
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
-                        {{-- <div class="mt-4">
-                            <x-input-label for="bom_master" :value="__('BOM Master (Format JSON)')" />
-                            <textarea id="bom_master" name="bom_master" rows="5"
-                                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('bom_master') }}</textarea>
-                            <x-input-error :messages="$errors->get('bom_master')" class="mt-2" />
-                            <p class="mt-2 text-sm text-gray-600">Contoh format: [{"material_id": 1, "quantity": 5},
-                                {"material_id": 3, "quantity": 2}]</p>
-                            <p class="mt-1 text-sm text-gray-600">
-                                ID Material yang tersedia:
-                                @foreach ($materials as $material)
-                                    <span class="font-semibold">{{ $material->id }}</span>={{ $material->name }};
-                                @endforeach
-                            </p>
-                        </div> --}}
+                        {{-- Hapus contoh format dan list ID Material --}}
 
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('products.index') }}"

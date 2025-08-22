@@ -11,7 +11,7 @@ class PurchaseController extends Controller
     public function store(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'material_id' => 'required|exists:materials,id',
+            'material_name' => 'required|string|max:255',
             'supplier' => 'nullable|string|max:255',
             'quantity' => 'required|numeric|min:0.01',
             'price' => 'required|numeric|min:0',

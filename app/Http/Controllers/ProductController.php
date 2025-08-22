@@ -4,7 +4,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Material; // Kita butuh ini untuk form
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -17,9 +16,8 @@ class ProductController extends Controller
 
     public function create()
     {
-        // Ambil semua material untuk ditampilkan di form
-        $materials = Material::orderBy('name')->get();
-        return view('products.create', compact('materials'));
+        // Hapus pengambilan data material
+        return view('products.create');
     }
 
     public function store(Request $request)
@@ -37,8 +35,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $materials = Material::orderBy('name')->get();
-        return view('products.edit', compact('product', 'materials'));
+        // Hapus pengambilan data material
+        return view('products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)

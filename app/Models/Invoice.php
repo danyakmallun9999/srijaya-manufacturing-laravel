@@ -38,35 +38,10 @@ class Invoice extends Model
     }
 
     /**
-     * Get the payments for this invoice.
-     */
-    public function payments()
-    {
-        return $this->hasMany(Income::class);
-    }
-
-    /**
-     * Calculate remaining amount to be paid
-     */
-    public function getRemainingAmountAttribute()
-    {
-        $paidAmount = $this->payments->sum('amount');
-        return $this->total_amount - $paidAmount;
-    }
-
-    /**
-     * Check if invoice is fully paid
-     */
-    public function isPaid()
-    {
-        return $this->remaining_amount <= 0;
-    }
-
-    /**
      * Check if invoice is overdue
      */
     public function isOverdue()
     {
-        return $this->due_date < now() && !$this->isPaid();
+        return $this->due_date < now() && $this->status !== 'Paid';
     }
 }

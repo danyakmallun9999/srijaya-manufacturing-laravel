@@ -11,7 +11,7 @@ class Purchase extends Model
 
     protected $fillable = [
         'order_id',
-        'material_id',
+        'material_name',
         'supplier',
         'quantity',
         'price',
@@ -23,13 +23,5 @@ class Purchase extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
-    }
-
-    /**
-     * Get the material that was purchased.
-     */
-    public function material()
-    {
-        return $this->belongsTo(Material::class);
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -67,7 +68,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        $invoice->load(['order.customer', 'payments']);
+        $invoice->load(['order.customer']);
         return view('invoices.show', compact('invoice'));
     }
 
@@ -96,9 +97,13 @@ class InvoiceController extends Controller
      */
     public function download(Invoice $invoice)
     {
-        // TODO: Implement PDF generation
-        return redirect()->route('invoices.show', $invoice)
-            ->with('info', 'Fitur download PDF akan segera tersedia.');
+        $invoice->load(['order.customer']);
+        
+        // Generate PDF using DomPDF
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        
+        // Return PDF for download
+        return $pdf->download($invoice->invoice_number . '.pdf');
     }
 
     /**

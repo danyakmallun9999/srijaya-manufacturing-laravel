@@ -6,9 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
-use App\Models\OrderBom;
 use App\Models\Product;
-use App\Models\Material; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -89,15 +87,12 @@ class OrderController extends Controller
         // Eager load semua relasi yang akan kita butuhkan di view
         $order->load([
             'customer', 
-            'orderBoms.material', 
-            'purchases.material', 
+            'purchases', 
             'productionCosts', 
             'incomes'
         ]);
         
-        $materials = Material::orderBy('name')->get();
-
-        return view('orders.show', compact('order', 'materials'));
+        return view('orders.show', compact('order'));
     }
     // ... (method edit & update bisa kita urus nanti)
 
@@ -112,33 +107,8 @@ class OrderController extends Controller
     }
 
     /**
-     * Menambah item baru ke BOM sebuah order.
-     */
-    public function storeBomItem(Request $request, Order $order)
-    {
-        $validated = $request->validate([
-            'material_id' => 'required|exists:materials,id',
-            'quantity' => 'required|numeric|min:0.01',
-        ]);
-
-        // Cek apakah material sudah ada di BOM, jika ya update, jika tidak buat baru
-        $order->orderBoms()->updateOrCreate(
-            ['material_id' => $validated['material_id']],
-            ['quantity' => DB::raw("quantity + {$validated['quantity']}")] // Menambahkan quantity jika sudah ada
-        );
-
-        return redirect()->route('orders.show', $order)->with('success', 'Item BOM berhasil ditambahkan.');
-    }
-
-    /**
      * Menghapus item dari BOM sebuah order.
      */
-    // public function destroyBomItem(Order $order, OrderBom $orderBom)
-    // {
-    //     $orderBom->delete();
-    //     return redirect()->route('orders.show', $order)->with('success', 'Item BOM berhasil dihapus.');
-    // }
-
     public function destroyBomItem(OrderBom $orderBom)
 {
     $order = $orderBom->order; // Ambil order dari relasi

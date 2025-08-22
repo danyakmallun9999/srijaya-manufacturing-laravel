@@ -19,9 +19,6 @@
                     <a href="#" @click.prevent="tab = 'info'"
                         :class="{ 'border-indigo-500 text-indigo-600': tab === 'info', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'info' }"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Info Order</a>
-                    <a href="#" @click.prevent="tab = 'bom'"
-                        :class="{ 'border-indigo-500 text-indigo-600': tab === 'bom', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'bom' }"
-                        class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">BOM</a>
                     <a href="#" @click.prevent="tab = 'pembelian'"
                         :class="{ 'border-indigo-500 text-indigo-600': tab === 'pembelian', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': tab !== 'pembelian' }"
                         class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Pembelian</a>
@@ -98,73 +95,6 @@
                     </div>
                 </div>
 
-                <div x-show="tab === 'bom'">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Daftar Kebutuhan Material</h3>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Material</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Jumlah</th>
-                                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                            Satuan</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse ($order->orderBoms as $item)
-                                        <tr>
-                                            <td class="px-4 py-2">{{ $item->material->name ?? 'N/A' }}</td>
-                                            <td class="px-4 py-2">{{ $item->quantity }}</td>
-                                            <td class="px-4 py-2">{{ $item->material->unit ?? 'N/A' }}</td>
-                                            <td class="px-4 py-2 text-right">
-                                                <form action="{{ route('orders.boms.destroy', $item) }}"
-                                                    method="POST">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit"
-                                                        class="text-red-600 hover:text-red-800 text-sm"
-                                                        onclick="return confirm('Yakin?')">Hapus</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="px-4 py-2 text-center text-gray-500">Belum ada
-                                                item BOM.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Item BOM</h3>
-                            <form action="{{ route('orders.boms.store', $order) }}" method="POST" class="space-y-4">
-                                @csrf
-                                <div>
-                                    <x-input-label value="Material" />
-                                    <select name="material_id"
-                                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        required>
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($materials as $material)
-                                            <option value="{{ $material->id }}">{{ $material->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div>
-                                    <x-input-label value="Jumlah" />
-                                    <x-text-input type="number" name="quantity" class="block mt-1 w-full"
-                                        step="0.01" required />
-                                </div>
-                                <div><x-primary-button>Tambah</x-primary-button></div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
                 <div x-show="tab === 'pembelian'">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="md:col-span-2">
@@ -182,12 +112,13 @@
                                             Harga</th>
                                         <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                                             Total</th>
+                                        <th class="px-4 py-2"></th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @forelse ($order->purchases as $purchase)
                                         <tr>
-                                            <td class="px-4 py-2">{{ $purchase->material->name ?? 'N/A' }}</td>
+                                            <td class="px-4 py-2">{{ $purchase->material_name }}</td>
                                             <td class="px-4 py-2">{{ $purchase->supplier }}</td>
                                             <td class="px-4 py-2">{{ $purchase->quantity }}</td>
                                             <td class="px-4 py-2">Rp
@@ -195,11 +126,17 @@
                                             <td class="px-4 py-2">Rp
                                                 {{ number_format($purchase->quantity * $purchase->price, 0, ',', '.') }}
                                             </td>
+                                            <td class="px-4 py-2 text-right">
+                                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus pembelian material ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-800 text-sm">Hapus</button>
+                                                </form>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="px-4 py-2 text-center text-gray-500">Belum ada
-                                                data pembelian.</td>
+                                            <td colspan="6" class="px-4 py-2 text-center text-gray-500">Belum ada data pembelian.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -218,15 +155,8 @@
                             <form action="{{ route('purchases.store', $order) }}" method="POST" class="space-y-4">
                                 @csrf
                                 <div>
-                                    <x-input-label value="Material" />
-                                    <select name="material_id"
-                                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                        required>
-                                        <option value="">-- Pilih --</option>
-                                        @foreach ($materials as $material)
-                                            <option value="{{ $material->id }}">{{ $material->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <x-input-label value="Nama Material" />
+                                    <x-text-input name="material_name" class="block mt-1 w-full" required />
                                 </div>
                                 <div>
                                     <x-input-label value="Supplier" />
@@ -385,6 +315,9 @@
                                     <x-text-input type="number" name="amount" class="block mt-1 w-full"
                                         step="100" required />
                                 </div>
+                                <div>
+                                    <p class="mb-2 text-sm text-gray-600">Sisa pembayaran: <span class="font-semibold text-red-600">Rp {{ number_format(($order->total_price ?? 0) * ($order->quantity ?? 1) - $order->incomes->sum('amount'), 0, ',', '.') }}</span></p>
+                                </div>
                                 <div><x-primary-button>Tambah</x-primary-button></div>
                             </form>
                         </div>
@@ -477,78 +410,73 @@
                 </div>
 
                 <div x-show="tab === 'ringkasan'">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Ringkasan Keuangan</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Ringkasan Keuangan & HPP</h3>
+                    @php
+                        $totalPembelian = $order->purchases->sum(function ($purchase) {
+                            return $purchase->quantity * $purchase->price;
+                        });
+                        $totalBiayaProduksi = $order->productionCosts->sum('amount');
+                        $totalHPP = $totalPembelian + $totalBiayaProduksi;
+                        $totalHargaJual = ($order->total_price ?? 0) * ($order->quantity ?? 1);
+                        $totalPemasukan = $order->incomes->sum('amount');
+                        $totalMargin = $totalHargaJual - $totalHPP;
+                        $sisaBayar = $totalHargaJual - $totalPemasukan;
+                    @endphp
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div class="bg-blue-50 p-4 rounded-lg">
                             <h4 class="text-sm font-medium text-blue-600">Total Pembelian Material</h4>
-                            <p class="text-2xl font-bold text-blue-900">
-                                Rp
-                                {{ number_format($order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}),0,',','.') }}
-                            </p>
+                            <p class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalPembelian,0,',','.') }}</p>
                         </div>
                         <div class="bg-red-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-red-600">Total Biaya Produksi</h4>
-                            <p class="text-2xl font-bold text-red-900">
-                                Rp {{ number_format($order->productionCosts->sum('amount'), 0, ',', '.') }}
-                            </p>
+                            <h4 class="text-sm font-medium text-red-600">Total Biaya Produksi Lain</h4>
+                            <p class="text-2xl font-bold text-red-900">Rp {{ number_format($totalBiayaProduksi,0,',','.') }}</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-yellow-600">HPP (Total)</h4>
+                            <p class="text-2xl font-bold text-yellow-900">Rp {{ number_format($totalHPP,0,',','.') }}</p>
                         </div>
                         <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-green-600">Total Pemasukan</h4>
-                            <p class="text-2xl font-bold text-green-900">
-                                Rp {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}
-                            </p>
+                            <h4 class="text-sm font-medium text-green-600">Total Harga Jual</h4>
+                            <p class="text-2xl font-bold text-green-900">Rp {{ number_format($totalHargaJual,0,',','.') }}</p>
                         </div>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-600">Harga Jual</h4>
-                            <p class="text-2xl font-bold text-gray-900">
-                                Rp {{ number_format($order->total_price ?? 0, 0, ',', '.') }}
-                            </p>
+                            <h4 class="text-sm font-medium text-gray-600">Total Pemasukan</h4>
+                            <p class="text-2xl font-bold text-gray-900">Rp {{ number_format($totalPemasukan,0,',','.') }}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-600">Sisa Pembayaran</h4>
+                            <p class="text-2xl font-bold {{ $sisaBayar <= 0 ? 'text-green-600' : 'text-red-600' }}">Rp {{ number_format($sisaBayar,0,',','.') }}</p>
                         </div>
                     </div>
-
-                    <div class="bg-white border rounded-lg p-6">
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">Perhitungan Profit</h4>
-                        @php
-                            $totalPembelian = $order->purchases->sum(function ($purchase) {
-                                return $purchase->quantity * $purchase->price;
-                            });
-                            $totalBiaya = $order->productionCosts->sum('amount');
-                            $totalPemasukan = $order->incomes->sum('amount');
-                            $hargaJual = $order->total_price ?? 0;
-                            $totalBiayaProduksi = $totalPembelian + $totalBiaya;
-                            $profit = $hargaJual - $totalBiayaProduksi;
-                            $sisaBayar = $hargaJual - $totalPemasukan;
-                        @endphp
-
+                    <div class="bg-white border rounded-lg p-6 mt-4">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Analisis Margin, Laba/Rugi & Status</h4>
                         <div class="space-y-3">
                             <div class="flex justify-between">
-                                <span>Total Biaya Produksi:</span>
-                                <span class="font-semibold">Rp
-                                    {{ number_format($totalBiayaProduksi, 0, ',', '.') }}</span>
+                                <span>Total Margin (Laba Kotor):</span>
+                                <span class="font-semibold">Rp {{ number_format($totalMargin,0,',','.') }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>Harga Jual:</span>
-                                <span class="font-semibold">Rp {{ number_format($hargaJual, 0, ',', '.') }}</span>
-                            </div>
-                            <hr>
-                            <div class="flex justify-between text-lg">
-                                <span class="font-semibold">Profit:</span>
-                                <span class="font-bold {{ $profit >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                    Rp {{ number_format($profit, 0, ',', '.') }}
+                                <span>Laba/Rugi (Profit/Loss):</span>
+                                <span class="font-bold {{ $totalMargin > 0 ? 'text-green-600' : ($totalMargin < 0 ? 'text-red-600' : 'text-gray-600') }}">
+                                    Rp {{ number_format($totalMargin,0,',','.') }}
                                 </span>
                             </div>
-                            <hr>
-                            <div class="flex justify-between">
-                                <span>Total Pemasukan:</span>
-                                <span class="font-semibold">Rp
-                                    {{ number_format($totalPemasukan, 0, ',', '.') }}</span>
+                            <div class="flex justify-between items-center">
+                                <span>Status Order:</span>
+                                @if($totalMargin > 0)
+                                    <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-semibold">UNTUNG</span>
+                                @elseif($totalMargin < 0)
+                                    <span class="inline-block px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-semibold">RUGI</span>
+                                @else
+                                    <span class="inline-block px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm font-semibold">IMPAS</span>
+                                @endif
                             </div>
-                            <div class="flex justify-between">
-                                <span>Sisa Pembayaran:</span>
-                                <span class="font-semibold {{ $sisaBayar <= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                    Rp {{ number_format($sisaBayar, 0, ',', '.') }}
-                                </span>
-                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="text-sm text-gray-500">
+                            <p><b>HPP (Harga Pokok Produksi)</b> = Total Pembelian Material + Total Biaya Produksi Lain</p>
+                            <p><b>Total Margin</b> = Total Harga Jual - HPP (Total)</p>
+                            <p><b>Laba/Rugi</b> = Total Margin (positif = untung, negatif = rugi, nol = impas)</p>
                         </div>
                     </div>
                 </div>
