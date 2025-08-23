@@ -15,6 +15,7 @@ class Purchase extends Model
         'supplier',
         'quantity',
         'price',
+        'receipt_photo',
     ];
 
     /**

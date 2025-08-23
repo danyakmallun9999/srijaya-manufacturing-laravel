@@ -8,8 +8,7 @@
                 <p class="text-sm text-gray-600 mt-1">{{ $order->order_number }}</p>
             </div>
             <div class="flex items-center space-x-3">
-                <span
-                    class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
+                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
                     {{ $order->status }}
                 </span>
             </div>
@@ -20,7 +19,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}' }">
 
             @if (session('success'))
-                <div x-data="{ show: true }" x-show="show" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 relative" role="alert">
+                <div x-data="{ show: true }" x-show="show"
+                    class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 relative" role="alert">
                     <div class="flex items-center">
                         <svg class="h-5 w-5 text-emerald-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -28,9 +28,12 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <p class="text-emerald-800 font-medium">{{ session('success') }}</p>
-                        <button @click="show = false" class="absolute top-2 right-2 text-emerald-600 hover:text-emerald-900 rounded focus:outline-none" aria-label="Close">
+                        <button @click="show = false"
+                            class="absolute top-2 right-2 text-emerald-600 hover:text-emerald-900 rounded focus:outline-none"
+                            aria-label="Close">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
@@ -47,7 +50,7 @@
                     @endphp
                     <span class="text-sm text-gray-500">Step {{ $stepNumber }} dari {{ $totalSteps }}</span>
                 </div>
-            
+
                 <div class="relative px-6">
                     @php
                         $statuses = \App\Models\Order::PROGRESS_STATUSES;
@@ -55,22 +58,23 @@
                         $currentIndex = \App\Models\Order::getProgressIndex($order->status);
                         $totalSteps = count($statuses);
                     @endphp
-            
+
                     <!-- Steps Container using CSS Grid for perfect alignment -->
                     <div class="grid grid-cols-6 gap-2 relative">
                         <!-- Progress Line Background -->
                         <div class="absolute top-4 left-4 right-4 h-0.5 bg-gray-200 z-10"></div>
-            
+
                         <!-- Active Progress Line -->
                         @php
-                            $progressPercentage = $currentIndex > 0 ? (($currentIndex) / ($totalSteps - 1)) * 100 : 0;
+                            $progressPercentage = $currentIndex > 0 ? ($currentIndex / ($totalSteps - 1)) * 100 : 0;
                         @endphp
                         <div class="absolute top-4 left-4 h-0.5 bg-emerald-500 z-10 transition-all duration-500 ease-in-out"
-                             style="width: {{ $progressPercentage }}%; max-width: calc(100% - 32px);"></div>
-            
+                            style="width: {{ $progressPercentage }}%; max-width: calc(100% - 32px);"></div>
+
                         @foreach ($statuses as $index => $status)
                             @php
-                                $circleClass = 'w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-semibold border-2 relative z-20';
+                                $circleClass =
+                                    'w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-semibold border-2 relative z-20';
                                 if ($index <= $currentIndex) {
                                     if ($index == $currentIndex) {
                                         $circleClass .= ' bg-blue-600 text-white border-blue-600 ring-2 ring-blue-100';
@@ -82,7 +86,7 @@
                                 }
                                 $label = $statusLabels[$index] ?? $status;
                             @endphp
-            
+
                             <div class="flex flex-col items-center relative">
                                 <div class="{{ $circleClass }}">
                                     @if ($index < $currentIndex)
@@ -95,14 +99,15 @@
                                         {{ $index + 1 }}
                                     @endif
                                 </div>
-            
+
                                 <div class="text-center mt-1 w-full">
-                                    <span class="text-[10px] text-gray-600 font-medium block truncate" title="{{ $status }}">{{ $label }}</span>
+                                    <span class="text-[10px] text-gray-600 font-medium block truncate"
+                                        title="{{ $status }}">{{ $label }}</span>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-            
+
                     <!-- Alternative: Full text with fixed height container -->
                     <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
@@ -177,11 +182,11 @@
                         }
                     @endphp
                     
-                    @if($progressPercentage > 0)
+                    @if ($progressPercentage > 0)
                         <div class="absolute top-5 left-5 h-0.5 bg-gradient-to-r from-emerald-500 to-blue-500 z-10 transition-all duration-700 ease-out shadow-sm"
                              style="width: {{ $progressPercentage }}%;">
                             <!-- Animated Pulse Effect -->
-                            @if($currentIndex > 0 && $currentIndex < $totalSteps - 1)
+                            @if ($currentIndex > 0 && $currentIndex < $totalSteps - 1)
                                 <div class="absolute right-0 top-0 w-2 h-0.5 bg-white opacity-75 animate-pulse"></div>
                             @endif
                         </div>
@@ -461,7 +466,8 @@
                             </div>
                             <div class="flex justify-between items-center py-3">
                                 <span class="text-sm font-medium text-gray-600">Status</span>
-                                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
+                                <span
+                                    class="px-3 py-1 rounded-full text-sm font-medium {{ $order->getStatusBadgeClass() }}">
                                     {{ $order->status }}
                                 </span>
                             </div>
@@ -521,7 +527,8 @@
                             <h3 class="text-lg font-semibold text-gray-900">Update Harga Jual</h3>
                         </div>
 
-                        <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4" onsubmit="return validatePriceForm(this)">
+                        <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4"
+                            onsubmit="return validatePriceForm(this)">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="current_tab" value="info">
@@ -531,7 +538,8 @@
                                 <div class="relative">
                                     <span
                                         class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                    <input type="text" name="total_price" id="total_price_input" value="{{ $order->total_price ? number_format($order->total_price, 0, ',', '.') : '' }}"
+                                    <input type="text" name="total_price" id="total_price_input"
+                                        value="{{ $order->total_price ? number_format($order->total_price, 0, ',', '.') : '' }}"
                                         class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                         placeholder="0" oninput="formatNumber(this)">
                                 </div>
@@ -605,7 +613,8 @@
                                                 <div class="text-sm text-gray-600">{{ $purchase->supplier }}</div>
                                             </td>
                                             <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-900">{{ number_format($purchase->quantity, 0, ',', '.') }}</div>
+                                                <div class="text-sm text-gray-900">
+                                                    {{ number_format($purchase->quantity, 0, ',', '.') }}</div>
                                             </td>
                                             <td class="py-4 px-4">
                                                 <div class="text-sm text-gray-900">Rp
@@ -665,25 +674,23 @@
                     </div>
 
                     <form action="{{ route('purchases.store', $order) }}" method="POST"
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" enctype="multipart/form-data">
                         @csrf
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
                             <input type="text" name="material_name"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                required />
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
                             <input type="text" name="supplier"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                required />
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
                             <input type="text" name="quantity"
                                 class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="0" required oninput="formatNumber(this)" />
+                                placeholder="0" oninput="formatNumber(this)" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
@@ -692,14 +699,48 @@
                                     class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
                                 <input type="text" name="price"
                                     class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    placeholder="0" required oninput="formatNumber(this)" />
+                                    placeholder="0" oninput="formatNumber(this)" />
                             </div>
                         </div>
-                        {{-- <div>
+                        {{-- <div class="md:col-span-2 lg:col-span-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
                             <input type="file" name="receipt_photo" accept="image/*"
                                 class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                         </div> --}}
+                        <!-- Untuk kode pertama dengan preview -->
+                        <div class="md:col-span-2 lg:col-span-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
+                            <div class="relative">
+                                <input type="file" name="receipt_photo" accept="image/*" class="hidden"
+                                    id="receipt_photo" onchange="previewFile(this, 'preview-1')" />
+                                <label for="receipt_photo"
+                                    class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                    id="upload-area-1">
+                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="text-gray-600">Pilih file atau drag & drop</span>
+                                </label>
+                                <!-- Preview area -->
+                                <div id="preview-1" class="mt-3 hidden">
+                                    <div class="relative inline-block">
+                                        <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-1" />
+                                        <button type="button"
+                                            onclick="clearFile('receipt_photo', 'preview-1', null, 'upload-area-1')"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1" id="preview-name-1"></p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="md:col-span-2 lg:col-span-4">
                             <button type="submit"
                                 class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
@@ -707,6 +748,200 @@
                             </button>
                         </div>
                     </form>
+
+                    <!-- Form upload foto nota saja -->
+                    <div class="mt-8">
+                        <h4 class="text-md font-semibold text-gray-900 mb-2">Upload Foto Nota Saja</h4>
+                        <form action="{{ route('purchases.uploadReceipt', $order) }}" method="POST"
+                            enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div class="relative">
+                                <input type="file" name="receipt_photo" accept="image/*" required class="hidden"
+                                    id="receipt_photo_upload" onchange="previewFile(this, 'preview-2')" />
+                                <label for="receipt_photo_upload"
+                                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                    id="upload-area-2">
+                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span class="text-gray-600 font-medium">Pilih Foto Nota</span>
+                                    <span class="text-gray-400 text-sm">atau drag & drop di sini</span>
+                                </label>
+
+                                <!-- Preview area -->
+                                <div id="preview-2" class="mt-4 hidden">
+                                    <div class="relative inline-block">
+                                        <img class="h-32 w-auto max-w-full object-cover rounded-lg border shadow-sm"
+                                            id="preview-img-2" />
+                                        <button type="button"
+                                            onclick="clearFile('receipt_photo_upload', 'preview-2', null, 'upload-area-2')"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 transition-colors shadow-md">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="mt-2">
+                                        <p class="text-sm text-gray-700 font-medium" id="preview-name-2"></p>
+                                        <p class="text-xs text-gray-500">Klik tombol merah untuk mengganti foto</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit"
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
+                                    Upload Foto Nota
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Card galeri foto nota -->
+                {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $purchase)
+                            <div class="relative group border rounded-xl overflow-hidden">
+                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota" class="object-cover w-full h-40">
+                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">{{ $purchase->material_name ?? 'Nota' }}</div>
+                                <!-- Tombol hapus foto nota (opsional) -->
+                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" class="absolute top-2 right-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="current_tab" value="pembelian">
+                                    <button type="submit" class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none" title="Hapus Foto Nota">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <div class="col-span-2 text-gray-400 text-center py-8">Belum ada foto nota diupload</div>
+                        @endforelse
+                    </div>
+                </div> --}}
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $index => $purchase)
+                            <div class="relative group border rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-200"
+                                onclick="openModal('{{ asset('storage/' . $purchase->receipt_photo) }}', '{{ $purchase->material_name ?? 'Nota' }}', '{{ $purchase->created_at->format('d M Y') }}', {{ $index }})">
+                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota"
+                                    class="object-cover w-full h-40">
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">
+                                    {{ $purchase->material_name ?? 'Nota' }}</div>
+
+                                <!-- Hover overlay with eye icon -->
+                                <div
+                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
+                                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+
+                                <!-- Delete button -->
+                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST"
+                                    class="absolute top-2 right-2" onclick="event.stopPropagation()">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="current_tab" value="pembelian">
+                                    <button type="submit"
+                                        class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none"
+                                        title="Hapus Foto Nota"
+                                        onclick="return confirm('Yakin ingin menghapus foto ini?')">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <div class="col-span-2 md:col-span-4 text-gray-400 text-center py-8">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Belum ada foto nota diupload
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div id="imageModal"
+                    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+                    <div class="relative max-w-4xl max-h-[90vh] mx-4">
+                        <!-- Close Button -->
+                        <button onclick="closeModal()"
+                            class="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <!-- Image Container -->
+                        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+                            <div class="relative">
+                                <img id="modalImage" src="" alt="Detail Foto"
+                                    class="w-full max-h-[70vh] object-contain">
+
+                                <!-- Navigation Arrows (jika ada lebih dari 1 foto) -->
+                                <button id="prevBtn" onclick="prevImage()"
+                                    class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button id="nextBtn" onclick="nextImage()"
+                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Image Details -->
+                            <div class="p-4 bg-gray-50">
+                                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 mb-2"></h3>
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span id="modalDate"></span>
+                                    <div class="flex gap-2">
+                                        <a id="downloadBtn" href="" download
+                                            class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1121,7 +1356,8 @@
                             </div>
                             <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
                             @if ($order->isInvoiceAllowed())
-                                <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
+                                <form action="{{ route('invoices.generate', $order) }}" method="POST"
+                                    class="inline">
                                     @csrf
                                     <input type="hidden" name="current_tab" value="invoice">
                                     <button type="submit"
@@ -1233,7 +1469,8 @@
                         $purchaseBreakdown = [];
                         foreach ($order->purchases as $purchase) {
                             $label = 'Material: ' . $purchase->material_name;
-                            $purchaseBreakdown[$label] = ($purchaseBreakdown[$label] ?? 0) + ($purchase->quantity * $purchase->price);
+                            $purchaseBreakdown[$label] =
+                                ($purchaseBreakdown[$label] ?? 0) + $purchase->quantity * $purchase->price;
                         }
                         $costBreakdown = [];
                         foreach ($order->productionCosts as $cost) {
@@ -1477,12 +1714,12 @@
                     console.log('Form validation called');
                     const priceInput = form.querySelector('input[name="total_price"]');
                     console.log('Price input value:', priceInput ? priceInput.value : 'No input found');
-                    
+
                     if (priceInput && priceInput.value) {
                         // Clean the formatted value before submission
                         const cleanValue = priceInput.value.replace(/[^\d]/g, '');
                         console.log('Cleaned value:', cleanValue);
-                        
+
                         if (cleanValue && parseInt(cleanValue) > 0) {
                             console.log('Validation passed, submitting form');
                             return true;
@@ -1504,7 +1741,8 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     const forms = document.querySelectorAll('form');
                     forms.forEach(form => {
-                        if (form.action.includes('/purchases') || form.action.includes('/costs') || form.action.includes('/incomes')) {
+                        if (form.action.includes('/purchases') || form.action.includes('/costs') || form.action
+                            .includes('/incomes')) {
                             const tabInput = document.createElement('input');
                             tabInput.type = 'hidden';
                             tabInput.name = 'current_tab';
@@ -1522,7 +1760,10 @@
                         const values = @json($hppBreakdownValues ?? []);
 
                         // Generate palette
-                        const baseColors = ['#60a5fa','#93c5fd','#3b82f6','#2563eb','#1d4ed8','#fca5a5','#f87171','#ef4444','#dc2626','#fbbf24','#f59e0b','#10b981','#34d399','#059669','#6ee7b7','#a78bfa','#8b5cf6','#6366f1','#22d3ee','#06b6d4'];
+                        const baseColors = ['#60a5fa', '#93c5fd', '#3b82f6', '#2563eb', '#1d4ed8', '#fca5a5', '#f87171',
+                            '#ef4444', '#dc2626', '#fbbf24', '#f59e0b', '#10b981', '#34d399', '#059669', '#6ee7b7',
+                            '#a78bfa', '#8b5cf6', '#6366f1', '#22d3ee', '#06b6d4'
+                        ];
                         const colors = values.map((_, i) => baseColors[i % baseColors.length]);
 
                         const data = {
@@ -1538,14 +1779,16 @@
                             data,
                             options: {
                                 plugins: {
-                                    legend: { position: 'bottom' },
+                                    legend: {
+                                        position: 'bottom'
+                                    },
                                     tooltip: {
                                         callbacks: {
                                             label: (ctx) => {
                                                 const label = ctx.label || '';
                                                 const value = ctx.parsed || 0;
-                                                const total = values.reduce((a,b)=>a+b,0) || 1;
-                                                const pct = (value/total*100).toFixed(1);
+                                                const total = values.reduce((a, b) => a + b, 0) || 1;
+                                                const pct = (value / total * 100).toFixed(1);
                                                 return `${label}: Rp ${value.toLocaleString('id-ID')} (${pct}%)`;
                                             }
                                         }
@@ -1592,6 +1835,154 @@
                                 }
                             }
                         });
+                    }
+                });
+            </script>
+            <script>
+                function showFileName(input, infoId) {
+                    const fileInfo = document.getElementById(infoId);
+                    const fileName = document.getElementById('file-name-' + infoId.split('-')[2]);
+                    const fileLabel = document.getElementById('file-label-' + infoId.split('-')[2]);
+
+                    if (input.files && input.files[0]) {
+                        fileName.textContent = input.files[0].name;
+                        fileLabel.textContent = 'File dipilih';
+                        fileInfo.classList.remove('hidden');
+
+                        // Change border color to green
+                        input.nextElementSibling.classList.remove('border-gray-300');
+                        input.nextElementSibling.classList.add('border-green-300', 'bg-green-50');
+                    }
+                }
+
+                function previewFile(input, previewId) {
+                    const preview = document.getElementById(previewId);
+                    const previewImg = document.getElementById('preview-img-' + previewId.split('-')[1]);
+                    const previewName = document.getElementById('preview-name-' + previewId.split('-')[1]);
+                    const uploadArea = document.getElementById('upload-area-' + previewId.split('-')[1]);
+
+                    if (input.files && input.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewName.textContent = input.files[0].name;
+                            preview.classList.remove('hidden');
+
+                            // Hide upload area
+                            uploadArea.classList.add('hidden');
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                function clearFile(inputId, infoId, labelId, uploadAreaId = null) {
+                    const input = document.getElementById(inputId);
+                    const fileInfo = document.getElementById(infoId);
+
+                    // Clear input
+                    input.value = '';
+
+                    // Hide info/preview
+                    fileInfo.classList.add('hidden');
+
+                    // Reset label if exists
+                    if (labelId) {
+                        const fileLabel = document.getElementById(labelId);
+                        fileLabel.textContent = 'Pilih file atau drag & drop';
+
+                        // Reset border color
+                        input.nextElementSibling.classList.remove('border-green-300', 'bg-green-50');
+                        input.nextElementSibling.classList.add('border-gray-300');
+                    }
+
+                    // Show upload area again if exists
+                    if (uploadAreaId) {
+                        const uploadArea = document.getElementById(uploadAreaId);
+                        uploadArea.classList.remove('hidden');
+                    }
+                }
+            </script>
+            <script>
+                let currentImageIndex = 0;
+                let images = [];
+
+                // Initialize images array from Laravel data
+                @if ($order->purchases->whereNotNull('receipt_photo')->count() > 0)
+                    images = [
+                        @foreach ($order->purchases->whereNotNull('receipt_photo') as $purchase)
+                            {
+                                src: '{{ asset('storage/' . $purchase->receipt_photo) }}',
+                                title: '{{ $purchase->material_name ?? 'Nota' }}',
+                                date: '{{ $purchase->created_at->format('d M Y') }}'
+                            },
+                        @endforeach
+                    ];
+                @endif
+
+                function openModal(imageSrc, title, date, index) {
+                    const modal = document.getElementById('imageModal');
+                    const modalImage = document.getElementById('modalImage');
+                    const modalTitle = document.getElementById('modalTitle');
+                    const modalDate = document.getElementById('modalDate');
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+
+                    currentImageIndex = index;
+
+                    modalImage.src = imageSrc;
+                    modalTitle.textContent = title;
+                    modalDate.textContent = date;
+                    downloadBtn.href = imageSrc;
+
+                    // Show/hide navigation buttons
+                    if (images.length <= 1) {
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                    } else {
+                        prevBtn.style.display = 'block';
+                        nextBtn.style.display = 'block';
+                    }
+
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeModal() {
+                    const modal = document.getElementById('imageModal');
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+
+                function nextImage() {
+                    currentImageIndex = (currentImageIndex + 1) % images.length;
+                    updateModalImage();
+                }
+
+                function prevImage() {
+                    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                    updateModalImage();
+                }
+
+                function updateModalImage() {
+                    const current = images[currentImageIndex];
+                    document.getElementById('modalImage').src = current.src;
+                    document.getElementById('modalTitle').textContent = current.title;
+                    document.getElementById('modalDate').textContent = current.date;
+                    document.getElementById('downloadBtn').href = current.src;
+                }
+
+                // Event listeners
+                document.getElementById('imageModal').addEventListener('click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    const modal = document.getElementById('imageModal');
+                    if (!modal.classList.contains('hidden')) {
+                        if (e.key === 'Escape') closeModal();
+                        else if (e.key === 'ArrowRight') nextImage();
+                        else if (e.key === 'ArrowLeft') prevImage();
                     }
                 });
             </script>

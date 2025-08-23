@@ -34,6 +34,24 @@ class PurchaseController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
+    public function uploadReceipt(Request $request, Order $order)
+    {
+        $request->validate([
+            'receipt_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $photoPath = $request->file('receipt_photo')->store('receipts', 'public');
+        $order->purchases()->create([
+            'material_name' => 'Nota',
+            'quantity' => 1,
+            'price' => 0,
+            'receipt_photo' => $photoPath,
+        ]);
+
+        $currentTab = $request->input('current_tab', 'pembelian');
+        return redirect()->route('orders.show', $order)->with('success', 'Foto nota berhasil diupload.')->with('active_tab', $currentTab);
+    }
+
     public function destroy(Purchase $purchase, Request $request)
     {
         $order = $purchase->order;

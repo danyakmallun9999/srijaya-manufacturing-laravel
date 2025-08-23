@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
     // Pembelian (Purchase)
     Route::post('/orders/{order}/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    Route::post('/orders/{order}/purchases/upload-receipt', [PurchaseController::class, 'uploadReceipt'])->name('purchases.uploadReceipt');
     // Biaya Produksi (ProductionCost)
     Route::post('/orders/{order}/costs', [ProductionCostController::class, 'store'])->name('costs.store');
     Route::delete('/costs/{productionCost}', [ProductionCostController::class, 'destroy'])->name('costs.destroy'); // Nama parameter disamakan
