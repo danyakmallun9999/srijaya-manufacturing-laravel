@@ -108,6 +108,212 @@
                 </div>
             </div>
 
+            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Progress Status Order</h3>
+                        <p class="text-sm text-gray-500 mt-1">Track your order progress in real-time</p>
+                    </div>
+                    @php
+                        $stepNumber = \App\Models\Order::getProgressIndex($order->status) + 1;
+                        $totalSteps = count(\App\Models\Order::PROGRESS_STATUSES);
+                    @endphp
+                    <div class="text-right">
+                        <span class="text-sm text-gray-500">Step {{ $stepNumber }} of {{ $totalSteps }}</span>
+                        <div class="w-16 bg-gray-200 rounded-full h-1.5 mt-1">
+                            <div class="bg-gradient-to-r from-emerald-500 to-blue-500 h-1.5 rounded-full transition-all duration-500" 
+                                 style="width: {{ ($stepNumber / $totalSteps) * 100 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="relative px-4 py-3">
+                    @php
+                        $statuses = \App\Models\Order::PROGRESS_STATUSES;
+                        $statusLabels = [
+                            'Draft' => 'Draft',
+                            'Menunggu' => 'Waiting',
+                            'Produksi' => 'Production',
+                            'Selesai' => 'Completed',
+                            'Dikirim' => 'Shipped',
+                            'Closed' => 'Closed'
+                        ];
+                        $statusIcons = [
+                            'Draft' => 'document-text',
+                            'Menunggu' => 'clock',
+                            'Produksi' => 'cog-6-tooth',
+                            'Selesai' => 'check-circle',
+                            'Dikirim' => 'truck',
+                            'Closed' => 'check-circle'
+                        ];
+                        $statusColors = [
+                            'Draft' => 'bg-gray-100 text-gray-600 border-gray-300',
+                            'Menunggu' => 'bg-amber-100 text-amber-600 border-amber-300',
+                            'Produksi' => 'bg-blue-100 text-blue-600 border-blue-300',
+                            'Selesai' => 'bg-emerald-100 text-emerald-600 border-emerald-300',
+                            'Dikirim' => 'bg-purple-100 text-purple-600 border-purple-300',
+                            'Closed' => 'bg-green-100 text-green-600 border-green-300'
+                        ];
+                        $currentIndex = \App\Models\Order::getProgressIndex($order->status);
+                        $totalSteps = count($statuses);
+                    @endphp
+            
+                    <!-- Progress Line Background - tepat di tengah lingkaran -->
+                    <div class="absolute top-5 left-5 right-5 h-0.5 bg-gray-200 z-10"></div>
+            
+                    <!-- Active Progress Line with Gradient -->
+                    @php
+                        // Hitung persentase progress yang tepat
+                        if ($currentIndex <= 0) {
+                            $progressPercentage = 0;
+                        } else {
+                            // Progress dari step pertama ke step saat ini
+                            $progressPercentage = ($currentIndex / ($totalSteps - 1)) * 100;
+                        }
+                    @endphp
+                    
+                    @if($progressPercentage > 0)
+                        <div class="absolute top-5 left-5 h-0.5 bg-gradient-to-r from-emerald-500 to-blue-500 z-10 transition-all duration-700 ease-out shadow-sm"
+                             style="width: {{ $progressPercentage }}%;">
+                            <!-- Animated Pulse Effect -->
+                            @if($currentIndex > 0 && $currentIndex < $totalSteps - 1)
+                                <div class="absolute right-0 top-0 w-2 h-0.5 bg-white opacity-75 animate-pulse"></div>
+                            @endif
+                        </div>
+                    @endif
+            
+                    <!-- Steps Container -->
+                    <div class="grid grid-cols-6 gap-2 relative z-20">
+                        @foreach ($statuses as $index => $status)
+                            @php
+                                $isCompleted = $index < $currentIndex;
+                                $isCurrent = $index == $currentIndex;
+                                $isPending = $index > $currentIndex;
+                                
+                                if ($isCompleted) {
+                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white bg-gradient-to-br from-emerald-500 to-emerald-600 border-2 border-emerald-300 shadow-md transform scale-100 transition-all duration-300';
+                                    $iconClass = 'w-5 h-5 text-white';
+                                } elseif ($isCurrent) {
+                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-300 shadow-md ring-3 ring-blue-100 transform scale-105 transition-all duration-300';
+                                    $iconClass = 'w-5 h-5 text-white animate-pulse';
+                                } else {
+                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center bg-gray-50 border-2 border-gray-200 text-gray-400 transition-all duration-300 hover:bg-gray-100';
+                                    $iconClass = 'w-4 h-4 text-gray-400';
+                                }
+                                
+                                $label = $statusLabels[$status] ?? $status;
+                                $icon = $statusIcons[$status] ?? 'question-mark-circle';
+                            @endphp
+            
+                            <div class="flex flex-col items-center group">
+                                <!-- Status Circle with Icon -->
+                                <div class="{{ $circleClass }}">
+                                    @if ($isCompleted)
+                                        <!-- Checkmark for completed steps -->
+                                        <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    @else
+                                        <!-- Heroicon for current/pending steps -->
+                                        @switch($icon)
+                                            @case('document-text')
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                                @break
+                                            @case('clock')
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                @break
+                                            @case('cog-6-tooth')
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                </svg>
+                                                @break
+                                            @case('check-circle')
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                @break
+                                            @case('truck')
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM21 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0M17 17a2 2 0 104 0"></path>
+                                                </svg>
+                                                @break
+                                            @default
+                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                        @endswitch
+                                    @endif
+                                </div>
+            
+                                <!-- Status Label with Better Typography -->
+                                <div class="text-center mt-2 w-full">
+                                    <span class="text-xs font-medium block
+                                        {{ $isCompleted ? 'text-emerald-600' : ($isCurrent ? 'text-blue-600' : 'text-gray-500') }}
+                                        group-hover:text-gray-700 transition-colors duration-200" 
+                                        title="{{ $status }}">
+                                        {{ $label }}
+                                    </span>
+                                    
+                                    @if ($isCurrent)
+                                        <div class="flex items-center justify-center mt-1">
+                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping"></div>
+                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping mx-1" style="animation-delay: 0.2s"></div>
+                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping" style="animation-delay: 0.4s"></div>
+                                        </div>
+                                    @elseif ($isCompleted)
+                                        <div class="mt-1">
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                ✓
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+            
+                    <!-- Current Status Info with Enhanced Design -->
+                    <div class="mt-6 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <div>
+                                    <p class="text-sm text-gray-600">
+                                        <span class="font-medium">Status:</span>
+                                        <span class="text-blue-600 font-semibold ml-1">{{ $order->status }}</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        Updated: {{ now()->format('M d, h:i A') }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            @if ($currentIndex < $totalSteps - 1)
+                                @php $nextStatus = $statuses[$currentIndex + 1] ?? null; @endphp
+                                @if ($nextStatus)
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500">Next</p>
+                                        <p class="text-sm font-medium text-gray-700">{{ $statusLabels[$nextStatus] ?? $nextStatus }}</p>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span class="text-sm font-medium text-green-600">Complete!</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div> --}}
+
             <!-- Navigation Tabs -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
                 <nav class="flex space-x-1 p-2" aria-label="Tabs">
@@ -394,7 +600,7 @@
                                                 <div class="text-sm text-gray-600">{{ $purchase->supplier }}</div>
                                             </td>
                                             <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-900">{{ $purchase->quantity }}</div>
+                                                <div class="text-sm text-gray-900">{{ number_format($purchase->quantity, 0, ',', '.') }}</div>
                                             </td>
                                             <td class="py-4 px-4">
                                                 <div class="text-sm text-gray-900">Rp
