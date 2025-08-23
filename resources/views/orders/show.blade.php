@@ -42,28 +42,30 @@
                     @endphp
                     <span class="text-sm text-gray-500">Step {{ $stepNumber }} dari {{ $totalSteps }}</span>
                 </div>
-
-                <div class="relative px-4">
+            
+                <div class="relative px-6">
                     @php
                         $statuses = \App\Models\Order::PROGRESS_STATUSES;
                         $statusLabels = ['Draft', 'Menunggu', 'Produksi', 'Selesai', 'Dikirim', 'Closed'];
                         $currentIndex = \App\Models\Order::getProgressIndex($order->status);
+                        $totalSteps = count($statuses);
                     @endphp
-
-                    <!-- Progress Line Background -->
-                    <div class="absolute top-5 left-9 right-9 h-0.5 bg-gray-200"></div>
-
-                    <!-- Active Progress Line -->
-                    <div class="absolute top-5 left-9 h-0.5 bg-emerald-500 transition-all duration-500 ease-in-out"
-                        style="width: {{ $currentIndex > 0 ? ($currentIndex / (count($statuses) - 1)) * 100 : 0 }}%;">
-                    </div>
-
+            
                     <!-- Steps Container using CSS Grid for perfect alignment -->
-                    <div class="grid grid-cols-6 gap-2 relative z-10">
+                    <div class="grid grid-cols-6 gap-2 relative">
+                        <!-- Progress Line Background -->
+                        <div class="absolute top-4 left-4 right-4 h-0.5 bg-gray-200 z-10"></div>
+            
+                        <!-- Active Progress Line -->
+                        @php
+                            $progressPercentage = $currentIndex > 0 ? (($currentIndex) / ($totalSteps - 1)) * 100 : 0;
+                        @endphp
+                        <div class="absolute top-4 left-4 h-0.5 bg-emerald-500 z-10 transition-all duration-500 ease-in-out"
+                             style="width: {{ $progressPercentage }}%; max-width: calc(100% - 32px);"></div>
+            
                         @foreach ($statuses as $index => $status)
                             @php
-                                $circleClass =
-                                    'w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-semibold border-2';
+                                $circleClass = 'w-8 h-8 mx-auto rounded-full flex items-center justify-center text-xs font-semibold border-2 relative z-20';
                                 if ($index <= $currentIndex) {
                                     if ($index == $currentIndex) {
                                         $circleClass .= ' bg-blue-600 text-white border-blue-600 ring-2 ring-blue-100';
@@ -75,8 +77,8 @@
                                 }
                                 $label = $statusLabels[$index] ?? $status;
                             @endphp
-
-                            <div class="flex flex-col items-center">
+            
+                            <div class="flex flex-col items-center relative">
                                 <div class="{{ $circleClass }}">
                                     @if ($index < $currentIndex)
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -88,14 +90,14 @@
                                         {{ $index + 1 }}
                                     @endif
                                 </div>
-
+            
                                 <div class="text-center mt-1 w-full">
                                     <span class="text-[10px] text-gray-600 font-medium block truncate" title="{{ $status }}">{{ $label }}</span>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-
+            
                     <!-- Alternative: Full text with fixed height container -->
                     <div class="mt-4 text-center">
                         <p class="text-sm text-gray-600">
