@@ -20,7 +20,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: 'info' }">
 
             @if (session('success'))
-                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6" role="alert">
+                <div x-data="{ show: true }" x-show="show" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 relative" role="alert">
                     <div class="flex items-center">
                         <svg class="h-5 w-5 text-emerald-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
@@ -28,6 +28,11 @@
                                 clip-rule="evenodd"></path>
                         </svg>
                         <p class="text-emerald-800 font-medium">{{ session('success') }}</p>
+                        <button @click="show = false" class="absolute top-2 right-2 text-emerald-600 hover:text-emerald-900 rounded focus:outline-none" aria-label="Close">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             @endif
