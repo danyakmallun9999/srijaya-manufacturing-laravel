@@ -308,17 +308,19 @@
                             <h3 class="text-lg font-semibold text-gray-900">Update Harga Jual</h3>
                         </div>
 
-                        <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('orders.updatePrice', $order) }}" method="POST" class="space-y-4" onsubmit="return validatePriceForm(this)">
                             @csrf
                             @method('PATCH')
+                            <input type="hidden" name="current_tab" value="info">
+                            <input type="hidden" name="timestamp" value="{{ time() }}">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
                                 <div class="relative">
                                     <span
                                         class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                    <input type="number" name="total_price" value="{{ $order->total_price }}"
+                                    <input type="text" name="total_price" id="total_price_input" value="{{ $order->total_price ? number_format($order->total_price, 0, ',', '.') : '' }}"
                                         class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                        step="100" placeholder="0">
+                                        placeholder="0" oninput="formatNumber(this)">
                                 </div>
                             </div>
                             <button type="submit"
@@ -465,20 +467,25 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
-                            <input type="number" name="quantity"
+                            <input type="text" name="quantity"
                                 class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                step="0.01" required />
+                                placeholder="0" required oninput="formatNumber(this)" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
                             <div class="relative">
                                 <span
                                     class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                <input type="number" name="price"
+                                <input type="text" name="price"
                                     class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    step="100" required />
+                                    placeholder="0" required oninput="formatNumber(this)" />
                             </div>
                         </div>
+                        {{-- <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
+                            <input type="file" name="receipt_photo" accept="image/*"
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                        </div> --}}
                         <div class="md:col-span-2 lg:col-span-4">
                             <button type="submit"
                                 class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
@@ -605,6 +612,7 @@
                                 <option value="Tenaga Kerja">Tenaga Kerja</option>
                                 <option value="Overhead">Overhead</option>
                                 <option value="Transportasi">Transportasi</option>
+                                <option value="Biaya Pengiriman">Biaya Pengiriman</option>
                                 <option value="Lainnya">Lainnya</option>
                             </select>
                         </div>
@@ -619,9 +627,9 @@
                             <div class="relative">
                                 <span
                                     class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                <input type="number" name="amount"
+                                <input type="text" name="amount"
                                     class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    step="100" required />
+                                    placeholder="0" required oninput="formatNumber(this)" />
                             </div>
                         </div>
                         <div class="md:col-span-3">
@@ -763,9 +771,9 @@
                             <div class="relative">
                                 <span
                                     class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                <input type="number" name="amount"
+                                <input type="text" name="amount"
                                     class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    step="100" required />
+                                    placeholder="0" required oninput="formatNumber(this)" />
                             </div>
                         </div>
 
@@ -1237,6 +1245,59 @@
             </div>
 
             <script>
+                // Format number input with commas
+                function formatNumber(input) {
+                    // Remove all non-digit characters
+                    let value = input.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        // Convert to number and format with commas
+                        value = parseInt(value).toLocaleString('id-ID');
+                    }
+                    input.value = value;
+                }
+
+                // Validate price form before submission
+                function validatePriceForm(form) {
+                    console.log('Form validation called');
+                    const priceInput = form.querySelector('input[name="total_price"]');
+                    console.log('Price input value:', priceInput ? priceInput.value : 'No input found');
+                    
+                    if (priceInput && priceInput.value) {
+                        // Clean the formatted value before submission
+                        const cleanValue = priceInput.value.replace(/[^\d]/g, '');
+                        console.log('Cleaned value:', cleanValue);
+                        
+                        if (cleanValue && parseInt(cleanValue) > 0) {
+                            console.log('Validation passed, submitting form');
+                            return true;
+                        } else {
+                            alert('Harga harus berupa angka yang valid dan lebih dari 0');
+                            return false;
+                        }
+                    }
+                    console.log('No price value, allowing submission');
+                    return true; // Allow empty values
+                }
+
+                // Get current tab for redirect
+                function getCurrentTab() {
+                    return document.querySelector('[x-data]').__x.$data.tab;
+                }
+
+                // Add tab parameter to forms
+                document.addEventListener('DOMContentLoaded', () => {
+                    const forms = document.querySelectorAll('form');
+                    forms.forEach(form => {
+                        if (form.action.includes('/purchases') || form.action.includes('/costs') || form.action.includes('/incomes')) {
+                            const tabInput = document.createElement('input');
+                            tabInput.type = 'hidden';
+                            tabInput.name = 'current_tab';
+                            tabInput.value = getCurrentTab();
+                            form.appendChild(tabInput);
+                        }
+                    });
+                });
+
                 document.addEventListener('DOMContentLoaded', () => {
                     // HPP breakdown doughnut (detailed)
                     const hppCtx = document.getElementById('hppBreakdownChart');

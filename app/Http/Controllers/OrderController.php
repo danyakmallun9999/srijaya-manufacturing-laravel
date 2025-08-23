@@ -125,11 +125,59 @@ class OrderController extends Controller
      */
     public function updatePrice(Request $request, Order $order)
     {
-        $request->validate([
-            'total_price' => 'nullable|numeric|min:0',
+        // Log that the method was called
+        \Log::info('UpdatePrice - Method called', [
+            'order_id' => $order->id,
+            'request_method' => $request->method(),
+            'request_url' => $request->url(),
+            'all_inputs' => $request->all()
         ]);
+        
+        try {
+            // Clean the formatted number input (remove commas and dots)
+            $totalPrice = $request->input('total_price');
+            
+            // Debug logging
+            \Log::info('UpdatePrice - Raw input:', ['total_price' => $totalPrice]);
+            
+            if ($totalPrice) {
+                // Remove commas and dots, then convert to numeric
+                $totalPrice = (float) str_replace(['.', ','], ['', ''], $totalPrice);
+                
+                // Debug logging
+                \Log::info('UpdatePrice - Cleaned value:', ['cleaned_total_price' => $totalPrice]);
+            }
 
-        $order->update(['total_price' => $request->total_price]);
-        return redirect()->route('orders.show', $order)->with('success', 'Harga jual order berhasil diupdate.');
+            // Validate the cleaned value
+            $request->merge(['total_price' => $totalPrice]);
+            $validated = $request->validate([
+                'total_price' => 'nullable|numeric|min:0',
+            ]);
+
+            // Update the order
+            $result = $order->update(['total_price' => $totalPrice]);
+            
+            // Debug logging
+            \Log::info('UpdatePrice - Order update result:', [
+                'order_id' => $order->id, 
+                'new_total_price' => $totalPrice,
+                'update_result' => $result
+            ]);
+            
+            if ($result) {
+                return redirect()->route('orders.show', $order)->with('success', 'Harga jual order berhasil diupdate.');
+            } else {
+                return redirect()->back()->with('error', 'Gagal mengupdate harga jual order.');
+            }
+            
+        } catch (\Exception $e) {
+            // Log the error
+            \Log::error('UpdatePrice - Error:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

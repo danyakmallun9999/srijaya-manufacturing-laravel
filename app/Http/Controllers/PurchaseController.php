@@ -13,12 +13,25 @@ class PurchaseController extends Controller
         $validated = $request->validate([
             'material_name' => 'required|string|max:255',
             'supplier' => 'nullable|string|max:255',
-            'quantity' => 'required|numeric|min:0.01',
-            'price' => 'required|numeric|min:0',
+            'quantity' => 'required|string',
+            'price' => 'required|string',
+            'receipt_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        // Convert formatted numbers back to integers
+        $validated['quantity'] = (float) str_replace(['.', ','], ['', ''], $validated['quantity']);
+        $validated['price'] = (int) str_replace(['.', ','], ['', ''], $validated['price']);
+
+        // Handle photo upload
+        if ($request->hasFile('receipt_photo')) {
+            $photoPath = $request->file('receipt_photo')->store('receipts', 'public');
+            $validated['receipt_photo'] = $photoPath;
+        }
+
         $order->purchases()->create($validated);
-        return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil ditambahkan.');
+        
+        $currentTab = $request->input('current_tab', 'pembelian');
+        return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
     public function destroy(Purchase $purchase)

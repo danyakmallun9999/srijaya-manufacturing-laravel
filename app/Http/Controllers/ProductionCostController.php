@@ -13,11 +13,16 @@ class ProductionCostController extends Controller
         $validated = $request->validate([
             'type' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|string',
         ]);
 
+        // Convert formatted number back to integer
+        $validated['amount'] = (int) str_replace(['.', ','], ['', ''], $validated['amount']);
+
         $order->productionCosts()->create($validated);
-        return redirect()->route('orders.show', $order)->with('success', 'Biaya produksi berhasil ditambahkan.');
+        
+        $currentTab = $request->input('current_tab', 'biaya');
+        return redirect()->route('orders.show', $order)->with('success', 'Biaya produksi berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
     // public function destroy(ProductionCost $productionCost)

@@ -11,6 +11,12 @@ class IncomeController extends Controller
 {
     public function store(Request $request, Order $order)
     {
+        // Bersihkan format ribuan pada amount
+        $amount = $request->input('amount');
+        if ($amount) {
+            $amount = str_replace('.', '', $amount);
+            $request->merge(['amount' => $amount]);
+        }
         $validated = $request->validate([
             'type' => 'required|in:DP,Cicilan,Lunas',
             'amount' => 'required|numeric|min:0',
@@ -29,7 +35,7 @@ class IncomeController extends Controller
 
         $order->incomes()->create($validated);
 
-        // Update status order ke Lunas jika pembayaran sudah lunas
+        // Update status order ke Closed jika pembayaran sudah lunas
         $totalIncomesBaru = $order->incomes()->sum('amount');
         if ($totalIncomesBaru >= $totalOrder && $totalOrder > 0) {
             $order->update(['status' => 'Closed']);
@@ -40,7 +46,8 @@ class IncomeController extends Controller
             }
         }
 
-        return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.');
+        $currentTab = $request->input('current_tab', 'pemasukan');
+        return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
     public function destroy(Income $income)
