@@ -920,6 +920,7 @@
                                                     onsubmit="return confirm('Yakin ingin menghapus pemasukan ini?')">
                                                     @csrf
                                                     @method('DELETE')
+                                                    <input type="hidden" name="current_tab" value="pemasukan">
                                                     <button type="submit"
                                                         class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
                                                         Hapus
@@ -1120,9 +1121,9 @@
                             </div>
                             <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
                             @if ($order->isInvoiceAllowed())
-                                <form action="{{ route('invoices.generate', $order) }}" method="POST"
-                                    class="inline">
+                                <form action="{{ route('invoices.generate', $order) }}" method="POST" class="inline">
                                     @csrf
+                                    <input type="hidden" name="current_tab" value="invoice">
                                     <button type="submit"
                                         class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
                                         Generate Invoice

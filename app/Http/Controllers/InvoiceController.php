@@ -13,18 +13,22 @@ class InvoiceController extends Controller
     /**
      * Generate invoice for an order
      */
-    public function generate(Order $order)
+    public function generate(Order $order, Request $request)
     {
         // Check if order already has invoice
         if ($order->invoices()->exists()) {
+            $currentTab = $request->input('current_tab', 'invoice');
             return redirect()->route('orders.show', $order)
-                ->with('error', 'Order ini sudah memiliki invoice.');
+                ->with('error', 'Order ini sudah memiliki invoice.')
+                ->with('active_tab', $currentTab);
         }
 
         // Check if order has total_price
         if (!$order->total_price) {
+            $currentTab = $request->input('current_tab', 'invoice');
             return redirect()->route('orders.show', $order)
-                ->with('error', 'Harga jual belum ditentukan. Silakan update order terlebih dahulu.');
+                ->with('error', 'Harga jual belum ditentukan. Silakan update order terlebih dahulu.')
+                ->with('active_tab', $currentTab);
         }
 
         DB::beginTransaction();
@@ -53,13 +57,17 @@ class InvoiceController extends Controller
 
             DB::commit();
 
+            $currentTab = $request->input('current_tab', 'invoice');
             return redirect()->route('orders.show', $order)
-                ->with('success', "Invoice {$invoiceNumber} berhasil dibuat.");
+                ->with('success', "Invoice {$invoiceNumber} berhasil dibuat.")
+                ->with('active_tab', $currentTab);
 
         } catch (\Exception $e) {
             DB::rollBack();
+            $currentTab = $request->input('current_tab', 'invoice');
             return redirect()->route('orders.show', $order)
-                ->with('error', 'Gagal membuat invoice: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat invoice: ' . $e->getMessage())
+                ->with('active_tab', $currentTab);
         }
     }
 

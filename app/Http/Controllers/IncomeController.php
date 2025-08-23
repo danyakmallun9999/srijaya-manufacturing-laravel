@@ -50,10 +50,11 @@ class IncomeController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
-    public function destroy(Income $income)
+    public function destroy(Income $income, Request $request)
     {
         $order = $income->order;
         $income->delete();
-        return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil dihapus.');
+        $currentTab = $request->input('current_tab', 'pemasukan');
+        return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil dihapus.')->with('active_tab', $currentTab);
     }
 }
