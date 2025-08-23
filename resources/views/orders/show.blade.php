@@ -325,7 +325,7 @@
             </div> --}}
 
             <!-- Navigation Tabs -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
                 <nav class="flex space-x-1 p-2" aria-label="Tabs">
                     <button @click="tab = 'info'"
                         :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'info', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'info' }"
@@ -398,6 +398,158 @@
                         </div>
                     </button>
                 </nav>
+            </div> --}}
+            <!-- Navigation Tabs - Responsive dengan Dropdown -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
+                <!-- Desktop Tabs -->
+                <nav class="hidden md:flex space-x-1 p-2" aria-label="Tabs">
+                    <!-- Tab buttons sama seperti sebelumnya untuk desktop -->
+                    <button @click="tab = 'info'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'info', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'info' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Info Order</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'pembelian'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pembelian', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pembelian' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span>Pembelian</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'biaya'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'biaya', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'biaya' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            <span>Biaya Produksi</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'pemasukan'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pemasukan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pemasukan' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            <span>Pemasukan</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'invoice'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'invoice', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'invoice' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            <span>Invoice</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'ringkasan'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'ringkasan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'ringkasan' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
+                            <span>Ringkasan</span>
+                        </div>
+                    </button>
+                </nav>
+
+                <!-- Mobile Dropdown -->
+                <div class="md:hidden p-2" x-data="{ open: false }">
+                    <button @click="open = !open"
+                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-medium bg-gray-50 rounded-xl border-2 border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span x-text="getTabName(tab)">Info Order</span>
+                        </div>
+                        <svg class="w-5 h-5 transform transition-transform" :class="{ 'rotate-180': open }"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <div x-show="open" @click.away="open = false" x-transition
+                        class="mt-2 bg-white border border-gray-200 rounded-xl shadow-lg">
+                        <button @click="tab = 'info'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50 first:rounded-t-xl">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Info Order
+                        </button>
+                        <button @click="tab = 'pembelian'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Pembelian
+                        </button>
+                        <button @click="tab = 'biaya'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            Biaya Produksi
+                        </button>
+                        <button @click="tab = 'pemasukan'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            Pemasukan
+                        </button>
+                        <button @click="tab = 'invoice'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                </path>
+                            </svg>
+                            Invoice
+                        </button>
+                        <button @click="tab = 'ringkasan'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50 last:rounded-b-xl">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                </path>
+                            </svg>
+                            Ringkasan
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab Content -->
@@ -1985,6 +2137,20 @@
                         else if (e.key === 'ArrowLeft') prevImage();
                     }
                 });
+            </script>
+            <script>
+                // Tambahkan function untuk mendapatkan nama tab
+                function getTabName(tab) {
+                    const names = {
+                        'info': 'Info Order',
+                        'pembelian': 'Pembelian',
+                        'biaya': 'Biaya Produksi',
+                        'pemasukan': 'Pemasukan',
+                        'invoice': 'Invoice',
+                        'ringkasan': 'Ringkasan'
+                    };
+                    return names[tab] || 'Info Order';
+                }
             </script>
         </div>
     </div>
