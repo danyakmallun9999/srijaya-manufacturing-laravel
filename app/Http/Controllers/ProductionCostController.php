@@ -32,10 +32,11 @@ class ProductionCostController extends Controller
     //     return redirect()->route('orders.show', $order)->with('success', 'Biaya produksi berhasil dihapus.');
     // }
 
-    public function destroy(ProductionCost $productionCost)
+    public function destroy(ProductionCost $productionCost, Request $request)
     {
         $order = $productionCost->order;
         $productionCost->delete();
-        return redirect()->route('orders.show', $order)->with('success', 'Biaya produksi berhasil dihapus.');
+        $currentTab = $request->input('current_tab', 'biaya');
+        return redirect()->route('orders.show', $order)->with('success', 'Biaya produksi berhasil dihapus.')->with('active_tab', $currentTab);
     }
 }

@@ -17,7 +17,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: 'info' }">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}' }">
 
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show" class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6 relative" role="alert">
@@ -622,6 +622,7 @@
                                                     onsubmit="return confirm('Yakin ingin menghapus pembelian material ini?')">
                                                     @csrf
                                                     @method('DELETE')
+                                                    <input type="hidden" name="current_tab" value="pembelian">
                                                     <button type="submit"
                                                         class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
                                                         Hapus
@@ -772,6 +773,7 @@
                                                     onsubmit="return confirm('Yakin ingin menghapus biaya produksi ini?')">
                                                     @csrf
                                                     @method('DELETE')
+                                                    <input type="hidden" name="current_tab" value="biaya">
                                                     <button type="submit"
                                                         class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
                                                         Hapus

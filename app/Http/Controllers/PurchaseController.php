@@ -34,10 +34,11 @@ class PurchaseController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
-    public function destroy(Purchase $purchase)
+    public function destroy(Purchase $purchase, Request $request)
     {
         $order = $purchase->order;
         $purchase->delete();
-        return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil dihapus.');
+        $currentTab = $request->input('current_tab', 'pembelian');
+        return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil dihapus.')->with('active_tab', $currentTab);
     }
 }
