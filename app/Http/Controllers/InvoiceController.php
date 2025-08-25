@@ -52,7 +52,7 @@ class InvoiceController extends Controller
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
                 'total_amount' => $totalAmount,
-                'status' => 'Draft',
+                'status' => 'Unpaid',
             ]);
 
             DB::commit();

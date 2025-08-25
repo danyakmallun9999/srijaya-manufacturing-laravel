@@ -1,26 +1,41 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-2xl font-bold text-gray-900 leading-tight">
                 Dashboard
             </h2>
-            <form method="GET" class="mt-3 sm:mt-0 flex items-center gap-2">
-                <select name="period" class="border-gray-300 rounded-lg text-sm">
+
+            <form method="GET" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
+                <select name="period" class="border-gray-300 rounded-lg text-sm px-3 py-2">
                     <option value="1m" {{ ($period ?? '3m') === '1m' ? 'selected' : '' }}>1 Bulan</option>
                     <option value="3m" {{ ($period ?? '3m') === '3m' ? 'selected' : '' }}>Quartal (3 Bulan)</option>
                     <option value="6m" {{ ($period ?? '3m') === '6m' ? 'selected' : '' }}>6 Bulan</option>
                     <option value="1y" {{ ($period ?? '3m') === '1y' ? 'selected' : '' }}>1 Tahun</option>
                 </select>
-                <select name="mode" class="border-gray-300 rounded-lg text-sm">
-                    <option value="aggregate" {{ ($mode ?? 'aggregate') === 'aggregate' ? 'selected' : '' }}>Agregat</option>
-                    <option value="per_production" {{ ($mode ?? 'aggregate') === 'per_production' ? 'selected' : '' }}>Per-Produksi (Rata-rata per Order)</option>
+
+                <select name="mode" class="border-gray-300 rounded-lg text-sm px-3 py-2">
+                    <option value="aggregate" {{ ($mode ?? 'aggregate') === 'aggregate' ? 'selected' : '' }}>Agregat
+                    </option>
+                    <option value="per_production" {{ ($mode ?? 'aggregate') === 'per_production' ? 'selected' : '' }}>
+                        Per-Produksi (Rata-rata per Order)</option>
                 </select>
-                <button class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">Terapkan</button>
+
+                <button type="submit"
+                    class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                    Terapkan
+                </button>
             </form>
         </div>
-        <div class="mt-2 text-xs text-gray-500">
-            Periode: {{ isset($startDate) ? $startDate->format('d M Y') : '-' }} s/d {{ isset($endDate) ? $endDate->format('d M Y') : '-' }}
-            @if(($stats['is_per_production'] ?? false)) · Mode: Per-Produksi @else · Mode: Agregat @endif
+
+        <!-- Info periode -->
+        <div class="mt-3 text-xs text-gray-500">
+            Periode: {{ isset($startDate) ? $startDate->format('d M Y') : '-' }} s/d
+            {{ isset($endDate) ? $endDate->format('d M Y') : '-' }}
+            @if ($stats['is_per_production'] ?? false)
+                · Mode: Per-Produksi
+            @else
+                · Mode: Agregat
+            @endif
         </div>
     </x-slot>
 
@@ -69,7 +84,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="text-sm font-medium text-gray-500 mb-1">
-                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Pemasukan Order' : 'Total Pemasukan' }}
+                                    {{ $stats['is_per_production'] ?? false ? 'Rata-rata Pemasukan Order' : 'Total Pemasukan' }}
                                 </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
                                     {{ number_format($stats['total_revenue'] ?? 0, 0, ',', '.') }}</p>
@@ -95,7 +110,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="text-sm font-medium text-gray-500 mb-1">
-                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Pengeluaran Order' : 'Total Pengeluaran' }}
+                                    {{ $stats['is_per_production'] ?? false ? 'Rata-rata Pengeluaran Order' : 'Total Pengeluaran' }}
                                 </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
                                     {{ number_format($stats['total_expenses'] ?? 0, 0, ',', '.') }}</p>
@@ -121,10 +136,10 @@
                             </div>
                             <div class="text-right">
                                 <p class="text-sm font-medium text-gray-500 mb-1">
-                                    {{ ($stats['is_per_production'] ?? false) ? 'Rata-rata Profit per Order' : 'Total Profit' }}
+                                    {{ $stats['is_per_production'] ?? false ? 'Rata-rata Profit per Order' : 'Total Profit' }}
                                 </p>
                                 <p class="text-xl sm:text-2xl font-bold text-gray-900">Rp
-                                    {{ number_format((($stats['total_revenue'] ?? 0) - ($stats['total_expenses'] ?? 0)), 0, ',', '.') }}
+                                    {{ number_format(($stats['total_revenue'] ?? 0) - ($stats['total_expenses'] ?? 0), 0, ',', '.') }}
                                 </p>
                             </div>
                         </div>
@@ -136,7 +151,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:col-span-2">
                     <h3 class="text-sm font-semibold text-gray-900 mb-3">
-                        {{ ($charts['is_per_production'] ?? false) ? 'Rata-rata Pemasukan vs Pengeluaran per Order' : 'Pemasukan vs Pengeluaran (Total)' }}
+                        {{ $charts['is_per_production'] ?? false ? 'Rata-rata Pemasukan vs Pengeluaran per Order' : 'Pemasukan vs Pengeluaran (Total)' }}
                     </h3>
                     <canvas id="financeTrendChart" height="110"></canvas>
                 </div>
@@ -301,10 +316,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const labels = @json(($charts['labels'] ?? []));
-            const revenue = @json(($charts['revenue'] ?? []));
-            const expenses = @json(($charts['expenses'] ?? []));
-            const orders = @json(($charts['orders'] ?? []));
+            const labels = @json($charts['labels'] ?? []);
+            const revenue = @json($charts['revenue'] ?? []);
+            const expenses = @json($charts['expenses'] ?? []);
+            const orders = @json($charts['orders'] ?? []);
+            const isPerProduction = @json($charts['is_per_production'] ?? false);
 
             const financeCtx = document.getElementById('financeTrendChart');
             if (financeCtx && window.Chart) {
@@ -312,34 +328,60 @@
                     type: 'line',
                     data: {
                         labels,
-                        datasets: [
-                            {
-                                label: '{{ ($charts['is_per_production'] ?? false) ? 'Pemasukan / Order' : 'Pemasukan' }}',
+                        datasets: [{
+                                label: isPerProduction ? 'Pemasukan / Order' : 'Pemasukan',
                                 data: revenue,
                                 borderColor: '#22c55e',
-                                backgroundColor: 'rgba(34,197,94,0.15)',
-                                borderWidth: 2,
-                                tension: 0.3,
-                                fill: true,
+                                backgroundColor: 'rgba(34,197,94,0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: false,
+                                pointBackgroundColor: '#22c55e',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
                             },
                             {
-                                label: '{{ ($charts['is_per_production'] ?? false) ? 'Pengeluaran / Order' : 'Pengeluaran' }}',
+                                label: isPerProduction ? 'Pengeluaran / Order' : 'Pengeluaran',
                                 data: expenses,
                                 borderColor: '#ef4444',
-                                backgroundColor: 'rgba(239,68,68,0.15)',
-                                borderWidth: 2,
-                                tension: 0.3,
-                                fill: true,
+                                backgroundColor: 'rgba(239,68,68,0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: false,
+                                pointBackgroundColor: '#ef4444',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
                             }
                         ]
                     },
                     options: {
                         responsive: true,
                         scales: {
-                            y: { beginAtZero: true }
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'Rp ' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
                         },
                         plugins: {
-                            legend: { display: true }
+                            legend: {
+                                display: true
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': Rp ' + context.parsed.y
+                                            .toLocaleString('id-ID');
+                                    }
+                                }
+                            }
                         }
                     }
                 });
@@ -363,10 +405,14 @@
                     options: {
                         responsive: true,
                         scales: {
-                            y: { beginAtZero: true }
+                            y: {
+                                beginAtZero: true
+                            }
                         },
                         plugins: {
-                            legend: { display: false }
+                            legend: {
+                                display: false
+                            }
                         }
                     }
                 });

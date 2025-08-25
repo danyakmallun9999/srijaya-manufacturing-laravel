@@ -87,20 +87,30 @@ class DashboardController extends Controller
             return (int) Order::where('created_at', 'like', $m['key'] . '%')->count();
         });
 
+        // PERBAIKAN: Logika per-produksi yang lebih konsisten
         if ($isPerProduction) {
-            $ordersCounts = $ordersByMonth->map(fn($c) => max($c, 1));
-            $revenueByMonth = $revenueByMonth->values()->zip($ordersCounts)->map(fn($pair) => $pair[1] > 0 ? $pair[0] / $pair[1] : 0);
-            $expensesByMonth = $expensesByMonth->values()->zip($ordersCounts)->map(fn($pair) => $pair[1] > 0 ? $pair[0] / $pair[1] : 0);
+            // Untuk setiap bulan, hitung rata-rata per order
+            $revenueByMonth = $revenueByMonth->values()->zip($ordersByMonth)->map(function($pair) {
+                [$revenue, $orderCount] = $pair;
+                // Jika tidak ada order di bulan tersebut, return 0
+                return $orderCount > 0 ? $revenue / $orderCount : 0;
+            });
+            
+            $expensesByMonth = $expensesByMonth->values()->zip($ordersByMonth)->map(function($pair) {
+                [$expenses, $orderCount] = $pair;
+                // Jika tidak ada order di bulan tersebut, return 0
+                return $orderCount > 0 ? $expenses / $orderCount : 0;
+            });
         }
 
         $charts = [
             'labels' => $months->pluck('label'),
-            'revenue' => $revenueByMonth,
-            'expenses' => $expensesByMonth,
-            'orders' => $ordersByMonth,
+            'revenue' => $revenueByMonth->values(), // Pastikan index di-reset
+            'expenses' => $expensesByMonth->values(), // Pastikan index di-reset
+            'orders' => $ordersByMonth->values(), // Pastikan index di-reset
             'is_per_production' => $isPerProduction,
         ];
 
         return view('dashboard', compact('stats', 'recentOrders', 'recentInvoices', 'charts', 'period', 'mode', 'startDate', 'endDate'));
     }
-} 
+}
