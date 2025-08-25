@@ -8,10 +8,11 @@
             <form method="GET" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
                 <select name="period"
                     class="border-gray-300 rounded-lg text-sm pl-3 pr-10 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="1m" {{ ($period ?? '3m') === '1m' ? 'selected' : '' }}>1 Bulan</option>
-                    <option value="3m" {{ ($period ?? '3m') === '3m' ? 'selected' : '' }}>Quartal (3 Bulan)</option>
-                    <option value="6m" {{ ($period ?? '3m') === '6m' ? 'selected' : '' }}>6 Bulan</option>
-                    <option value="1y" {{ ($period ?? '3m') === '1y' ? 'selected' : '' }}>1 Tahun</option>
+                    <option value="all_time" {{ ($period ?? 'all_time') === 'all_time' ? 'selected' : '' }}>Sepanjang Waktu</option>
+                    <option value="1m" {{ ($period ?? 'all_time') === '1m' ? 'selected' : '' }}>1 Bulan</option>
+                    <option value="3m" {{ ($period ?? 'all_time') === '3m' ? 'selected' : '' }}>Quartal (3 Bulan)</option>
+                    <option value="6m" {{ ($period ?? 'all_time') === '6m' ? 'selected' : '' }}>6 Bulan</option>
+                    <option value="1y" {{ ($period ?? 'all_time') === '1y' ? 'selected' : '' }}>1 Tahun</option>
                 </select>
 
                 <select name="mode"
@@ -32,8 +33,12 @@
 
         <!-- Info periode -->
         <div class="mt-3 text-xs text-gray-500">
-            Periode: {{ isset($startDate) ? $startDate->format('d M Y') : '-' }} s/d
-            {{ isset($endDate) ? $endDate->format('d M Y') : '-' }}
+            @if($period === 'all_time')
+                Periode: Sepanjang Waktu (12 bulan terakhir)
+            @else
+                Periode: {{ isset($startDate) ? $startDate->format('d M Y') : '-' }} s/d
+                {{ isset($endDate) ? $endDate->format('d M Y') : '-' }}
+            @endif
             @if ($stats['is_per_production'] ?? false)
                 · Mode: Per-Produksi
             @else

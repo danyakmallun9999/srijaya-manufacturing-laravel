@@ -1513,8 +1513,12 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                     <div class="flex justify-between">
                                         <span class="text-gray-600">Total Harga Jual:</span>
-                                        <span class="font-medium text-gray-900">Rp
-                                            {{ number_format(($order->total_price ?? 0) * ($order->quantity ?? 1), 0, ',', '.') }}</span>
+                                        @if($order->total_price && $order->total_price > 0)
+                                            <span class="font-medium text-gray-900">Rp
+                                                {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}</span>
+                                        @else
+                                            <span class="font-medium text-gray-500">Belum ditentukan</span>
+                                        @endif
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600">Total Pemasukan:</span>
@@ -1525,13 +1529,16 @@
                                         <span class="text-gray-600">Sisa Pembayaran:</span>
                                         @php
                                             $sisaBayarClass = 'font-medium';
-                                            $sisaBayarAmount =
-                                                ($order->total_price ?? 0) * ($order->quantity ?? 1) -
-                                                $order->incomes->sum('amount');
-                                            if ($sisaBayarAmount <= 0) {
-                                                $sisaBayarClass .= ' text-emerald-600';
+                                            if($order->total_price && $order->total_price > 0) {
+                                                $sisaBayarAmount = ($order->total_price * $order->quantity) - $order->incomes->sum('amount');
+                                                if ($sisaBayarAmount <= 0) {
+                                                    $sisaBayarClass .= ' text-emerald-600';
+                                                } else {
+                                                    $sisaBayarClass .= ' text-red-600';
+                                                }
                                             } else {
-                                                $sisaBayarClass .= ' text-red-600';
+                                                $sisaBayarAmount = 0;
+                                                $sisaBayarClass .= ' text-gray-500';
                                             }
                                         @endphp
                                         <span class="{{ $sisaBayarClass }}">

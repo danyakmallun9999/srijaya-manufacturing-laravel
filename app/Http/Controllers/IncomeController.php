@@ -27,7 +27,8 @@ class IncomeController extends Controller
         $totalIncomes = (float) $order->incomes()->sum('amount');
         $totalOrder = (float) (($order->total_price ?? 0) * ($order->quantity ?? 1));
 
-        if ($totalOrder > 0) {
+        // Hanya validasi sisa pembayaran jika harga jual sudah ditentukan
+        if ($order->total_price && $order->total_price > 0 && $totalOrder > 0) {
             $sisaBayar = $totalOrder - $totalIncomes;
             if ($validated['amount'] > $sisaBayar) {
                 return redirect()->back()->withInput()->withErrors(['amount' => 'Jumlah pemasukan melebihi sisa pembayaran!']);

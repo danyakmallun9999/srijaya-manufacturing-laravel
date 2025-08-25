@@ -15,6 +15,24 @@ class InvoiceController extends Controller
      */
     public function generate(Order $order, Request $request)
     {
+        // Add logging for debugging
+        \Log::info('Invoice generation started', [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'total_price' => $order->total_price,
+            'product_type' => $order->product_type,
+            'incomes_count' => $order->incomes->count(),
+            'total_incomes' => $order->incomes->sum('amount')
+        ]);
+
+        // Check if order has incomes
+        if ($order->incomes->count() === 0) {
+            $currentTab = $request->input('current_tab', 'invoice');
+            return redirect()->route('orders.show', $order)
+                ->with('error', 'Invoice hanya dapat dibuat setelah ada input pemasukan (DP/Cicilan/Lunas).')
+                ->with('active_tab', $currentTab);
+        }
+
         // Check if order has total_price or is custom product
         if (!$order->total_price && !$order->isCustomProduct()) {
             $currentTab = $request->input('current_tab', 'invoice');
@@ -78,10 +96,7 @@ class InvoiceController extends Controller
                 
                 if ($totalPaid >= $totalOrderValue) {
                     $paymentStatus = 'Paid';
-                    // Update order status to 'Closed' if fully paid
-                    if ($order->status !== 'Closed') {
-                        $order->update(['status' => 'Closed']);
-                    }
+                    // Note: Order status should only be changed manually via Info Order tab
                 } elseif ($totalPaid > 0) {
                     $paymentStatus = 'Partial';
                 } else {
@@ -134,7 +149,7 @@ class InvoiceController extends Controller
                 'payment_date' => $totalPaid > 0 ? now() : null,
                 'payment_status' => $paymentStatus,
                 
-                // Payment information for custom products
+                // Notes with payment information for custom products
                 'notes' => $request->input('notes') . ($hppBreakdown ? "\n\nInformasi Pembayaran:\nTotal DP yang sudah dibayar: Rp " . number_format($totalPaid, 0, ',', '.') . "\nStatus: " . $paymentStatus : ''),
             ];
 
@@ -180,10 +195,8 @@ class InvoiceController extends Controller
 
         $invoice->update(['status' => $request->status]);
 
-        // If invoice is paid, update order status
-        if ($request->status === 'Paid') {
-            $invoice->order->update(['status' => 'Closed']);
-        }
+        // Note: Order status should only be changed manually via Info Order tab
+        // Invoice status changes should not affect order progress
 
         return redirect()->route('invoices.show', $invoice)
             ->with('success', 'Status invoice berhasil diupdate.');

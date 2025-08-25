@@ -15,7 +15,7 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $period = $request->get('period', '3m'); // 1m|3m|6m|1y
+        $period = $request->get('period', 'all_time'); // 1m|3m|6m|1y|all_time
         $mode = $request->get('mode', 'aggregate'); // aggregate|per_production
 
         $now = now();
@@ -23,24 +23,39 @@ class DashboardController extends Controller
             case '1m':
                 $startDate = $now->copy()->startOfMonth();
                 break;
+            case '3m':
+                $startDate = $now->copy()->subMonths(2)->startOfMonth();
+                break;
             case '6m':
                 $startDate = $now->copy()->subMonths(5)->startOfMonth();
                 break;
             case '1y':
                 $startDate = $now->copy()->subMonths(11)->startOfMonth();
                 break;
-            case '3m':
+            case 'all_time':
             default:
-                $startDate = $now->copy()->subMonths(2)->startOfMonth();
+                $startDate = null; // No start date limit for all time
                 break;
         }
         $endDate = $now->copy()->endOfDay();
 
         // Stats in range
-        $totalOrders = Order::whereBetween('created_at', [$startDate, $endDate])->count();
-        $totalRevenue = (float) Income::whereBetween('date', [$startDate, $endDate])->sum('amount');
-        $materialCosts = (float) Purchase::whereBetween('created_at', [$startDate, $endDate])->sum(DB::raw('quantity * price'));
-        $prodCosts = (float) ProductionCost::whereBetween('created_at', [$startDate, $endDate])->sum('amount');
+        $ordersQuery = Order::query();
+        $incomeQuery = Income::query();
+        $purchaseQuery = Purchase::query();
+        $prodCostQuery = ProductionCost::query();
+
+        if ($startDate) {
+            $ordersQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $incomeQuery->whereBetween('date', [$startDate, $endDate]);
+            $purchaseQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $prodCostQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $totalOrders = $ordersQuery->count();
+        $totalRevenue = (float) $incomeQuery->sum('amount');
+        $materialCosts = (float) $purchaseQuery->sum(DB::raw('quantity * price'));
+        $prodCosts = (float) $prodCostQuery->sum('amount');
         $totalExpenses = $materialCosts + $prodCosts;
 
         // Per-production mode: tampilkan nilai rata-rata per order dalam periode
@@ -61,10 +76,13 @@ class DashboardController extends Controller
         // Build months list covering selected period
         $monthsSpan = match ($period) {
             '1m' => 1,
+            '3m' => 3,
             '6m' => 6,
             '1y' => 12,
-            default => 3,
+            'all_time' => 12, // Show last 12 months for all time view
+            default => 12,
         };
+        
         $months = collect(range(0, $monthsSpan - 1))->reverse()->map(function ($i) use ($now) {
             $date = $now->copy()->subMonths($i);
             return [
