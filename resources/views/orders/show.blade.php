@@ -118,287 +118,6 @@
                 </div>
             </div>
 
-            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Progress Status Order</h3>
-                        <p class="text-sm text-gray-500 mt-1">Track your order progress in real-time</p>
-                    </div>
-                    @php
-                        $stepNumber = \App\Models\Order::getProgressIndex($order->status) + 1;
-                        $totalSteps = count(\App\Models\Order::PROGRESS_STATUSES);
-                    @endphp
-                    <div class="text-right">
-                        <span class="text-sm text-gray-500">Step {{ $stepNumber }} of {{ $totalSteps }}</span>
-                        <div class="w-16 bg-gray-200 rounded-full h-1.5 mt-1">
-                            <div class="bg-gradient-to-r from-emerald-500 to-blue-500 h-1.5 rounded-full transition-all duration-500" 
-                                 style="width: {{ ($stepNumber / $totalSteps) * 100 }}%"></div>
-                        </div>
-                    </div>
-                </div>
-            
-                <div class="relative px-4 py-3">
-                    @php
-                        $statuses = \App\Models\Order::PROGRESS_STATUSES;
-                        $statusLabels = [
-                            'Draft' => 'Draft',
-                            'Menunggu' => 'Waiting',
-                            'Produksi' => 'Production',
-                            'Selesai' => 'Completed',
-                            'Dikirim' => 'Shipped',
-                            'Closed' => 'Closed'
-                        ];
-                        $statusIcons = [
-                            'Draft' => 'document-text',
-                            'Menunggu' => 'clock',
-                            'Produksi' => 'cog-6-tooth',
-                            'Selesai' => 'check-circle',
-                            'Dikirim' => 'truck',
-                            'Closed' => 'check-circle'
-                        ];
-                        $statusColors = [
-                            'Draft' => 'bg-gray-100 text-gray-600 border-gray-300',
-                            'Menunggu' => 'bg-amber-100 text-amber-600 border-amber-300',
-                            'Produksi' => 'bg-blue-100 text-blue-600 border-blue-300',
-                            'Selesai' => 'bg-emerald-100 text-emerald-600 border-emerald-300',
-                            'Dikirim' => 'bg-purple-100 text-purple-600 border-purple-300',
-                            'Closed' => 'bg-green-100 text-green-600 border-green-300'
-                        ];
-                        $currentIndex = \App\Models\Order::getProgressIndex($order->status);
-                        $totalSteps = count($statuses);
-                    @endphp
-            
-                    <!-- Progress Line Background - tepat di tengah lingkaran -->
-                    <div class="absolute top-5 left-5 right-5 h-0.5 bg-gray-200 z-10"></div>
-            
-                    <!-- Active Progress Line with Gradient -->
-                    @php
-                        // Hitung persentase progress yang tepat
-                        if ($currentIndex <= 0) {
-                            $progressPercentage = 0;
-                        } else {
-                            // Progress dari step pertama ke step saat ini
-                            $progressPercentage = ($currentIndex / ($totalSteps - 1)) * 100;
-                        }
-                    @endphp
-                    
-                    @if ($progressPercentage > 0)
-                        <div class="absolute top-5 left-5 h-0.5 bg-gradient-to-r from-emerald-500 to-blue-500 z-10 transition-all duration-700 ease-out shadow-sm"
-                             style="width: {{ $progressPercentage }}%;">
-                            <!-- Animated Pulse Effect -->
-                            @if ($currentIndex > 0 && $currentIndex < $totalSteps - 1)
-                                <div class="absolute right-0 top-0 w-2 h-0.5 bg-white opacity-75 animate-pulse"></div>
-                            @endif
-                        </div>
-                    @endif
-            
-                    <!-- Steps Container -->
-                    <div class="grid grid-cols-6 gap-2 relative z-20">
-                        @foreach ($statuses as $index => $status)
-                            @php
-                                $isCompleted = $index < $currentIndex;
-                                $isCurrent = $index == $currentIndex;
-                                $isPending = $index > $currentIndex;
-                                
-                                if ($isCompleted) {
-                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white bg-gradient-to-br from-emerald-500 to-emerald-600 border-2 border-emerald-300 shadow-md transform scale-100 transition-all duration-300';
-                                    $iconClass = 'w-5 h-5 text-white';
-                                } elseif ($isCurrent) {
-                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-300 shadow-md ring-3 ring-blue-100 transform scale-105 transition-all duration-300';
-                                    $iconClass = 'w-5 h-5 text-white animate-pulse';
-                                } else {
-                                    $circleClass = 'w-10 h-10 mx-auto rounded-full flex items-center justify-center bg-gray-50 border-2 border-gray-200 text-gray-400 transition-all duration-300 hover:bg-gray-100';
-                                    $iconClass = 'w-4 h-4 text-gray-400';
-                                }
-                                
-                                $label = $statusLabels[$status] ?? $status;
-                                $icon = $statusIcons[$status] ?? 'question-mark-circle';
-                            @endphp
-            
-                            <div class="flex flex-col items-center group">
-                                <!-- Status Circle with Icon -->
-                                <div class="{{ $circleClass }}">
-                                    @if ($isCompleted)
-                                        <!-- Checkmark for completed steps -->
-                                        <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                        </svg>
-                                    @else
-                                        <!-- Heroicon for current/pending steps -->
-                                        @switch($icon)
-                                            @case('document-text')
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                                @break
-                                            @case('clock')
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                @break
-                                            @case('cog-6-tooth')
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                </svg>
-                                                @break
-                                            @case('check-circle')
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                @break
-                                            @case('truck')
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM21 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0M17 17a2 2 0 104 0"></path>
-                                                </svg>
-                                                @break
-                                            @default
-                                                <svg class="{{ $iconClass }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                        @endswitch
-                                    @endif
-                                </div>
-            
-                                <!-- Status Label with Better Typography -->
-                                <div class="text-center mt-2 w-full">
-                                    <span class="text-xs font-medium block
-                                        {{ $isCompleted ? 'text-emerald-600' : ($isCurrent ? 'text-blue-600' : 'text-gray-500') }}
-                                        group-hover:text-gray-700 transition-colors duration-200" 
-                                        title="{{ $status }}">
-                                        {{ $label }}
-                                    </span>
-                                    
-                                    @if ($isCurrent)
-                                        <div class="flex items-center justify-center mt-1">
-                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping"></div>
-                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping mx-1" style="animation-delay: 0.2s"></div>
-                                            <div class="w-1 h-1 bg-blue-500 rounded-full animate-ping" style="animation-delay: 0.4s"></div>
-                                        </div>
-                                    @elseif ($isCompleted)
-                                        <div class="mt-1">
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                                ✓
-                                            </span>
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-            
-                    <!-- Current Status Info with Enhanced Design -->
-                    <div class="mt-6 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <div>
-                                    <p class="text-sm text-gray-600">
-                                        <span class="font-medium">Status:</span>
-                                        <span class="text-blue-600 font-semibold ml-1">{{ $order->status }}</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        Updated: {{ now()->format('M d, h:i A') }}
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            @if ($currentIndex < $totalSteps - 1)
-                                @php $nextStatus = $statuses[$currentIndex + 1] ?? null; @endphp
-                                @if ($nextStatus)
-                                    <div class="text-right">
-                                        <p class="text-xs text-gray-500">Next</p>
-                                        <p class="text-sm font-medium text-gray-700">{{ $statusLabels[$nextStatus] ?? $nextStatus }}</p>
-                                    </div>
-                                @endif
-                            @else
-                                <div class="flex items-center space-x-1">
-                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    <span class="text-sm font-medium text-green-600">Complete!</span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-
-            <!-- Navigation Tabs -->
-            {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
-                <nav class="flex space-x-1 p-2" aria-label="Tabs">
-                    <button @click="tab = 'info'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'info', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'info' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Info Order</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'pembelian'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pembelian', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pembelian' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            <span>Pembelian</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'biaya'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'biaya', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'biaya' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                </path>
-                            </svg>
-                            <span>Biaya Produksi</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'pemasukan'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pemasukan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pemasukan' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                </path>
-                            </svg>
-                            <span>Pemasukan</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'invoice'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'invoice', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'invoice' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                                </path>
-                            </svg>
-                            <span>Invoice</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'ringkasan'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'ringkasan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'ringkasan' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                                </path>
-                            </svg>
-                            <span>Ringkasan</span>
-                        </div>
-                    </button>
-                </nav>
-            </div> --}}
             <!-- Navigation Tabs - Responsive dengan Dropdown -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6">
                 <!-- Desktop Tabs -->
@@ -415,29 +134,6 @@
                             <span>Info Order</span>
                         </div>
                     </button>
-                    <button @click="tab = 'pembelian'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pembelian', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pembelian' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            <span>Pembelian</span>
-                        </div>
-                    </button>
-                    <button @click="tab = 'biaya'"
-                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'biaya', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'biaya' }"
-                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
-                        <div class="flex items-center justify-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                </path>
-                            </svg>
-                            <span>Biaya Produksi</span>
-                        </div>
-                    </button>
                     <button @click="tab = 'pemasukan'"
                         :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pemasukan', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pemasukan' }"
                         class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
@@ -460,6 +156,29 @@
                                 </path>
                             </svg>
                             <span>Invoice</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'pembelian'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'pembelian', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'pembelian' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span>Pembelian</span>
+                        </div>
+                    </button>
+                    <button @click="tab = 'biaya'"
+                        :class="{ 'bg-blue-50 text-blue-700 border-blue-200': tab === 'biaya', 'text-gray-500 hover:text-gray-700 hover:bg-gray-50': tab !== 'biaya' }"
+                        class="flex-1 px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200">
+                        <div class="flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            <span>Biaya Produksi</span>
                         </div>
                     </button>
                     <button @click="tab = 'ringkasan'"
@@ -504,23 +223,6 @@
                             </svg>
                             Info Order
                         </button>
-                        <button @click="tab = 'pembelian'; open = false"
-                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                            </svg>
-                            Pembelian
-                        </button>
-                        <button @click="tab = 'biaya'; open = false"
-                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
-                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                </path>
-                            </svg>
-                            Biaya Produksi
-                        </button>
                         <button @click="tab = 'pemasukan'; open = false"
                             class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
                             <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -538,6 +240,23 @@
                                 </path>
                             </svg>
                             Invoice
+                        </button>
+                        <button @click="tab = 'pembelian'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            Pembelian
+                        </button>
+                        <button @click="tab = 'biaya'; open = false"
+                            class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50">
+                            <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                </path>
+                            </svg>
+                            Biaya Produksi
                         </button>
                         <button @click="tab = 'ringkasan'; open = false"
                             class="w-full flex items-center px-4 py-3 text-sm hover:bg-gray-50 last:rounded-b-xl">
@@ -705,651 +424,6 @@
                 </div>
             </div>
 
-            <div x-show="tab === 'pembelian'" class="space-y-6">
-                <!-- Data Table Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-900">Daftar Pembelian Material</h3>
-                        </div>
-                        @if ($order->purchases->count() > 0)
-                            <div class="bg-blue-50 px-4 py-2 rounded-xl">
-                                <p class="text-sm font-semibold text-blue-900">
-                                    Total: Rp
-                                    {{ number_format($order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}),0,',','.') }}
-                                </p>
-                            </div>
-                        @endif
-                    </div>
-
-                    @if ($order->purchases->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr class="border-b border-gray-200">
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Material</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Supplier</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Jumlah</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Harga</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Total</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach ($order->purchases as $purchase)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm font-medium text-gray-900">
-                                                    {{ $purchase->material_name }}</div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-600">{{ $purchase->supplier }}</div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-900">
-                                                    {{ number_format($purchase->quantity, 0, ',', '.') }}</div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-900">Rp
-                                                    {{ number_format($purchase->price, 0, ',', '.') }}</div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm font-medium text-gray-900">Rp
-                                                    {{ number_format($purchase->quantity * $purchase->price, 0, ',', '.') }}
-                                                </div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <form action="{{ route('purchases.destroy', $purchase) }}"
-                                                    method="POST"
-                                                    onsubmit="return confirm('Yakin ingin menghapus pembelian material ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <input type="hidden" name="current_tab" value="pembelian">
-                                                    <button type="submit"
-                                                        class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <div
-                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500 text-lg font-medium">Belum ada data pembelian</p>
-                            <p class="text-gray-400 text-sm mt-1">Tambahkan pembelian material pertama untuk order ini
-                            </p>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Add Purchase Form Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
-                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-900">Tambah Pembelian Material</h3>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button type="button" @click="purchaseMode = 'single'" 
-                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'single', 'bg-gray-200 text-gray-700': purchaseMode !== 'single' }"
-                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                Single Input
-                            </button>
-                            <button type="button" @click="purchaseMode = 'multiple'" 
-                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'multiple', 'bg-gray-200 text-gray-700': purchaseMode !== 'multiple' }"
-                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                Multiple Input
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Single Purchase Form -->
-                    <div x-show="purchaseMode === 'single'" class="space-y-4">
-                        <form action="{{ route('purchases.store', $order) }}" method="POST"
-                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" enctype="multipart/form-data">
-                            @csrf
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
-                                <input type="text" name="material_name"
-                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
-                                <input type="text" name="supplier"
-                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
-                                <input type="text" name="quantity"
-                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    placeholder="0" oninput="formatNumber(this)" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
-                                <div class="relative">
-                                    <span
-                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                    <input type="text" name="price"
-                                        class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                        placeholder="0" oninput="formatNumber(this)" />
-                                </div>
-                            </div>
-                            <div class="md:col-span-2 lg:col-span-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
-                                <div class="relative">
-                                    <input type="file" name="receipt_photo" accept="image/*" class="hidden"
-                                        id="receipt_photo" onchange="previewFile(this, 'preview-1')" />
-                                    <label for="receipt_photo"
-                                        class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                                        id="upload-area-1">
-                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                        </svg>
-                                        <span class="text-gray-600">Pilih file atau drag & drop</span>
-                                    </label>
-                                    <!-- Preview area -->
-                                    <div id="preview-1" class="mt-3 hidden">
-                                        <div class="relative inline-block">
-                                            <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-1" />
-                                            <button type="button"
-                                                onclick="clearFile('receipt_photo', 'preview-1', null, 'upload-area-1')"
-                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1" id="preview-name-1"></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:col-span-2 lg:col-span-4">
-                                <button type="submit"
-                                    class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
-                                    Tambah Pembelian
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Multiple Purchase Form -->
-                    <div x-show="purchaseMode === 'multiple'" class="space-y-4" x-data="{ 
-                        purchases: [{ material_name: '', supplier: '', quantity: '', price: '' }],
-                        addRow() {
-                            this.purchases.push({ material_name: '', supplier: '', quantity: '', price: '' });
-                        },
-                        removeRow(index) {
-                            if (this.purchases.length > 1) {
-                                this.purchases.splice(index, 1);
-                            }
-                        },
-                        getTotal() {
-                            return this.purchases.reduce((total, purchase) => {
-                                const quantity = parseFloat(purchase.quantity.replace(/[^\d]/g, '')) || 0;
-                                const price = parseFloat(purchase.price.replace(/[^\d]/g, '')) || 0;
-                                return total + (quantity * price);
-                            }, 0);
-                        }
-                    }">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-md font-semibold text-gray-900">Input Multiple Material</h4>
-                            <div class="flex space-x-2">
-                                <button type="button" @click="addRow()" 
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                                    + Tambah Baris
-                                </button>
-                                <button type="button" @click="purchases = [{ material_name: '', supplier: '', quantity: '', price: '' }]" 
-                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors">
-                                    Reset
-                                </button>
-                            </div>
-                        </div>
-
-                        <form action="{{ route('purchases.storeMultiple', $order) }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="space-y-4">
-                                <!-- Table Header -->
-                                <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-xl">
-                                    <div class="col-span-4">
-                                        <label class="block text-sm font-semibold text-gray-700">Nama Material *</label>
-                                    </div>
-                                    <div class="col-span-3">
-                                        <label class="block text-sm font-semibold text-gray-700">Supplier</label>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700">Jumlah *</label>
-                                    </div>
-                                    <div class="col-span-2">
-                                        <label class="block text-sm font-semibold text-gray-700">Harga *</label>
-                                    </div>
-                                    <div class="col-span-1">
-                                        <label class="block text-sm font-semibold text-gray-700">Aksi</label>
-                                    </div>
-                                </div>
-
-                                <!-- Dynamic Rows -->
-                                <template x-for="(purchase, index) in purchases" :key="index">
-                                    <div class="grid grid-cols-12 gap-4 items-end border-b border-gray-100 pb-4">
-                                        <div class="col-span-4">
-                                            <input type="text" :name="`purchases[${index}][material_name]`" x-model="purchase.material_name"
-                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                                placeholder="Nama material" required />
-                                        </div>
-                                        <div class="col-span-3">
-                                            <input type="text" :name="`purchases[${index}][supplier]`" x-model="purchase.supplier"
-                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                                placeholder="Supplier" />
-                                        </div>
-                                        <div class="col-span-2">
-                                            <input type="text" :name="`purchases[${index}][quantity]`" x-model="purchase.quantity"
-                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                                placeholder="0" required oninput="formatNumber(this)" />
-                                        </div>
-                                        <div class="col-span-2">
-                                            <div class="relative">
-                                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rp</span>
-                                                <input type="text" :name="`purchases[${index}][price]`" x-model="purchase.price"
-                                                    class="w-full pl-8 pr-4 py-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                                    placeholder="0" required oninput="formatNumber(this)" />
-                                            </div>
-                                        </div>
-                                        <div class="col-span-1">
-                                            <button type="button" @click="removeRow(index)" 
-                                                class="w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
-                                                :disabled="purchases.length === 1">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <!-- Total Summary -->
-                                <div class="bg-blue-50 p-4 rounded-xl">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-sm font-semibold text-blue-900">Total Estimasi:</span>
-                                        <span class="text-lg font-bold text-blue-900" x-text="'Rp ' + getTotal().toLocaleString('id-ID')"></span>
-                                    </div>
-                                </div>
-
-                                <!-- Receipt Photo -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
-                                    <div class="relative">
-                                        <input type="file" name="receipt_photo" accept="image/*" class="hidden"
-                                            id="receipt_photo_multiple" onchange="previewFile(this, 'preview-multiple')" />
-                                        <label for="receipt_photo_multiple"
-                                            class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                                            id="upload-area-multiple">
-                                            <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                            </svg>
-                                            <span class="text-gray-600">Pilih file atau drag & drop</span>
-                                        </label>
-                                        <!-- Preview area -->
-                                        <div id="preview-multiple" class="mt-3 hidden">
-                                            <div class="relative inline-block">
-                                                <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-multiple" />
-                                                <button type="button"
-                                                    onclick="clearFile('receipt_photo_multiple', 'preview-multiple', null, 'upload-area-multiple')"
-                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <p class="text-xs text-gray-500 mt-1" id="preview-name-multiple"></p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Submit Button -->
-                                <div>
-                                    <button type="submit"
-                                        class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
-                                        Simpan Semua Pembelian
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Card galeri foto nota -->
-                {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
-                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $purchase)
-                            <div class="relative group border rounded-xl overflow-hidden">
-                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota" class="object-cover w-full h-40">
-                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">{{ $purchase->material_name ?? 'Nota' }}</div>
-                                <!-- Tombol hapus foto nota (opsional) -->
-                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" class="absolute top-2 right-2">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="current_tab" value="pembelian">
-                                    <button type="submit" class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none" title="Hapus Foto Nota">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        @empty
-                            <div class="col-span-2 text-gray-400 text-center py-8">Belum ada foto nota diupload</div>
-                        @endforelse
-                    </div>
-                </div> --}}
-
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
-                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $index => $purchase)
-                            <div class="relative group border rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-200"
-                                onclick="openModal('{{ asset('storage/' . $purchase->receipt_photo) }}', '{{ $purchase->material_name ?? 'Nota' }}', '{{ $purchase->created_at->format('d M Y') }}', {{ $index }})">
-                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota"
-                                    class="object-cover w-full h-40">
-                                <div
-                                    class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">
-                                    {{ $purchase->material_name ?? 'Nota' }}</div>
-
-                                <!-- Hover overlay with eye icon -->
-                                <div
-                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
-                                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                </div>
-
-                                <!-- Delete button -->
-                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST"
-                                    class="absolute top-2 right-2" onclick="event.stopPropagation()">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="current_tab" value="pembelian">
-                                    <button type="submit"
-                                        class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none"
-                                        title="Hapus Foto Nota"
-                                        onclick="return confirm('Yakin ingin menghapus foto ini?')">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        @empty
-                            <div class="col-span-2 md:col-span-4 text-gray-400 text-center py-8">
-                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                Belum ada foto nota diupload
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-
-                <!-- Modal -->
-                <div id="imageModal"
-                    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
-                    <div class="relative max-w-4xl max-h-[90vh] mx-4">
-                        <!-- Close Button -->
-                        <button onclick="closeModal()"
-                            class="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10">
-                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-
-                        <!-- Image Container -->
-                        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
-                            <div class="relative">
-                                <img id="modalImage" src="" alt="Detail Foto"
-                                    class="w-full max-h-[70vh] object-contain">
-
-                                <!-- Navigation Arrows (jika ada lebih dari 1 foto) -->
-                                <button id="prevBtn" onclick="prevImage()"
-                                    class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
-                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                </button>
-                                <button id="nextBtn" onclick="nextImage()"
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
-                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Image Details -->
-                            <div class="p-4 bg-gray-50">
-                                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 mb-2"></h3>
-                                <div class="flex items-center justify-between text-sm text-gray-600">
-                                    <span id="modalDate"></span>
-                                    <div class="flex gap-2">
-                                        <a id="downloadBtn" href="" download
-                                            class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                            Download
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div x-show="tab === 'biaya'" class="space-y-6">
-                <!-- Data Table Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
-                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                    </path>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-900">Daftar Biaya Produksi</h3>
-                        </div>
-                        @if ($order->productionCosts->count() > 0)
-                            <div class="bg-purple-50 px-4 py-2 rounded-xl">
-                                <p class="text-sm font-semibold text-purple-900">
-                                    Total: Rp {{ number_format($order->productionCosts->sum('amount'), 0, ',', '.') }}
-                                </p>
-                            </div>
-                        @endif
-                    </div>
-
-                    @if ($order->productionCosts->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full">
-                                <thead>
-                                    <tr class="border-b border-gray-200">
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Jenis Biaya</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Deskripsi</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Jumlah</th>
-                                        <th
-                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach ($order->productionCosts as $cost)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm font-medium text-gray-900">{{ $cost->type }}
-                                                </div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm text-gray-600">{{ $cost->description ?: '-' }}
-                                                </div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <div class="text-sm font-medium text-gray-900">Rp
-                                                    {{ number_format($cost->amount, 0, ',', '.') }}</div>
-                                            </td>
-                                            <td class="py-4 px-4">
-                                                <form action="{{ route('costs.destroy', $cost) }}" method="POST"
-                                                    onsubmit="return confirm('Yakin ingin menghapus biaya produksi ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <input type="hidden" name="current_tab" value="biaya">
-                                                    <button type="submit"
-                                                        class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-12">
-                            <div
-                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                    </path>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500 text-lg font-medium">Belum ada data biaya produksi</p>
-                            <p class="text-gray-400 text-sm mt-1">Tambahkan biaya produksi pertama untuk order ini</p>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Add Production Cost Form Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">Tambah Biaya Produksi</h3>
-                    </div>
-
-                    <form action="{{ route('costs.store', $order) }}" method="POST"
-                        class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Biaya</label>
-                            <select name="type"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                required>
-                                <option value="">-- Pilih --</option>
-                                <option value="Tenaga Kerja">Tenaga Kerja</option>
-                                <option value="Overhead">Overhead</option>
-                                <option value="Transportasi">Transportasi</option>
-                                <option value="Biaya Pengiriman">Biaya Pengiriman</option>
-                                <option value="Lainnya">Lainnya</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                            <input type="text" name="description"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="Deskripsi biaya (opsional)" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
-                            <div class="relative">
-                                <span
-                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                <input type="text" name="amount"
-                                    class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    placeholder="0" required oninput="formatNumber(this)" />
-                            </div>
-                        </div>
-                        <div class="md:col-span-3">
-                            <button type="submit"
-                                class="w-full bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors font-medium">
-                                Tambah Biaya Produksi
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <div x-show="tab === 'pemasukan'" class="space-y-6">
                 <!-- Data Table Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -1513,7 +587,7 @@
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                     <div class="flex justify-between">
                                         <span class="text-gray-600">Total Harga Jual:</span>
-                                        @if($order->total_price && $order->total_price > 0)
+                                        @if ($order->total_price && $order->total_price > 0)
                                             <span class="font-medium text-gray-900">Rp
                                                 {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}</span>
                                         @else
@@ -1529,8 +603,10 @@
                                         <span class="text-gray-600">Sisa Pembayaran:</span>
                                         @php
                                             $sisaBayarClass = 'font-medium';
-                                            if($order->total_price && $order->total_price > 0) {
-                                                $sisaBayarAmount = ($order->total_price * $order->quantity) - $order->incomes->sum('amount');
+                                            if ($order->total_price && $order->total_price > 0) {
+                                                $sisaBayarAmount =
+                                                    $order->total_price * $order->quantity -
+                                                    $order->incomes->sum('amount');
                                                 if ($sisaBayarAmount <= 0) {
                                                     $sisaBayarClass .= ' text-emerald-600';
                                                 } else {
@@ -1609,7 +685,7 @@
                                     </div>
 
                                     <div class="mb-4">
-                                        @if($invoice->order->product_type === 'custom')
+                                        @if ($invoice->order->product_type === 'custom')
                                             @php
                                                 $totalPembelian = $invoice->order->purchases->sum(function ($purchase) {
                                                     return $purchase->quantity * $purchase->price;
@@ -1617,7 +693,7 @@
                                                 $totalBiayaProduksi = $invoice->order->productionCosts->sum('amount');
                                                 $totalHPP = $totalPembelian + $totalBiayaProduksi;
                                             @endphp
-                                            @if($totalHPP > 0)
+                                            @if ($totalHPP > 0)
                                                 <p class="text-2xl font-bold text-blue-600">
                                                     HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}
                                                 </p>
@@ -1634,21 +710,30 @@
                                             @endif
                                         @else
                                             <p class="text-2xl font-bold text-emerald-600">
-                                                Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                                                Rp {{ number_format($invoice->order->total_price, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                Total Invoice: Rp
+                                                {{ number_format($invoice->total_amount, 0, ',', '.') }}
                                             </p>
                                         @endif
-                                        @if($invoice->payment_status !== 'Unpaid')
+                                        @if ($invoice->payment_status !== 'Unpaid')
                                             <p class="text-sm text-gray-600">
-                                                Dibayar: Rp {{ number_format($invoice->order->incomes->sum('amount'), 0, ',', '.') }}
+                                                Dibayar: Rp
+                                                {{ number_format($invoice->order->incomes->sum('amount'), 0, ',', '.') }}
                                                 @php
-                                                    $totalOrderValue = $invoice->order->product_type === 'custom' ? 
-                                                        ($invoice->subtotal > 0 ? $invoice->subtotal : 0) : 
-                                                        ($invoice->order->total_price * $invoice->order->quantity);
+                                                    $totalOrderValue =
+                                                        $invoice->order->product_type === 'custom'
+                                                            ? ($invoice->subtotal > 0
+                                                                ? $invoice->subtotal
+                                                                : 0)
+                                                            : $invoice->order->total_price * $invoice->order->quantity;
                                                     $totalPaid = $invoice->order->incomes->sum('amount');
                                                     $remainingAmount = $totalOrderValue - $totalPaid;
                                                 @endphp
-                                                @if($remainingAmount > 0)
-                                                    <span class="text-red-600">(Sisa: Rp {{ number_format($remainingAmount, 0, ',', '.') }})</span>
+                                                @if ($remainingAmount > 0)
+                                                    <span class="text-red-600">(Sisa: Rp
+                                                        {{ number_format($remainingAmount, 0, ',', '.') }})</span>
                                                 @endif
                                             </p>
                                         @endif
@@ -1698,10 +783,11 @@
                 </div>
 
                 <!-- Generate Invoice Form Card -->
-                <div x-show="showInvoiceForm" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" x-data="{ 
-                    activeSection: 'basic',
-                    sections: ['basic', 'shipping', 'payment']
-                }">
+                <div x-show="showInvoiceForm" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+                    x-data="{
+                        activeSection: 'basic',
+                        sections: ['basic', 'shipping', 'payment']
+                    }">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center">
                             <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
@@ -1715,24 +801,25 @@
                         </div>
                         <button @click="showInvoiceForm = false" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
                     </div>
 
                     <!-- Section Navigation -->
                     <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-xl">
-                        <button @click="activeSection = 'basic'" 
+                        <button @click="activeSection = 'basic'"
                             :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'basic', 'text-gray-600': activeSection !== 'basic' }"
                             class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                             Dasar
                         </button>
-                        <button @click="activeSection = 'shipping'" 
+                        <button @click="activeSection = 'shipping'"
                             :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'shipping', 'text-gray-600': activeSection !== 'shipping' }"
                             class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                             Pengiriman
                         </button>
-                        <button @click="activeSection = 'payment'" 
+                        <button @click="activeSection = 'payment'"
                             :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'payment', 'text-gray-600': activeSection !== 'payment' }"
                             class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                             Pembayaran
@@ -1747,14 +834,18 @@
                         <div x-show="activeSection === 'basic'" class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Jatuh Tempo (Hari)</label>
-                                    <input type="number" name="due_days" value="30" min="1" max="365"
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Jatuh Tempo
+                                        (Hari)</label>
+                                    <input type="number" name="due_days" value="30" min="1"
+                                        max="365"
                                         class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Biaya Pengiriman</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Biaya
+                                        Pengiriman</label>
                                     <div class="relative">
-                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                        <span
+                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
                                         <input type="text" name="shipping_cost" value="0"
                                             class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                             placeholder="0" oninput="formatNumber(this)" />
@@ -1824,7 +915,8 @@
 
                         <!-- Navigation Buttons -->
                         <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
-                            <button type="button" @click="activeSection = sections[Math.max(0, sections.indexOf(activeSection) - 1)]"
+                            <button type="button"
+                                @click="activeSection = sections[Math.max(0, sections.indexOf(activeSection) - 1)]"
                                 x-show="activeSection !== 'basic'"
                                 class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
                                 ← Sebelumnya
@@ -1834,7 +926,8 @@
                                     class="px-6 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors">
                                     Batal
                                 </button>
-                                <button type="button" @click="activeSection = sections[Math.min(sections.length - 1, sections.indexOf(activeSection) + 1)]"
+                                <button type="button"
+                                    @click="activeSection = sections[Math.min(sections.length - 1, sections.indexOf(activeSection) + 1)]"
                                     x-show="activeSection !== 'payment'"
                                     class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
                                     Selanjutnya →
@@ -1909,7 +1002,7 @@
                                             Rp {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}
                                         </span>
                                     </div>
-                                    @if($order->incomes->count() > 0)
+                                    @if ($order->incomes->count() > 0)
                                         <hr class="border-emerald-200">
                                         <div class="flex justify-between">
                                             <span class="text-sm text-emerald-700">Sudah Dibayar:</span>
@@ -1933,22 +1026,25 @@
                                 <div class="space-y-2">
                                     <div class="flex justify-between">
                                         <span class="text-sm text-blue-700">Total Pembelian Material:</span>
-                                        <span class="font-medium text-blue-800">Rp {{ number_format($totalPembelian, 0, ',', '.') }}</span>
+                                        <span class="font-medium text-blue-800">Rp
+                                            {{ number_format($totalPembelian, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-sm text-blue-700">Total Biaya Produksi:</span>
-                                        <span class="font-medium text-blue-800">Rp {{ number_format($totalBiayaProduksi, 0, ',', '.') }}</span>
+                                        <span class="font-medium text-blue-800">Rp
+                                            {{ number_format($totalBiayaProduksi, 0, ',', '.') }}</span>
                                     </div>
                                     <hr class="border-blue-200">
                                     <div class="flex justify-between">
                                         <span class="text-sm font-semibold text-blue-700">Total HPP:</span>
-                                        <span class="text-lg font-bold text-blue-800">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                                        <span class="text-lg font-bold text-blue-800">Rp
+                                            {{ number_format($totalHPP, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-sm text-blue-700">Quantity:</span>
                                         <span class="font-medium text-blue-800">{{ $order->quantity }} pcs</span>
                                     </div>
-                                    @if($order->incomes->count() > 0)
+                                    @if ($order->incomes->count() > 0)
                                         <hr class="border-blue-200">
                                         <div class="flex justify-between">
                                             <span class="text-sm text-blue-700">Sudah Dibayar:</span>
@@ -1959,7 +1055,8 @@
                                     @endif
                                     <div class="mt-3 p-2 bg-blue-100 rounded-lg">
                                         <p class="text-xs text-blue-800">
-                                            <strong>Info:</strong> Harga jual akan dihitung otomatis dari HPP + margin saat membuat invoice.
+                                            <strong>Info:</strong> Harga jual akan dihitung otomatis dari HPP + margin
+                                            saat membuat invoice.
                                         </p>
                                     </div>
                                 </div>
@@ -1973,6 +1070,670 @@
                             </div>
                         @endif
                     </div>
+                </div>
+            </div>
+
+            <div x-show="tab === 'pembelian'" class="space-y-6">
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Pembelian Material</h3>
+                        </div>
+                        @if ($order->purchases->count() > 0)
+                            <div class="bg-blue-50 px-4 py-2 rounded-xl">
+                                <p class="text-sm font-semibold text-blue-900">
+                                    Total: Rp
+                                    {{ number_format($order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}),0,',','.') }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+
+                    @if ($order->purchases->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Material</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Supplier</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Jumlah</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Harga</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Total</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($order->purchases as $purchase)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $purchase->material_name }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">{{ $purchase->supplier }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-900">
+                                                    {{ number_format($purchase->quantity, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-900">Rp
+                                                    {{ number_format($purchase->price, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">Rp
+                                                    {{ number_format($purchase->quantity * $purchase->price, 0, ',', '.') }}
+                                                </div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <form action="{{ route('purchases.destroy', $purchase) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Yakin ingin menghapus pembelian material ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="current_tab" value="pembelian">
+                                                    <button type="submit"
+                                                        class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-12">
+                            <div
+                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-lg font-medium">Belum ada data pembelian</p>
+                            <p class="text-gray-400 text-sm mt-1">Tambahkan pembelian material pertama untuk order ini
+                            </p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Add Purchase Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Tambah Pembelian Material</h3>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="button" @click="purchaseMode = 'single'"
+                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'single', 'bg-gray-200 text-gray-700': purchaseMode !== 'single' }"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Single Input
+                            </button>
+                            <button type="button" @click="purchaseMode = 'multiple'"
+                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'multiple', 'bg-gray-200 text-gray-700': purchaseMode !== 'multiple' }"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Multiple Input
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Single Purchase Form -->
+                    <div x-show="purchaseMode === 'single'" class="space-y-4">
+                        <form action="{{ route('purchases.store', $order) }}" method="POST"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
+                                <input type="text" name="material_name"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+                                <input type="text" name="supplier"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                                <input type="text" name="quantity"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="0" oninput="formatNumber(this)" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                    <input type="text" name="price"
+                                        class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        placeholder="0" oninput="formatNumber(this)" />
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 lg:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota
+                                    (Opsional)</label>
+                                <div class="relative">
+                                    <input type="file" name="receipt_photo" accept="image/*" class="hidden"
+                                        id="receipt_photo" onchange="previewFile(this, 'preview-1')" />
+                                    <label for="receipt_photo"
+                                        class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                        id="upload-area-1">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="text-gray-600">Pilih file atau drag & drop</span>
+                                    </label>
+                                    <!-- Preview area -->
+                                    <div id="preview-1" class="mt-3 hidden">
+                                        <div class="relative inline-block">
+                                            <img class="h-24 w-24 object-cover rounded-lg border"
+                                                id="preview-img-1" />
+                                            <button type="button"
+                                                onclick="clearFile('receipt_photo', 'preview-1', null, 'upload-area-1')"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1" id="preview-name-1"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 lg:col-span-4">
+                                <button type="submit"
+                                    class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                    Tambah Pembelian
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Multiple Purchase Form -->
+                    <div x-show="purchaseMode === 'multiple'" class="space-y-4" x-data="{
+                        purchases: [{ material_name: '', supplier: '', quantity: '', price: '' }],
+                        addRow() {
+                            this.purchases.push({ material_name: '', supplier: '', quantity: '', price: '' });
+                        },
+                        removeRow(index) {
+                            if (this.purchases.length > 1) {
+                                this.purchases.splice(index, 1);
+                            }
+                        },
+                        getTotal() {
+                            return this.purchases.reduce((total, purchase) => {
+                                const quantity = parseFloat(purchase.quantity.replace(/[^\d]/g, '')) || 0;
+                                const price = parseFloat(purchase.price.replace(/[^\d]/g, '')) || 0;
+                                return total + (quantity * price);
+                            }, 0);
+                        }
+                    }">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-md font-semibold text-gray-900">Input Multiple Material</h4>
+                            <div class="flex space-x-2">
+                                <button type="button" @click="addRow()"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    + Tambah Baris
+                                </button>
+                                <button type="button"
+                                    @click="purchases = [{ material_name: '', supplier: '', quantity: '', price: '' }]"
+                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('purchases.storeMultiple', $order) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            <div class="space-y-4">
+                                <!-- Table Header -->
+                                <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-xl">
+                                    <div class="col-span-4">
+                                        <label class="block text-sm font-semibold text-gray-700">Nama Material
+                                            *</label>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <label class="block text-sm font-semibold text-gray-700">Supplier</label>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Jumlah *</label>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Harga *</label>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label class="block text-sm font-semibold text-gray-700">Aksi</label>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Rows -->
+                                <template x-for="(purchase, index) in purchases" :key="index">
+                                    <div class="grid grid-cols-12 gap-4 items-end border-b border-gray-100 pb-4">
+                                        <div class="col-span-4">
+                                            <input type="text" :name="`purchases[${index}][material_name]`"
+                                                x-model="purchase.material_name"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="Nama material" required />
+                                        </div>
+                                        <div class="col-span-3">
+                                            <input type="text" :name="`purchases[${index}][supplier]`"
+                                                x-model="purchase.supplier"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="Supplier" />
+                                        </div>
+                                        <div class="col-span-2">
+                                            <input type="text" :name="`purchases[${index}][quantity]`"
+                                                x-model="purchase.quantity"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="0" required oninput="formatNumber(this)" />
+                                        </div>
+                                        <div class="col-span-2">
+                                            <div class="relative">
+                                                <span
+                                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rp</span>
+                                                <input type="text" :name="`purchases[${index}][price]`"
+                                                    x-model="purchase.price"
+                                                    class="w-full pl-8 pr-4 py-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                    placeholder="0" required oninput="formatNumber(this)" />
+                                            </div>
+                                        </div>
+                                        <div class="col-span-1">
+                                            <button type="button" @click="removeRow(index)"
+                                                class="w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                                                :disabled="purchases.length === 1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Total Summary -->
+                                <div class="bg-blue-50 p-4 rounded-xl">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-blue-900">Total Estimasi:</span>
+                                        <span class="text-lg font-bold text-blue-900"
+                                            x-text="'Rp ' + getTotal().toLocaleString('id-ID')"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Receipt Photo -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota
+                                        (Opsional)</label>
+                                    <div class="relative">
+                                        <input type="file" name="receipt_photo" accept="image/*" class="hidden"
+                                            id="receipt_photo_multiple"
+                                            onchange="previewFile(this, 'preview-multiple')" />
+                                        <label for="receipt_photo_multiple"
+                                            class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                            id="upload-area-multiple">
+                                            <svg class="w-5 h-5 mr-2 text-gray-400" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="text-gray-600">Pilih file atau drag & drop</span>
+                                        </label>
+                                        <!-- Preview area -->
+                                        <div id="preview-multiple" class="mt-3 hidden">
+                                            <div class="relative inline-block">
+                                                <img class="h-24 w-24 object-cover rounded-lg border"
+                                                    id="preview-img-multiple" />
+                                                <button type="button"
+                                                    onclick="clearFile('receipt_photo_multiple', 'preview-multiple', null, 'upload-area-multiple')"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1" id="preview-name-multiple"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div>
+                                    <button type="submit"
+                                        class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                        Simpan Semua Pembelian
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Card galeri foto nota -->
+                {{-- <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $purchase)
+                            <div class="relative group border rounded-xl overflow-hidden">
+                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota" class="object-cover w-full h-40">
+                                <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">{{ $purchase->material_name ?? 'Nota' }}</div>
+                                <!-- Tombol hapus foto nota (opsional) -->
+                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST" class="absolute top-2 right-2">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="current_tab" value="pembelian">
+                                    <button type="submit" class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none" title="Hapus Foto Nota">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <div class="col-span-2 text-gray-400 text-center py-8">Belum ada foto nota diupload</div>
+                        @endforelse
+                    </div>
+                </div> --}}
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-6">
+                    <h4 class="text-md font-semibold text-gray-900 mb-4">Galeri Foto Nota</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @forelse ($order->purchases->whereNotNull('receipt_photo') as $index => $purchase)
+                            <div class="relative group border rounded-xl overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-200"
+                                onclick="openModal('{{ asset('storage/' . $purchase->receipt_photo) }}', '{{ $purchase->material_name ?? 'Nota' }}', '{{ $purchase->created_at->format('d M Y') }}', {{ $index }})">
+                                <img src="{{ asset('storage/' . $purchase->receipt_photo) }}" alt="Foto Nota"
+                                    class="object-cover w-full h-40">
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-2 truncate">
+                                    {{ $purchase->material_name ?? 'Nota' }}</div>
+
+                                <!-- Hover overlay with eye icon -->
+                                <div
+                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-200">
+                                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+
+                                <!-- Delete button -->
+                                <form action="{{ route('purchases.destroy', $purchase) }}" method="POST"
+                                    class="absolute top-2 right-2" onclick="event.stopPropagation()">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="current_tab" value="pembelian">
+                                    <button type="submit"
+                                        class="bg-red-600 bg-opacity-80 hover:bg-opacity-100 text-white rounded-full p-1 focus:outline-none"
+                                        title="Hapus Foto Nota"
+                                        onclick="return confirm('Yakin ingin menghapus foto ini?')">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @empty
+                            <div class="col-span-2 md:col-span-4 text-gray-400 text-center py-8">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Belum ada foto nota diupload
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div id="imageModal"
+                    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+                    <div class="relative max-w-4xl max-h-[90vh] mx-4">
+                        <!-- Close Button -->
+                        <button onclick="closeModal()"
+                            class="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <!-- Image Container -->
+                        <div class="bg-white rounded-lg shadow-2xl overflow-hidden">
+                            <div class="relative">
+                                <img id="modalImage" src="" alt="Detail Foto"
+                                    class="w-full max-h-[70vh] object-contain">
+
+                                <!-- Navigation Arrows (jika ada lebih dari 1 foto) -->
+                                <button id="prevBtn" onclick="prevImage()"
+                                    class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+                                <button id="nextBtn" onclick="nextImage()"
+                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all">
+                                    <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- Image Details -->
+                            <div class="p-4 bg-gray-50">
+                                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 mb-2"></h3>
+                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                    <span id="modalDate"></span>
+                                    <div class="flex gap-2">
+                                        <a id="downloadBtn" href="" download
+                                            class="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="tab === 'biaya'" class="space-y-6">
+                <!-- Data Table Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                    </path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Biaya Produksi</h3>
+                        </div>
+                        @if ($order->productionCosts->count() > 0)
+                            <div class="bg-purple-50 px-4 py-2 rounded-xl">
+                                <p class="text-sm font-semibold text-purple-900">
+                                    Total: Rp {{ number_format($order->productionCosts->sum('amount'), 0, ',', '.') }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+
+                    @if ($order->productionCosts->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Jenis Biaya</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Deskripsi</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Jumlah</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @foreach ($order->productionCosts as $cost)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">{{ $cost->type }}
+                                                </div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">{{ $cost->description ?: '-' }}
+                                                </div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm font-medium text-gray-900">Rp
+                                                    {{ number_format($cost->amount, 0, ',', '.') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <form action="{{ route('costs.destroy', $cost) }}" method="POST"
+                                                    onsubmit="return confirm('Yakin ingin menghapus biaya produksi ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="current_tab" value="biaya">
+                                                    <button type="submit"
+                                                        class="text-red-600 hover:text-red-800 text-sm font-medium transition-colors">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-12">
+                            <div
+                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
+                                    </path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 text-lg font-medium">Belum ada data biaya produksi</p>
+                            <p class="text-gray-400 text-sm mt-1">Tambahkan biaya produksi pertama untuk order ini</p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Add Production Cost Form Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Tambah Biaya Produksi</h3>
+                    </div>
+
+                    <form action="{{ route('costs.store', $order) }}" method="POST"
+                        class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Biaya</label>
+                            <select name="type"
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                required>
+                                <option value="">-- Pilih --</option>
+                                <option value="Tenaga Kerja">Tenaga Kerja</option>
+                                <option value="Overhead">Overhead</option>
+                                <option value="Transportasi">Transportasi</option>
+                                <option value="Biaya Pengiriman">Biaya Pengiriman</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                            <input type="text" name="description"
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                placeholder="Deskripsi biaya (opsional)" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                <input type="text" name="amount"
+                                    class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="0" required oninput="formatNumber(this)" />
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <button type="submit"
+                                class="w-full bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors font-medium">
+                                Tambah Biaya Produksi
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -2140,58 +1901,67 @@
                         <h3 class="text-lg font-semibold text-gray-900">Analisis Margin, Laba/Rugi & Status</h3>
                     </div>
 
-                    @if($order->isCustomProduct())
-                    <!-- Margin Calculator for Custom Products -->
-                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-6">
-                        <h4 class="font-semibold text-blue-900 mb-4">Margin Calculator (Alat Bantu Perhitungan)</h4>
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-blue-700 mb-2">Margin (%)</label>
-                                <div class="relative">
-                                    <input type="number" id="margin_percentage" value="30" min="0" max="100" step="0.1"
-                                        class="w-full pr-8 border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                        oninput="updateMarginCalculation()" />
-                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500">%</span>
+                    @if ($order->isCustomProduct())
+                        <!-- Margin Calculator for Custom Products -->
+                        <div class="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-6">
+                            <h4 class="font-semibold text-blue-900 mb-4">Margin Calculator (Alat Bantu Perhitungan)
+                            </h4>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-blue-700 mb-2">Margin (%)</label>
+                                    <div class="relative">
+                                        <input type="number" id="margin_percentage" value="30"
+                                            min="0" max="100" step="0.1"
+                                            class="w-full pr-8 border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                            oninput="updateMarginCalculation()" />
+                                        <span
+                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500">%</span>
+                                    </div>
+                                    <p class="text-xs text-blue-600 mt-1">Atur margin sesuai kebutuhan untuk
+                                        perhitungan</p>
                                 </div>
-                                <p class="text-xs text-blue-600 mt-1">Atur margin sesuai kebutuhan untuk perhitungan</p>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="text-sm font-semibold text-blue-900 mb-3">Hasil Perhitungan:</h5>
+                                    @php
+                                        $totalPembelian = $order->purchases->sum(function ($purchase) {
+                                            return $purchase->quantity * $purchase->price;
+                                        });
+                                        $totalBiayaProduksi = $order->productionCosts->sum('amount');
+                                        $totalHPP = $totalPembelian + $totalBiayaProduksi;
+                                        $marginPercentage = 30;
+                                        $marginAmount = $totalHPP * ($marginPercentage / 100);
+                                        $totalHargaPerhitungan = $totalHPP + $marginAmount;
+                                    @endphp
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Total HPP:</span>
+                                            <span class="font-medium" id="total_hpp">Rp
+                                                {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-blue-600">Margin (<span
+                                                    id="margin_percent">{{ $marginPercentage }}</span>%):</span>
+                                            <span class="text-blue-600 font-medium" id="margin_amount">Rp
+                                                {{ number_format($marginAmount, 0, ',', '.') }}</span>
+                                        </div>
+                                        <hr class="border-blue-200">
+                                        <div class="flex justify-between">
+                                            <span class="text-blue-900 font-semibold">Harga Jual (Perhitungan):</span>
+                                            <span class="text-blue-900 font-bold" id="total_harga_invoice">Rp
+                                                {{ number_format($totalHargaPerhitungan, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-white p-4 rounded-lg">
-                                <h5 class="text-sm font-semibold text-blue-900 mb-3">Hasil Perhitungan:</h5>
-                                @php
-                                    $totalPembelian = $order->purchases->sum(function ($purchase) {
-                                        return $purchase->quantity * $purchase->price;
-                                    });
-                                    $totalBiayaProduksi = $order->productionCosts->sum('amount');
-                                    $totalHPP = $totalPembelian + $totalBiayaProduksi;
-                                    $marginPercentage = 30;
-                                    $marginAmount = $totalHPP * ($marginPercentage / 100);
-                                    $totalHargaPerhitungan = $totalHPP + $marginAmount;
-                                @endphp
-                                <div class="space-y-2 text-sm">
-                                    <div class="flex justify-between">
-                                        <span class="text-gray-600">Total HPP:</span>
-                                        <span class="font-medium" id="total_hpp">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-600">Margin (<span id="margin_percent">{{ $marginPercentage }}</span>%):</span>
-                                        <span class="text-blue-600 font-medium" id="margin_amount">Rp {{ number_format($marginAmount, 0, ',', '.') }}</span>
-                                    </div>
-                                    <hr class="border-blue-200">
-                                    <div class="flex justify-between">
-                                        <span class="text-blue-900 font-semibold">Harga Jual (Perhitungan):</span>
-                                        <span class="text-blue-900 font-bold" id="total_harga_invoice">Rp {{ number_format($totalHargaPerhitungan, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
+                            <div class="mt-4 p-3 bg-blue-100 rounded-lg">
+                                <p class="text-xs text-blue-800">
+                                    <strong>Info:</strong> Alat bantu perhitungan margin untuk membantu penjual
+                                    menentukan harga jual.
+                                    Hasil perhitungan ini tidak otomatis digunakan untuk invoice.
+                                    Invoice akan menggunakan margin default 30% atau sesuai input saat membuat invoice.
+                                </p>
                             </div>
                         </div>
-                        <div class="mt-4 p-3 bg-blue-100 rounded-lg">
-                            <p class="text-xs text-blue-800">
-                                <strong>Info:</strong> Alat bantu perhitungan margin untuk membantu penjual menentukan harga jual. 
-                                Hasil perhitungan ini tidak otomatis digunakan untuk invoice. 
-                                Invoice akan menggunakan margin default 30% atau sesuai input saat membuat invoice.
-                            </p>
-                        </div>
-                    </div>
                     @endif
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -2291,11 +2061,12 @@
                 // Margin calculation for custom products
                 function updateMarginCalculation() {
                     const marginPercentage = parseFloat(document.getElementById('margin_percentage').value) || 0;
-                    const totalHPP = {{ $order->isCustomProduct() ? $order->purchases->sum(function ($purchase) { return $purchase->quantity * $purchase->price; }) + $order->productionCosts->sum('amount') : 0 }};
-                    
+                    const totalHPP =
+                        {{ $order->isCustomProduct()? $order->purchases->sum(function ($purchase) {return $purchase->quantity * $purchase->price;}) + $order->productionCosts->sum('amount'): 0 }};
+
                     const marginAmount = totalHPP * (marginPercentage / 100);
                     const totalHargaInvoice = totalHPP + marginAmount;
-                    
+
                     document.getElementById('margin_percent').textContent = marginPercentage.toFixed(1);
                     document.getElementById('margin_amount').textContent = 'Rp ' + marginAmount.toLocaleString('id-ID');
                     document.getElementById('total_harga_invoice').textContent = 'Rp ' + totalHargaInvoice.toLocaleString('id-ID');

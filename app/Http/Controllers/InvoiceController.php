@@ -85,18 +85,37 @@ class InvoiceController extends Controller
             // Calculate payment status based on incomes
             $totalPaid = $order->incomes->sum('amount');
             
+            // Get the latest income to determine payment status
+            $latestIncome = $order->incomes()->latest('date')->first();
+            
             if ($order->product_type === 'custom') {
-                // For custom products: don't calculate remaining amount since price is not determined
-                $paymentStatus = $totalPaid > 0 ? 'Partial' : 'Unpaid';
+                // For custom products: use income type for payment status
+                if ($latestIncome) {
+                    switch ($latestIncome->type) {
+                        case 'Lunas':
+                            $paymentStatus = 'Paid';
+                            break;
+                        case 'Cicilan':
+                            $paymentStatus = 'Partial';
+                            break;
+                        case 'DP':
+                        default:
+                            $paymentStatus = 'Partial';
+                            break;
+                    }
+                } else {
+                    $paymentStatus = 'Unpaid';
+                }
                 $remainingAmount = 0; // Don't show remaining amount for custom products
             } else {
-                // For fixed products: calculate based on total order value
+                // For fixed products: calculate based on total order value and income type
                 $totalOrderValue = $order->total_price * $order->quantity;
                 $remainingAmount = $totalOrderValue - $totalPaid;
                 
-                if ($totalPaid >= $totalOrderValue) {
+                if ($latestIncome && $latestIncome->type === 'Lunas') {
                     $paymentStatus = 'Paid';
-                    // Note: Order status should only be changed manually via Info Order tab
+                } elseif ($totalPaid >= $totalOrderValue) {
+                    $paymentStatus = 'Paid';
                 } elseif ($totalPaid > 0) {
                     $paymentStatus = 'Partial';
                 } else {
@@ -150,7 +169,10 @@ class InvoiceController extends Controller
                 'payment_status' => $paymentStatus,
                 
                 // Notes with payment information for custom products
-                'notes' => $request->input('notes') . ($hppBreakdown ? "\n\nInformasi Pembayaran:\nTotal DP yang sudah dibayar: Rp " . number_format($totalPaid, 0, ',', '.') . "\nStatus: " . $paymentStatus : ''),
+                'notes' => $request->input('notes') . ($hppBreakdown ? "\n\nInformasi Pembayaran:\n" . 
+                    ($latestIncome ? "Jenis Pembayaran: {$latestIncome->type}\n" : "") .
+                    "Total yang sudah dibayar: Rp " . number_format($totalPaid, 0, ',', '.') . "\n" .
+                    "Status: " . $paymentStatus : ''),
             ];
 
             $invoice = $order->invoices()->create($invoiceData);
@@ -158,9 +180,7 @@ class InvoiceController extends Controller
             DB::commit();
 
             $currentTab = $request->input('current_tab', 'invoice');
-            $successMessage = $order->isCustomProduct() 
-                ? "Invoice {$invoiceNumber} berhasil dibuat dengan margin {$marginPercentage}%."
-                : "Invoice {$invoiceNumber} berhasil dibuat.";
+            $successMessage = "Invoice {$invoiceNumber} berhasil dibuat.";
                 
             return redirect()->route('orders.show', $order)
                 ->with('success', $successMessage)
@@ -193,13 +213,24 @@ class InvoiceController extends Controller
             'status' => 'required|in:Draft,Sent,Paid,Overdue,Cancelled'
         ]);
 
-        $invoice->update(['status' => $request->status]);
+        $oldStatus = $invoice->status;
+        $newStatus = $request->status;
+        
+        $invoice->update(['status' => $newStatus]);
 
         // Note: Order status should only be changed manually via Info Order tab
         // Invoice status changes should not affect order progress
 
+        // Custom success message based on status change
+        $successMessage = 'Status invoice berhasil diupdate.';
+        if ($newStatus === 'Paid' && $oldStatus !== 'Paid') {
+            $successMessage = 'Invoice berhasil ditandai sebagai LUNAS! ✓';
+        } elseif ($newStatus === 'Sent' && $oldStatus !== 'Sent') {
+            $successMessage = 'Invoice berhasil dikirim! 📧';
+        }
+
         return redirect()->route('invoices.show', $invoice)
-            ->with('success', 'Status invoice berhasil diupdate.');
+            ->with('success', $successMessage);
     }
 
     /**
