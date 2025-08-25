@@ -6,22 +6,25 @@
             </h2>
 
             <form method="GET" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
-                <select name="period" class="border-gray-300 rounded-lg text-sm px-3 py-2">
+                <select name="period"
+                    class="border-gray-300 rounded-lg text-sm pl-3 pr-10 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="1m" {{ ($period ?? '3m') === '1m' ? 'selected' : '' }}>1 Bulan</option>
                     <option value="3m" {{ ($period ?? '3m') === '3m' ? 'selected' : '' }}>Quartal (3 Bulan)</option>
                     <option value="6m" {{ ($period ?? '3m') === '6m' ? 'selected' : '' }}>6 Bulan</option>
                     <option value="1y" {{ ($period ?? '3m') === '1y' ? 'selected' : '' }}>1 Tahun</option>
                 </select>
 
-                <select name="mode" class="border-gray-300 rounded-lg text-sm px-3 py-2">
+                <select name="mode"
+                    class="border-gray-300 rounded-lg text-sm pl-3 pr-10 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="aggregate" {{ ($mode ?? 'aggregate') === 'aggregate' ? 'selected' : '' }}>Agregat
                     </option>
                     <option value="per_production" {{ ($mode ?? 'aggregate') === 'per_production' ? 'selected' : '' }}>
-                        Per-Produksi (Rata-rata per Order)</option>
+                        Per-Produksi (Rata-rata per Order)
+                    </option>
                 </select>
 
                 <button type="submit"
-                    class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
                     Terapkan
                 </button>
             </form>
@@ -38,8 +41,7 @@
             @endif
         </div>
     </x-slot>
-
-    <div class="py-6 sm:py-8 lg:py-12">
+    <div class="py-6 sm:py-8 lg:py-12" x-data="dashboardData()" x-init="initCharts()">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Summary Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
@@ -147,21 +149,60 @@
                 </div>
             </div>
 
-            <!-- Charts -->
+            <!-- Charts with Loading -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+                <!-- Finance Chart -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 lg:col-span-2">
                     <h3 class="text-sm font-semibold text-gray-900 mb-3">
                         {{ $charts['is_per_production'] ?? false ? 'Rata-rata Pemasukan vs Pengeluaran per Order' : 'Pemasukan vs Pengeluaran (Total)' }}
                     </h3>
-                    <canvas id="financeTrendChart" height="110"></canvas>
+                    <div class="relative">
+                        <!-- Loading State -->
+                        <div x-show="!financeChartReady"
+                            class="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+                            <div class="flex flex-col items-center">
+                                <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-gray-500 mt-2">Memuat chart...</p>
+                            </div>
+                        </div>
+                        <!-- Chart Canvas -->
+                        <canvas id="financeTrendChart" height="110" x-show="financeChartReady"
+                            style="display: none;"></canvas>
+                    </div>
                 </div>
+
+                <!-- Orders Chart -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                     <h3 class="text-sm font-semibold text-gray-900 mb-3">Jumlah Order</h3>
-                    <canvas id="ordersTrendChart" height="110"></canvas>
+                    <div class="relative">
+                        <!-- Loading State -->
+                        <div x-show="!ordersChartReady"
+                            class="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+                            <div class="flex flex-col items-center">
+                                <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <p class="text-sm text-gray-500 mt-2">Memuat chart...</p>
+                            </div>
+                        </div>
+                        <!-- Chart Canvas -->
+                        <canvas id="ordersTrendChart" height="110" x-show="ordersChartReady"
+                            style="display: none;"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- Recent Data -->
+            <!-- Recent Data (existing code remains the same) -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
                 <!-- Recent Orders -->
                 <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-200">
@@ -282,9 +323,8 @@
                                             @else bg-gray-100 text-gray-800 @endif">
                                             {{ $invoice->status }}
                                         </span>
-                                        <p class="text-sm font-semibold text-gray-900 mt-1">
-                                            Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
-                                        </p>
+                                        <p class="text-sm font-semibold text-gray-900 mt-1">Rp
+                                            {{ number_format($invoice->total_amount, 0, ',', '.') }}</p>
                                     </div>
                                 </div>
                             @empty
@@ -315,108 +355,175 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const labels = @json($charts['labels'] ?? []);
-            const revenue = @json($charts['revenue'] ?? []);
-            const expenses = @json($charts['expenses'] ?? []);
-            const orders = @json($charts['orders'] ?? []);
-            const isPerProduction = @json($charts['is_per_production'] ?? false);
+        function dashboardData() {
+            return {
+                financeChartReady: false,
+                ordersChartReady: false,
 
-            const financeCtx = document.getElementById('financeTrendChart');
-            if (financeCtx && window.Chart) {
-                new Chart(financeCtx, {
-                    type: 'line',
-                    data: {
+                initCharts() {
+                    // Simulasi delay untuk memastikan DOM siap
+                    setTimeout(() => {
+                        this.renderFinanceChart();
+                        this.renderOrdersChart();
+                    }, 100);
+                },
+
+                renderFinanceChart() {
+                    const labels = @json($charts['labels'] ?? []);
+                    const revenue = @json($charts['revenue'] ?? []);
+                    const expenses = @json($charts['expenses'] ?? []);
+                    const isPerProduction = @json($charts['is_per_production'] ?? false);
+
+                    // DEBUG: Lihat data yang masuk
+                    console.log('Raw Data:', {
                         labels,
-                        datasets: [{
-                                label: isPerProduction ? 'Pemasukan / Order' : 'Pemasukan',
-                                data: revenue,
-                                borderColor: '#22c55e',
-                                backgroundColor: 'rgba(34,197,94,0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: false,
-                                pointBackgroundColor: '#22c55e',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
+                        revenue,
+                        expenses
+                    });
+
+                    const financeCtx = document.getElementById('financeTrendChart');
+                    if (financeCtx && window.Chart) {
+                        // Proses data dengan lebih hati-hati
+                        const processedRevenue = revenue.map((val, index) => {
+                            let numVal = parseFloat(val);
+                            if (isNaN(numVal) || numVal < 0) numVal = 0;
+                            console.log(`Revenue[${index}]:`, val, '->', numVal);
+                            return numVal;
+                        });
+
+                        const processedExpenses = expenses.map((val, index) => {
+                            let numVal = parseFloat(val);
+                            if (isNaN(numVal) || numVal < 0) numVal = 0;
+                            console.log(`Expenses[${index}]:`, val, '->', numVal);
+                            return numVal;
+                        });
+
+                        console.log('Processed Data:', {
+                            processedRevenue,
+                            processedExpenses
+                        });
+
+                        new Chart(financeCtx, {
+                            type: 'line',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: isPerProduction ? 'Pemasukan / Order' : 'Pemasukan',
+                                    data: processedRevenue,
+                                    borderColor: '#22c55e',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 2,
+                                    tension: 0, // UBAH KE 0 DULU untuk test linear
+                                    fill: false,
+                                    pointBackgroundColor: '#22c55e',
+                                    pointBorderColor: '#22c55e',
+                                    pointBorderWidth: 1,
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                }, {
+                                    label: isPerProduction ? 'Pengeluaran / Order' : 'Pengeluaran',
+                                    data: processedExpenses,
+                                    borderColor: '#ef4444',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 2,
+                                    tension: 0, // UBAH KE 0 DULU untuk test linear
+                                    fill: false,
+                                    pointBackgroundColor: '#ef4444',
+                                    pointBorderColor: '#ef4444',
+                                    pointBorderWidth: 1,
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                }]
                             },
-                            {
-                                label: isPerProduction ? 'Pengeluaran / Order' : 'Pengeluaran',
-                                data: expenses,
-                                borderColor: '#ef4444',
-                                backgroundColor: 'rgba(239,68,68,0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: false,
-                                pointBackgroundColor: '#ef4444',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return 'Rp ' + value.toLocaleString('id-ID');
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        display: true,
+                                        grid: {
+                                            display: true,
+                                            color: 'rgba(0,0,0,0.1)'
+                                        }
+                                    },
+                                    y: {
+                                        display: true,
+                                        beginAtZero: true,
+                                        grid: {
+                                            display: true,
+                                            color: 'rgba(0,0,0,0.1)'
+                                        },
+                                        ticks: {
+                                            callback: function(value) {
+                                                return 'Rp ' + value.toLocaleString('id-ID');
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return context.dataset.label + ': Rp ' + context.parsed.y
+                                                    .toLocaleString('id-ID');
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        },
-                        plugins: {
-                            legend: {
-                                display: true
+                        });
+
+                        // Chart selesai dibuat, tampilkan
+                        this.financeChartReady = true;
+                    }
+                },
+
+                renderOrdersChart() {
+                    const labels = @json($charts['labels'] ?? []);
+                    const orders = @json($charts['orders'] ?? []);
+
+                    const ordersCtx = document.getElementById('ordersTrendChart');
+                    if (ordersCtx && window.Chart) {
+                        new Chart(ordersCtx, {
+                            type: 'bar',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: 'Order',
+                                    data: orders,
+                                    backgroundColor: 'rgba(59,130,246,0.3)',
+                                    borderColor: '#3b82f6',
+                                    borderWidth: 1,
+                                    borderRadius: 6,
+                                }]
                             },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': Rp ' + context.parsed.y
-                                            .toLocaleString('id-ID');
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        stepSize: 1, // Menampilkan angka bulat 1, 2, 3, dst
+                                        ticks: {
+                                            precision: 0 // Menghilangkan desimal
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
                                     }
                                 }
                             }
-                        }
-                    }
-                });
-            }
+                        });
 
-            const ordersCtx = document.getElementById('ordersTrendChart');
-            if (ordersCtx && window.Chart) {
-                new Chart(ordersCtx, {
-                    type: 'bar',
-                    data: {
-                        labels,
-                        datasets: [{
-                            label: 'Order',
-                            data: orders,
-                            backgroundColor: 'rgba(59,130,246,0.3)',
-                            borderColor: '#3b82f6',
-                            borderWidth: 1,
-                            borderRadius: 6,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
+                        // Chart selesai dibuat, tampilkan
+                        this.ordersChartReady = true;
                     }
-                });
+                }
             }
-        });
+        }
     </script>
 </x-app-layout>
