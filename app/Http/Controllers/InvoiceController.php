@@ -269,11 +269,80 @@ class InvoiceController extends Controller
     {
         $invoice->load(['order.customer']);
         
-        // Generate PDF using DomPDF
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        // Prepare logo data for PDF
+        $logoBase64 = $this->getLogoAsBase64($invoice);
+        
+        // Generate PDF using DomPDF with logo data and optimized margins
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice', 'logoBase64'))
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('dpi', 150)
+            ->setOption('defaultFont', 'sans-serif')
+            ->setPaper('A4', 'portrait')
+            ->setOption('margin-top', 10)
+            ->setOption('margin-bottom', 10)
+            ->setOption('margin-left', 15)
+            ->setOption('margin-right', 15);
         
         // Return PDF for download
         return $pdf->download($invoice->invoice_number . '.pdf');
+    }
+
+    /**
+     * Get logo as base64 encoded string
+     */
+    private function getLogoAsBase64($invoice)
+    {
+        // Priority 1: Check if invoice has company_logo from storage
+        if (isset($invoice->company_logo) && $invoice->company_logo) {
+            $logoPath = storage_path('app/public/' . $invoice->company_logo);
+            if (file_exists($logoPath)) {
+                return $this->encodeImageToBase64($logoPath);
+            }
+        }
+        
+        // Priority 2: Check default logo in public/images
+        $defaultLogoPath = public_path('images/idefu.png');
+        if (file_exists($defaultLogoPath)) {
+            return $this->encodeImageToBase64($defaultLogoPath);
+        }
+        
+        // Priority 3: Check alternative logo formats
+        $logoFormats = ['idefu.jpg', 'idefu.jpeg', 'logo.png', 'logo.jpg'];
+        foreach ($logoFormats as $logoFile) {
+            $logoPath = public_path('images/' . $logoFile);
+            if (file_exists($logoPath)) {
+                return $this->encodeImageToBase64($logoPath);
+            }
+        }
+        
+        // Return null if no logo found
+        return null;
+    }
+
+    /**
+     * Encode image file to base64
+     */
+    private function encodeImageToBase64($imagePath)
+    {
+        try {
+            $imageData = file_get_contents($imagePath);
+            $imageType = pathinfo($imagePath, PATHINFO_EXTENSION);
+            
+            // Handle different image formats
+            $mimeType = match(strtolower($imageType)) {
+                'png' => 'image/png',
+                'jpg', 'jpeg' => 'image/jpeg',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                default => 'image/png'
+            };
+            
+            return 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
+        } catch (\Exception $e) {
+            \Log::error('Error encoding logo to base64: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**

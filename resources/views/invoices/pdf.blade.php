@@ -22,13 +22,13 @@
         .invoice-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px 15px;
             background: white;
         }
 
         .header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
             border-bottom: 3px solid #2563eb;
         }
 
@@ -66,7 +66,8 @@
         }
 
         .company-details {
-            padding-left: 15px;
+            padding-left: 20px;
+            vertical-align: middle;
         }
 
         .company-name {
@@ -100,7 +101,7 @@
         }
 
         .billing-section {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .billing-table {
@@ -135,9 +136,9 @@
 
         .invoice-details {
             background: #f8fafc;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-left: 4px solid #2563eb;
         }
 
@@ -164,7 +165,7 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -203,7 +204,7 @@
         .totals-section {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .totals-table {
@@ -236,9 +237,9 @@
 
         .payment-section {
             background: #f1f5f9;
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .payment-title {
@@ -267,7 +268,7 @@
         }
 
         .terms-section {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .terms-title {
@@ -292,7 +293,7 @@
         }
 
         .signature-section {
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .signature-table {
@@ -310,7 +311,7 @@
         .signature-title {
             font-weight: bold;
             color: #374151;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         .signature-line {
@@ -321,9 +322,9 @@
         }
 
         .footer {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
-            padding-top: 15px;
+            padding-top: 12px;
             border-top: 1px solid #e5e7eb;
             font-size: 10px;
             color: #6b7280;
@@ -331,12 +332,17 @@
 
         @media print {
             .invoice-container {
-                padding: 0;
+                padding: 5px 10px;
                 max-width: none;
             }
 
             .signature-section {
                 page-break-inside: avoid;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
             }
         }
     </style>
@@ -351,14 +357,13 @@
                     <td>
                         <table class="company-info-table">
                             <tr>
-                                <td style="width: 60px;">
-                                    @if ($invoice->company_logo)
-                                        <img src="{{ asset('storage/' . $invoice->company_logo) }}" alt="Logo Perusahaan"
-                                            style="width: 60px; height: 60px; object-fit: contain;">
+                                <td style="width: 80px; padding-right: 10px;">
+                                    @if ($logoBase64)
+                                        <img src="{{ $logoBase64 }}" alt="Logo Perusahaan"
+                                            style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;">
                                     @else
                                         <div class="logo-placeholder">
-                                            <img src="{{ asset('images/idefu.png') }}" alt="Logo Perusahaan"
-                                                style="width: 60px; height: 60px; object-fit: contain;">
+                                            IDEFU
                                         </div>
                                     @endif
                                 </td>
