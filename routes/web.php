@@ -37,11 +37,13 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('customers', CustomerController::class);
     Route::resource('products', ProductController::class);
+    Route::patch('/products/{product}/stock', [ProductController::class, 'updateStock'])->name('products.updateStock');
     Route::resource('orders', OrderController::class);
 
     // Route untuk update status order
     // Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::patch('/orders/{order}/price', [OrderController::class, 'updatePrice'])->name('orders.updatePrice');
+    Route::patch('/orders/{order}/update-custom-product', [OrderController::class, 'updateCustomProduct'])->name('orders.updateCustomProduct');
 
     // Route untuk menambah item BOM ke order
     // Route::post('/orders/{order}/boms', [OrderController::class, 'storeBomItem'])->name('orders.boms.store');

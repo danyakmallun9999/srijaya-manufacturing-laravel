@@ -14,6 +14,18 @@ class Income extends Model
         'type',
         'amount',
         'date',
+        'payment_method',
+    ];
+
+    // Payment method constants
+    const PAYMENT_METHODS = [
+        'transfer' => 'Transfer',
+        'cash' => 'Cash',
+        'transfer BCA' => 'Transfer BCA',
+        'transfer BRI' => 'Transfer BRI',
+        'transfer Mandiri' => 'Transfer Mandiri',
+        'transfer paypal' => 'Transfer PayPal',
+        'E-wallet' => 'E-Wallet'
     ];
 
     /**
@@ -22,5 +34,13 @@ class Income extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * Get the payment method display name.
+     */
+    public function getPaymentMethodDisplayAttribute()
+    {
+        return self::PAYMENT_METHODS[$this->payment_method] ?? $this->payment_method;
     }
 }

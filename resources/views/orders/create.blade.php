@@ -30,7 +30,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('orders.store') }}" x-data="{ productType: '{{ old('product_type', 'tetap') }}' }">
+                    <form method="POST" action="{{ route('orders.store') }}" enctype="multipart/form-data" x-data="{ productType: '{{ old('product_type', 'tetap') }}' }">
                         @csrf
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -107,10 +107,25 @@
                                             name="product_name" :value="old('product_name')" />
                                     </div>
                                     <div>
-                                        <x-input-label for="product_specification" :value="__('Spesifikasi')" />
-                                        <textarea id="product_specification" name="product_specification" rows="4"
-                                            class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('product_specification') }}</textarea>
+                                        <x-input-label for="custom_product_specification" :value="__('Spesifikasi')" />
+                                        <textarea id="custom_product_specification" name="custom_product_specification" rows="4"
+                                            class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" placeholder="Detail spesifikasi produk custom">{{ old('custom_product_specification') }}</textarea>
                                     </div>
+                                    <div>
+                                        <x-input-label for="custom_image" :value="__('Gambar Produk (Opsional)')" />
+                                        <input type="file" id="custom_image" name="custom_image" accept="image/*"
+                                            class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm @error('custom_image') border-red-500 @enderror" />
+                                        <p class="text-sm text-gray-500 mt-1">Upload gambar produk custom jika tersedia (Format: jpeg, png, jpg, gif, webp. Maksimal 5MB)</p>
+                                        @error('custom_image')
+                                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div x-show="productType === 'tetap'" x-transition class="mt-4">
+                                    <x-input-label for="fixed_product_specification" :value="__('Spesifikasi Tambahan (Opsional)')" />
+                                    <textarea id="fixed_product_specification" name="fixed_product_specification" rows="4"
+                                        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" placeholder="Tambahkan spesifikasi khusus jika diperlukan">{{ old('fixed_product_specification') }}</textarea>
                                 </div>
                             </div>
                         </div>

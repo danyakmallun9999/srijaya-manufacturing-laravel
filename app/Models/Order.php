@@ -39,9 +39,11 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'customer_id',
+        'product_id',
         'product_type',
         'product_name',
         'product_specification',
+        'image',
         'order_date',
         'deadline',
         'quantity',
@@ -55,6 +57,14 @@ class Order extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Get the product for the order (if it's a fixed product).
+     */
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /**
@@ -87,6 +97,17 @@ class Order extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * Get the image URL for custom products.
+     */
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return asset('images/no-image.svg');
     }
 
     /**
@@ -124,5 +145,32 @@ class Order extends Model
     public function getStatusBadgeClass(): string
     {
         return self::STATUS_BADGE_CLASSES[$this->status] ?? 'bg-gray-100 text-gray-800';
+    }
+
+    /**
+     * Check if order is for a fixed product
+     */
+    public function isFixedProduct(): bool
+    {
+        return $this->product_type === 'tetap' && $this->product_id !== null;
+    }
+
+    /**
+     * Check if order is for a custom product
+     */
+    public function isCustomProduct(): bool
+    {
+        return $this->product_type === 'custom';
+    }
+
+    /**
+     * Get product name (from product relation or product_name field)
+     */
+    public function getProductDisplayName(): string
+    {
+        if ($this->product) {
+            return $this->product->name;
+        }
+        return $this->product_name;
     }
 }

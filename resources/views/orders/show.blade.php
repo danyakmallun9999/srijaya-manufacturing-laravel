@@ -1281,6 +1281,9 @@
                                             Tanggal</th>
                                         <th
                                             class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                            Metode Pembayaran</th>
+                                        <th
+                                            class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                             Jumlah</th>
                                         <th
                                             class="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -1297,6 +1300,10 @@
                                             <td class="py-4 px-4">
                                                 <div class="text-sm text-gray-600">
                                                     {{ \Carbon\Carbon::parse($income->date)->format('d M Y') }}</div>
+                                            </td>
+                                            <td class="py-4 px-4">
+                                                <div class="text-sm text-gray-600">
+                                                    {{ $income->payment_method_display ?? '-' }}</div>
                                             </td>
                                             <td class="py-4 px-4">
                                                 <div class="text-sm font-medium text-emerald-900">Rp
@@ -1350,7 +1357,7 @@
                     </div>
 
                     <form action="{{ route('incomes.store', $order) }}" method="POST"
-                        class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         @csrf
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pemasukan</label>
@@ -1370,6 +1377,20 @@
                                 required />
                         </div>
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
+                            <select name="payment_method"
+                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                <option value="">-- Pilih Metode --</option>
+                                <option value="transfer">Transfer</option>
+                                <option value="cash">Cash</option>
+                                <option value="transfer BCA">Transfer BCA</option>
+                                <option value="transfer BRI">Transfer BRI</option>
+                                <option value="transfer Mandiri">Transfer Mandiri</option>
+                                <option value="transfer paypal">Transfer PayPal</option>
+                                <option value="E-wallet">E-Wallet</option>
+                            </select>
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
                             <div class="relative">
                                 <span
@@ -1381,7 +1402,7 @@
                         </div>
 
                         <!-- Payment Summary -->
-                        <div class="md:col-span-3">
+                        <div class="lg:col-span-4">
                             <div class="bg-gray-50 rounded-xl p-4 mb-4">
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                     <div class="flex justify-between">
@@ -1415,7 +1436,7 @@
                             </div>
                         </div>
 
-                        <div class="md:col-span-3">
+                        <div class="lg:col-span-4">
                             <button type="submit"
                                 class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
                                 Tambah Pemasukan

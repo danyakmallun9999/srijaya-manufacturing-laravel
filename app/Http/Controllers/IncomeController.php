@@ -21,6 +21,7 @@ class IncomeController extends Controller
             'type' => 'required|in:DP,Cicilan,Lunas',
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
+            'payment_method' => 'nullable|in:transfer,cash,transfer BCA,transfer BRI,transfer Mandiri,transfer paypal,E-wallet',
         ]);
 
         $totalIncomes = (float) $order->incomes()->sum('amount');
@@ -35,16 +36,8 @@ class IncomeController extends Controller
 
         $order->incomes()->create($validated);
 
-        // Update status order ke Closed jika pembayaran sudah lunas
-        $totalIncomesBaru = $order->incomes()->sum('amount');
-        if ($totalIncomesBaru >= $totalOrder && $totalOrder > 0) {
-            $order->update(['status' => 'Closed']);
-            // Tandai invoice (jika ada) sebagai Paid
-            $latestInvoice = $order->latestInvoice;
-            if ($latestInvoice) {
-                $latestInvoice->update(['status' => 'Paid']);
-            }
-        }
+        // Hapus logika otomatis mengubah status order
+        // Status order hanya diubah melalui menu Info Order
 
         $currentTab = $request->input('current_tab', 'pemasukan');
         return redirect()->route('orders.show', $order)->with('success', 'Data pemasukan berhasil ditambahkan.')->with('active_tab', $currentTab);
