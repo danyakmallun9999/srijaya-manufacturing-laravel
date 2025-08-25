@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/boms/{orderBom}', [OrderController::class, 'destroyBomItem'])->name('orders.boms.destroy'); // Disederhanakan
     // Pembelian (Purchase)
     Route::post('/orders/{order}/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::post('/orders/{order}/purchases/multiple', [PurchaseController::class, 'storeMultiple'])->name('purchases.storeMultiple');
     Route::delete('/purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
     Route::post('/orders/{order}/purchases/upload-receipt', [PurchaseController::class, 'uploadReceipt'])->name('purchases.uploadReceipt');
     // Biaya Produksi (ProductionCost)

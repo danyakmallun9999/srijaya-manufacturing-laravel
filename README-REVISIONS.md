@@ -100,6 +100,17 @@
 - ✅ **View**: Tabel dan form pemasukan dengan kolom metode pembayaran
 - ✅ **Opsi Pembayaran**: Transfer, Cash, Transfer BCA, Transfer BRI, Transfer Mandiri, Transfer PayPal, E-Wallet
 
+#### K. Fitur Input Multiple Pembelian Material:
+- ✅ **Controller**: PurchaseController dengan method `storeMultiple()` untuk handle multiple purchases
+- ✅ **Route**: Route baru untuk multiple purchases (`purchases.storeMultiple`)
+- ✅ **View**: Form dinamis dengan Alpine.js untuk tambah/hapus baris pembelian
+- ✅ **Fitur**: 
+  - Toggle antara Single Input dan Multiple Input
+  - Dynamic rows dengan tombol tambah/hapus
+  - Real-time total calculation
+  - Reset form functionality
+  - Upload foto nota untuk semua pembelian sekaligus
+
 ### ✅ 3. Menyederhanakan Form Tambah Order
 
 #### A. Menyederhanakan Form (Dengan Tetap Mendukung Produk Custom):

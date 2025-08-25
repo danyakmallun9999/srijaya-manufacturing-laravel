@@ -4,10 +4,10 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Produk') }}
             </h2>
-            <a href="{{ route('products.create') }}"
+            {{-- <a href="{{ route('products.create') }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 Tambah Produk
-            </a>
+            </a> --}}
         </div>
     </x-slot>
 
@@ -75,7 +75,8 @@
                                                     class="h-10 w-10 rounded-lg object-cover">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ $product->name }}</div>
+                                                <div class="text-sm font-medium text-gray-900">{{ $product->name }}
+                                                </div>
                                                 <div class="text-sm text-gray-500">{{ $product->description }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -85,7 +86,8 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $product->stock }}
                                                 @if ($product->isFixed())
-                                                    <button onclick="openStockModal({{ $product->id }}, {{ $product->stock }})"
+                                                    <button
+                                                        onclick="openStockModal({{ $product->id }}, {{ $product->stock }})"
                                                         class="ml-2 text-indigo-600 hover:text-indigo-900 text-xs font-medium">
                                                         Update
                                                     </button>
@@ -114,8 +116,10 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div
+                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
@@ -168,7 +172,8 @@
                                                     class="h-10 w-10 rounded-lg object-cover">
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ $order->product_name }}</div>
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $order->product_name }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $order->order_number }}</td>
@@ -179,7 +184,8 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <a href="{{ route('orders.show', $order) }}"
                                                     class="text-indigo-600 hover:text-indigo-900 mr-3">Detail</a>
-                                                <button onclick="openEditCustomModal({{ $order->id }}, '{{ $order->product_name }}', '{{ $order->product_specification ?? '' }}')"
+                                                <button
+                                                    onclick="openEditCustomModal({{ $order->id }}, '{{ $order->product_name }}', '{{ $order->product_specification ?? '' }}')"
                                                     class="text-emerald-600 hover:text-emerald-900">Edit</button>
                                             </td>
                                         </tr>
@@ -193,14 +199,17 @@
                         </div>
                     @else
                         <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div
+                                class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                                 </svg>
                             </div>
                             <p class="text-gray-500 text-lg font-medium">Tidak ada produk custom</p>
-                            <p class="text-gray-400 text-sm mt-1">Produk custom akan muncul setelah membuat order dengan produk custom</p>
+                            <p class="text-gray-400 text-sm mt-1">Produk custom akan muncul setelah membuat order
+                                dengan produk custom</p>
                         </div>
                     @endif
                 </div>
@@ -237,7 +246,8 @@
     </div>
 
     <!-- Edit Custom Product Modal -->
-    <div id="editCustomModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div id="editCustomModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Produk Custom</h3>
@@ -245,17 +255,20 @@
                     @csrf
                     @method('PATCH')
                     <div class="mb-4">
-                        <label for="edit_product_name" class="block text-sm font-medium text-gray-700 mb-2">Nama Produk</label>
+                        <label for="edit_product_name" class="block text-sm font-medium text-gray-700 mb-2">Nama
+                            Produk</label>
                         <input type="text" id="edit_product_name" name="product_name" required
                             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                     <div class="mb-4">
-                        <label for="edit_product_specification" class="block text-sm font-medium text-gray-700 mb-2">Spesifikasi</label>
+                        <label for="edit_product_specification"
+                            class="block text-sm font-medium text-gray-700 mb-2">Spesifikasi</label>
                         <textarea id="edit_product_specification" name="product_specification" rows="3"
                             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label for="edit_custom_image" class="block text-sm font-medium text-gray-700 mb-2">Gambar Produk (Opsional)</label>
+                        <label for="edit_custom_image" class="block text-sm font-medium text-gray-700 mb-2">Gambar
+                            Produk (Opsional)</label>
                         <input type="file" id="edit_custom_image" name="custom_image" accept="image/*"
                             class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                         <p class="text-sm text-gray-500 mt-1">Format: jpeg, png, jpg, gif, webp. Maksimal 5MB</p>

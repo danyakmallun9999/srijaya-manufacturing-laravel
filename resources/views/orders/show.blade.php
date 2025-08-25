@@ -16,7 +16,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}' }">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}', purchaseMode: 'single' }">
 
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show"
@@ -814,141 +814,247 @@
 
                 <!-- Add Purchase Form Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900">Tambah Pembelian Material</h3>
-                    </div>
-
-                    <form action="{{ route('purchases.store', $order) }}" method="POST"
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" enctype="multipart/form-data">
-                        @csrf
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
-                            <input type="text" name="material_name"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
-                            <input type="text" name="supplier"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
-                            <input type="text" name="quantity"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                placeholder="0" oninput="formatNumber(this)" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
-                            <div class="relative">
-                                <span
-                                    class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                                <input type="text" name="price"
-                                    class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                                    placeholder="0" oninput="formatNumber(this)" />
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
                             </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Tambah Pembelian Material</h3>
                         </div>
-                        {{-- <div class="md:col-span-2 lg:col-span-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
-                            <input type="file" name="receipt_photo" accept="image/*"
-                                class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-                        </div> --}}
-                        <!-- Untuk kode pertama dengan preview -->
-                        <div class="md:col-span-2 lg:col-span-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
-                            <div class="relative">
-                                <input type="file" name="receipt_photo" accept="image/*" class="hidden"
-                                    id="receipt_photo" onchange="previewFile(this, 'preview-1')" />
-                                <label for="receipt_photo"
-                                    class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                                    id="upload-area-1">
-                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    <span class="text-gray-600">Pilih file atau drag & drop</span>
-                                </label>
-                                <!-- Preview area -->
-                                <div id="preview-1" class="mt-3 hidden">
-                                    <div class="relative inline-block">
-                                        <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-1" />
-                                        <button type="button"
-                                            onclick="clearFile('receipt_photo', 'preview-1', null, 'upload-area-1')"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1" id="preview-name-1"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="md:col-span-2 lg:col-span-4">
-                            <button type="submit"
-                                class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
-                                Tambah Pembelian
+                        <div class="flex space-x-2">
+                            <button type="button" @click="purchaseMode = 'single'" 
+                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'single', 'bg-gray-200 text-gray-700': purchaseMode !== 'single' }"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Single Input
+                            </button>
+                            <button type="button" @click="purchaseMode = 'multiple'" 
+                                :class="{ 'bg-blue-600 text-white': purchaseMode === 'multiple', 'bg-gray-200 text-gray-700': purchaseMode !== 'multiple' }"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Multiple Input
                             </button>
                         </div>
-                    </form>
+                    </div>
 
-                    <!-- Form upload foto nota saja -->
-                    <div class="mt-8">
-                        <h4 class="text-md font-semibold text-gray-900 mb-2">Upload Foto Nota Saja</h4>
-                        <form action="{{ route('purchases.uploadReceipt', $order) }}" method="POST"
-                            enctype="multipart/form-data" class="space-y-4">
+                    <!-- Single Purchase Form -->
+                    <div x-show="purchaseMode === 'single'" class="space-y-4">
+                        <form action="{{ route('purchases.store', $order) }}" method="POST"
+                            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" enctype="multipart/form-data">
                             @csrf
-                            <div class="relative">
-                                <input type="file" name="receipt_photo" accept="image/*" required class="hidden"
-                                    id="receipt_photo_upload" onchange="previewFile(this, 'preview-2')" />
-                                <label for="receipt_photo_upload"
-                                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                                    id="upload-area-2">
-                                    <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    <span class="text-gray-600 font-medium">Pilih Foto Nota</span>
-                                    <span class="text-gray-400 text-sm">atau drag & drop di sini</span>
-                                </label>
-
-                                <!-- Preview area -->
-                                <div id="preview-2" class="mt-4 hidden">
-                                    <div class="relative inline-block">
-                                        <img class="h-32 w-auto max-w-full object-cover rounded-lg border shadow-sm"
-                                            id="preview-img-2" />
-                                        <button type="button"
-                                            onclick="clearFile('receipt_photo_upload', 'preview-2', null, 'upload-area-2')"
-                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 transition-colors shadow-md">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="mt-2">
-                                        <p class="text-sm text-gray-700 font-medium" id="preview-name-2"></p>
-                                        <p class="text-xs text-gray-500">Klik tombol merah untuk mengganti foto</p>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Material</label>
+                                <input type="text" name="material_name"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Supplier</label>
+                                <input type="text" name="supplier"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah</label>
+                                <input type="text" name="quantity"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="0" oninput="formatNumber(this)" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Harga per Unit</label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                    <input type="text" name="price"
+                                        class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        placeholder="0" oninput="formatNumber(this)" />
+                                </div>
+                            </div>
+                            <div class="md:col-span-2 lg:col-span-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
+                                <div class="relative">
+                                    <input type="file" name="receipt_photo" accept="image/*" class="hidden"
+                                        id="receipt_photo" onchange="previewFile(this, 'preview-1')" />
+                                    <label for="receipt_photo"
+                                        class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                        id="upload-area-1">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        <span class="text-gray-600">Pilih file atau drag & drop</span>
+                                    </label>
+                                    <!-- Preview area -->
+                                    <div id="preview-1" class="mt-3 hidden">
+                                        <div class="relative inline-block">
+                                            <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-1" />
+                                            <button type="button"
+                                                onclick="clearFile('receipt_photo', 'preview-1', null, 'upload-area-1')"
+                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1" id="preview-name-1"></p>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="flex justify-end">
+                            <div class="md:col-span-2 lg:col-span-4">
                                 <button type="submit"
-                                    class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
-                                    Upload Foto Nota
+                                    class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                    Tambah Pembelian
                                 </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Multiple Purchase Form -->
+                    <div x-show="purchaseMode === 'multiple'" class="space-y-4" x-data="{ 
+                        purchases: [{ material_name: '', supplier: '', quantity: '', price: '' }],
+                        addRow() {
+                            this.purchases.push({ material_name: '', supplier: '', quantity: '', price: '' });
+                        },
+                        removeRow(index) {
+                            if (this.purchases.length > 1) {
+                                this.purchases.splice(index, 1);
+                            }
+                        },
+                        getTotal() {
+                            return this.purchases.reduce((total, purchase) => {
+                                const quantity = parseFloat(purchase.quantity.replace(/[^\d]/g, '')) || 0;
+                                const price = parseFloat(purchase.price.replace(/[^\d]/g, '')) || 0;
+                                return total + (quantity * price);
+                            }, 0);
+                        }
+                    }">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-md font-semibold text-gray-900">Input Multiple Material</h4>
+                            <div class="flex space-x-2">
+                                <button type="button" @click="addRow()" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                    + Tambah Baris
+                                </button>
+                                <button type="button" @click="purchases = [{ material_name: '', supplier: '', quantity: '', price: '' }]" 
+                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('purchases.storeMultiple', $order) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="space-y-4">
+                                <!-- Table Header -->
+                                <div class="grid grid-cols-12 gap-4 bg-gray-50 p-4 rounded-xl">
+                                    <div class="col-span-4">
+                                        <label class="block text-sm font-semibold text-gray-700">Nama Material *</label>
+                                    </div>
+                                    <div class="col-span-3">
+                                        <label class="block text-sm font-semibold text-gray-700">Supplier</label>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Jumlah *</label>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Harga *</label>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label class="block text-sm font-semibold text-gray-700">Aksi</label>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Rows -->
+                                <template x-for="(purchase, index) in purchases" :key="index">
+                                    <div class="grid grid-cols-12 gap-4 items-end border-b border-gray-100 pb-4">
+                                        <div class="col-span-4">
+                                            <input type="text" :name="`purchases[${index}][material_name]`" x-model="purchase.material_name"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="Nama material" required />
+                                        </div>
+                                        <div class="col-span-3">
+                                            <input type="text" :name="`purchases[${index}][supplier]`" x-model="purchase.supplier"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="Supplier" />
+                                        </div>
+                                        <div class="col-span-2">
+                                            <input type="text" :name="`purchases[${index}][quantity]`" x-model="purchase.quantity"
+                                                class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                placeholder="0" required oninput="formatNumber(this)" />
+                                        </div>
+                                        <div class="col-span-2">
+                                            <div class="relative">
+                                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">Rp</span>
+                                                <input type="text" :name="`purchases[${index}][price]`" x-model="purchase.price"
+                                                    class="w-full pl-8 pr-4 py-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                                    placeholder="0" required oninput="formatNumber(this)" />
+                                            </div>
+                                        </div>
+                                        <div class="col-span-1">
+                                            <button type="button" @click="removeRow(index)" 
+                                                class="w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                                                :disabled="purchases.length === 1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Total Summary -->
+                                <div class="bg-blue-50 p-4 rounded-xl">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-semibold text-blue-900">Total Estimasi:</span>
+                                        <span class="text-lg font-bold text-blue-900" x-text="'Rp ' + getTotal().toLocaleString('id-ID')"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Receipt Photo -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Foto Nota (Opsional)</label>
+                                    <div class="relative">
+                                        <input type="file" name="receipt_photo" accept="image/*" class="hidden"
+                                            id="receipt_photo_multiple" onchange="previewFile(this, 'preview-multiple')" />
+                                        <label for="receipt_photo_multiple"
+                                            class="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                                            id="upload-area-multiple">
+                                            <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="text-gray-600">Pilih file atau drag & drop</span>
+                                        </label>
+                                        <!-- Preview area -->
+                                        <div id="preview-multiple" class="mt-3 hidden">
+                                            <div class="relative inline-block">
+                                                <img class="h-24 w-24 object-cover rounded-lg border" id="preview-img-multiple" />
+                                                <button type="button"
+                                                    onclick="clearFile('receipt_photo_multiple', 'preview-multiple', null, 'upload-area-multiple')"
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mt-1" id="preview-name-multiple"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div>
+                                    <button type="submit"
+                                        class="w-full bg-emerald-600 text-white px-6 py-3 rounded-xl hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors font-medium">
+                                        Simpan Semua Pembelian
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>

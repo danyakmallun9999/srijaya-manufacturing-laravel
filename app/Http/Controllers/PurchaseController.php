@@ -34,6 +34,56 @@ class PurchaseController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Data pembelian berhasil ditambahkan.')->with('active_tab', $currentTab);
     }
 
+    public function storeMultiple(Request $request, Order $order)
+    {
+        $request->validate([
+            'purchases' => 'required|array|min:1',
+            'purchases.*.material_name' => 'required|string|max:255',
+            'purchases.*.supplier' => 'nullable|string|max:255',
+            'purchases.*.quantity' => 'required|string',
+            'purchases.*.price' => 'required|string',
+            'receipt_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $purchases = $request->input('purchases');
+        $createdCount = 0;
+
+        foreach ($purchases as $purchaseData) {
+            // Skip empty rows
+            if (empty($purchaseData['material_name']) || empty($purchaseData['quantity']) || empty($purchaseData['price'])) {
+                continue;
+            }
+
+            // Convert formatted numbers back to integers
+            $quantity = (float) str_replace(['.', ','], ['', ''], $purchaseData['quantity']);
+            $price = (int) str_replace(['.', ','], ['', ''], $purchaseData['price']);
+
+            $order->purchases()->create([
+                'material_name' => $purchaseData['material_name'],
+                'supplier' => $purchaseData['supplier'] ?? null,
+                'quantity' => $quantity,
+                'price' => $price,
+            ]);
+
+            $createdCount++;
+        }
+
+        // Handle photo upload if provided
+        if ($request->hasFile('receipt_photo')) {
+            $photoPath = $request->file('receipt_photo')->store('receipts', 'public');
+            // Add receipt photo to the last purchase
+            if ($createdCount > 0) {
+                $lastPurchase = $order->purchases()->latest()->first();
+                $lastPurchase->update(['receipt_photo' => $photoPath]);
+            }
+        }
+
+        $currentTab = $request->input('current_tab', 'pembelian');
+        return redirect()->route('orders.show', $order)
+            ->with('success', "Berhasil menambahkan {$createdCount} data pembelian material.")
+            ->with('active_tab', $currentTab);
+    }
+
     public function uploadReceipt(Request $request, Order $order)
     {
         $request->validate([
