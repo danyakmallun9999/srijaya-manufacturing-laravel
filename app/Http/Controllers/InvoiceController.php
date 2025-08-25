@@ -279,10 +279,10 @@ class InvoiceController extends Controller
             ->setOption('dpi', 150)
             ->setOption('defaultFont', 'sans-serif')
             ->setPaper('A4', 'portrait')
-            ->setOption('margin-top', 10)
-            ->setOption('margin-bottom', 10)
-            ->setOption('margin-left', 15)
-            ->setOption('margin-right', 15);
+            ->setOption('margin-top', 3)
+            ->setOption('margin-bottom', 3)
+            ->setOption('margin-left', 8)
+            ->setOption('margin-right', 8);
         
         // Return PDF for download
         return $pdf->download($invoice->invoice_number . '.pdf');

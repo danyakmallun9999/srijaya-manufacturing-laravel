@@ -14,22 +14,22 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 16px;
+            line-height: 1.5;
             background: #fff;
         }
 
         .invoice-container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 10px 15px;
+            padding: 8px 15px;
             background: white;
         }
 
         .header {
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 3px solid #2563eb;
+            border-bottom: 4px solid #2563eb;
         }
 
         .header-table {
@@ -53,16 +53,16 @@
         }
 
         .logo-placeholder {
-            width: 60px;
-            height: 60px;
+            width: 100px;
+            height: 100px;
             background: #2563eb;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
             vertical-align: middle;
             color: white;
             font-weight: bold;
-            font-size: 14px;
-            line-height: 60px;
+            font-size: 22px;
+            line-height: 100px;
         }
 
         .company-details {
@@ -71,7 +71,7 @@
         }
 
         .company-name {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 8px;
@@ -80,23 +80,23 @@
         .company-address {
             color: #666;
             line-height: 1.5;
-            font-size: 11px;
+            font-size: 15px;
         }
 
         .invoice-header {
             text-align: right;
-            width: 200px;
+            width: 250px;
         }
 
         .invoice-title {
-            font-size: 32px;
+            font-size: 42px;
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 10px;
         }
 
         .invoice-number {
-            font-size: 14px;
+            font-size: 18px;
             color: #666;
         }
 
@@ -121,7 +121,7 @@
         }
 
         .section-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 10px;
@@ -132,14 +132,15 @@
         .address-info {
             line-height: 1.5;
             color: #333;
+            font-size: 15px;
         }
 
         .invoice-details {
             background: #f8fafc;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #2563eb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #2563eb;
         }
 
         .details-grid {
@@ -156,33 +157,36 @@
         .detail-label {
             font-weight: bold;
             color: #374151;
+            font-size: 15px;
         }
 
         .detail-value {
             color: #1f2937;
+            font-size: 15px;
         }
 
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
-            border-radius: 8px;
+            margin-bottom: 20px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .items-table th {
             background: #2563eb;
             color: white;
-            padding: 12px 8px;
+            padding: 15px 10px;
             text-align: left;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 15px;
         }
 
         .items-table td {
-            padding: 10px 8px;
+            padding: 12px 10px;
             border-bottom: 1px solid #e5e7eb;
+            font-size: 15px;
         }
 
         .items-table tr:last-child td {
@@ -204,11 +208,11 @@
         .totals-section {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .totals-table {
-            min-width: 300px;
+            min-width: 350px;
         }
 
         .totals-table tr {
@@ -216,13 +220,14 @@
         }
 
         .totals-table tr:last-child {
-            border-bottom: 2px solid #2563eb;
+            border-bottom: 3px solid #2563eb;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 18px;
         }
 
         .totals-table td {
-            padding: 8px 15px;
+            padding: 10px 15px;
+            font-size: 15px;
         }
 
         .total-label {
@@ -237,13 +242,13 @@
 
         .payment-section {
             background: #f1f5f9;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
         .payment-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 10px;
@@ -251,8 +256,8 @@
 
         .payment-method {
             background: white;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 15px;
+            border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
 
@@ -260,26 +265,27 @@
             font-weight: bold;
             color: #374151;
             margin-bottom: 5px;
+            font-size: 15px;
         }
 
         .method-details {
-            font-size: 11px;
+            font-size: 14px;
             color: #6b7280;
         }
 
         .terms-section {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .terms-title {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
             color: #1e40af;
             margin-bottom: 10px;
         }
 
         .terms-content {
-            font-size: 11px;
+            font-size: 14px;
             color: #4b5563;
             line-height: 1.5;
         }
@@ -289,11 +295,11 @@
         }
 
         .terms-content li {
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
         .signature-section {
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         .signature-table {
@@ -311,22 +317,23 @@
         .signature-title {
             font-weight: bold;
             color: #374151;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
+            font-size: 16px;
         }
 
         .signature-line {
             border-top: 2px solid #374151;
             padding-top: 8px;
-            font-size: 11px;
+            font-size: 14px;
             color: #6b7280;
         }
 
         .footer {
-            margin-top: 15px;
+            margin-top: 20px;
             text-align: center;
-            padding-top: 12px;
+            padding-top: 15px;
             border-top: 1px solid #e5e7eb;
-            font-size: 10px;
+            font-size: 13px;
             color: #6b7280;
         }
 
@@ -357,10 +364,10 @@
                     <td>
                         <table class="company-info-table">
                             <tr>
-                                <td style="width: 80px; padding-right: 10px;">
+                                <td style="width: 120px; padding-right: 15px;">
                                     @if ($logoBase64)
                                         <img src="{{ $logoBase64 }}" alt="Logo Perusahaan"
-                                            style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px;">
+                                            style="width: 100px; height: 100px; object-fit: contain; border-radius: 10px;">
                                     @else
                                         <div class="logo-placeholder">
                                             IDEFU
@@ -447,29 +454,30 @@
                 <tr>
                     <td class="text-center">1</td>
                     <td>
-                        <strong>{{ $invoice->order->product_name }}</strong><br>
+                        <strong style="font-size: 16px;">{{ $invoice->order->product_name }}</strong><br>
                         @if ($invoice->order->product_type === 'custom')
-                            <small style="color: #666;">Spesifikasi:
+                            <small style="color: #666; font-size: 13px;">Spesifikasi:
                                 {{ $invoice->order->product_specification ?? 'Custom made product sesuai requirement' }}</small>
-                            <br><small style="color: #666;">Tipe: Produk Custom</small>
+                            <br><small style="color: #666; font-size: 13px;">Tipe: Produk Custom</small>
                         @else
                             @if ($invoice->order->product)
-                                <small style="color: #666;">Model:
+                                <small style="color: #666; font-size: 13px;">Model:
                                     {{ $invoice->order->product->model ?? '-' }}</small><br>
-                                <small style="color: #666;">Jenis Kayu:
+                                <small style="color: #666; font-size: 13px;">Jenis Kayu:
                                     {{ $invoice->order->product->wood_type ?? '-' }}</small><br>
-                                <small style="color: #666;">Detail:
+                                <small style="color: #666; font-size: 13px;">Detail:
                                     {{ $invoice->order->product->details ?? '-' }}</small>
                             @else
-                                <small style="color: #666;">Produk Tetap</small>
+                                <small style="color: #666; font-size: 13px;">Produk Tetap</small>
                             @endif
                         @endif
                     </td>
-                    <td class="text-center">{{ $invoice->order->quantity }} pcs</td>
-                    <td class="text-right">Rp
+                    <td class="text-center" style="font-size: 15px;">{{ $invoice->order->quantity }} pcs</td>
+                    <td class="text-right" style="font-size: 15px;">Rp
                         {{ number_format($invoice->order->product_type === 'custom' ? $invoice->subtotal / $invoice->order->quantity : $invoice->order->total_price ?? 0, 0, ',', '.') }}
                     </td>
-                    <td class="text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+                    <td class="text-right" style="font-size: 15px; font-weight: bold;">Rp
+                        {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
                 </tr>
             </tbody>
         </table>
@@ -508,18 +516,18 @@
                 <div class="payment-method">
                     <div class="method-name">Status Pembayaran</div>
                     <div class="method-details">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>Total DP yang sudah dibayar:</span>
-                            <span style="font-weight: bold; color: #059669;">Rp
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 14px;">Total DP yang sudah dibayar:</span>
+                            <span style="font-weight: bold; color: #059669; font-size: 14px;">Rp
                                 {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span>Status:</span>
+                            <span style="font-size: 14px;">Status:</span>
                             <span
-                                style="font-weight: bold; color: #2563eb;">{{ $invoice->payment_status_display }}</span>
+                                style="font-weight: bold; color: #2563eb; font-size: 14px;">{{ $invoice->payment_status_display }}</span>
                         </div>
                         <div
-                            style="margin-top: 10px; padding: 8px; background: #fef3c7; border-radius: 4px; font-size: 11px; color: #92400e;">
+                            style="margin-top: 12px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 13px; color: #92400e;">
                             <strong>Info:</strong> Harga final akan dihitung setelah produksi
                             selesai.
                         </div>
@@ -568,7 +576,7 @@
                     <td>
                         <div class="signature-title">Penjual</div>
                         <div class="signature-line">
-                            <strong>{{ $invoice->seller_name ?? 'Manager SIM Make To Order' }}</strong><br>
+                            <strong>{{ $invoice->seller_name ?? 'Idefu Furniture' }}</strong><br>
                             Tanggal: ___________
                         </div>
                     </td>
@@ -587,7 +595,7 @@
         <div class="footer">
             <p><strong>Terima kasih telah mempercayakan bisnis Anda kepada kami.</strong></p>
             <p>Invoice ini dibuat secara elektronik dan sah tanpa tanda tangan basah.</p>
-            <p>Untuk pertanyaan mengenai invoice ini, hubungi kami di info@simmto.com atau (021) 1234-5678</p>
+            <p>Untuk pertanyaan mengenai invoice ini, hubungi kami di idesign@idefu.co.id atau +6285741555089</p>
         </div>
     </div>
 </body>

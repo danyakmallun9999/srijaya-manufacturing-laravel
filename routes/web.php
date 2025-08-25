@@ -12,7 +12,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 // Halaman yang bisa diakses semua yang sudah login
