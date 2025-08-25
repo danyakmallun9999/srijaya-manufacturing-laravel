@@ -352,18 +352,23 @@
                         <table class="company-info-table">
                             <tr>
                                 <td style="width: 60px;">
-                                    <div class="logo-placeholder">
-                                        <img src="{{ asset('images/idefu.png') }}" alt="Nama Perusahaan">
-                                    </div>
+                                    @if ($invoice->company_logo)
+                                        <img src="{{ asset('storage/' . $invoice->company_logo) }}" alt="Logo Perusahaan"
+                                            style="width: 60px; height: 60px; object-fit: contain;">
+                                    @else
+                                        <div class="logo-placeholder">
+                                            <img src="{{ asset('images/idefu.png') }}" alt="Logo Perusahaan"
+                                                style="width: 60px; height: 60px; object-fit: contain;">
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="company-details">
-                                    <div class="company-name">Idefu Furniture</div>
+                                    <div class="company-name">{{ $invoice->company_name ?? 'Idefu Furniture' }}</div>
                                     <div class="company-address">
-                                        Office : Jl. Hugeng Imam Santoso Km.09 NGabul Tahunan Jepara, Central Java
-                                        Indonesia.
-                                        Workshop : Bawu Rt 10/02 Batealit Jepara.<br>
-                                        Telp: +6285741555089 | Email: idesign@idefu.co.id | idefu.co.id
-
+                                        {{ $invoice->company_address ?? 'Office : Jl. Hugeng Imam Santoso Km.09 NGabul Tahunan Jepara, Central Java Indonesia. Workshop : Bawu Rt 10/02 Batealit Jepara.' }}<br>
+                                        Telp: {{ $invoice->company_phone ?? '+6285741555089' }} | Email:
+                                        {{ $invoice->company_email ?? 'idesign@idefu.co.id' }} |
+                                        {{ $invoice->company_website ?? 'idefu.co.id' }}
                                     </div>
                                 </td>
                             </tr>
@@ -392,7 +397,7 @@
                         <div class="section-title">SHIP TO</div>
                         <div class="address-info">
                             <strong>{{ $invoice->order->customer->name ?? 'N/A' }}</strong><br>
-                            {{ $invoice->shipping_address ?? 'Alamat pengiriman akan ditampilkan di sini' }}<br>
+                            {{ $invoice->shipping_address ?? ($invoice->order->customer->address ?? 'Alamat pengiriman akan ditampilkan di sini') }}<br>
                         </div>
                     </td>
                 </tr>
@@ -412,8 +417,8 @@
                     <span class="detail-value">{{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Status:</span>
-                    <span class="detail-value">{{ $invoice->status }}</span>
+                    <span class="detail-label">Status Pembayaran:</span>
+                    <span class="detail-value">{{ $invoice->payment_status_display }}</span>
                 </div>
                 <div class="detail-item">
                     <span class="detail-label">PO Number:</span>
@@ -438,12 +443,26 @@
                     <td class="text-center">1</td>
                     <td>
                         <strong>{{ $invoice->order->product_name }}</strong><br>
-                        <small style="color: #666;">Spesifikasi:
-                            {{ $invoice->order->product_specs ?? 'Custom made product sesuai requirement' }}</small>
+                        @if ($invoice->order->product_type === 'custom')
+                            <small style="color: #666;">Spesifikasi:
+                                {{ $invoice->order->product_specification ?? 'Custom made product sesuai requirement' }}</small>
+                            <br><small style="color: #666;">Tipe: Produk Custom</small>
+                        @else
+                            @if ($invoice->order->product)
+                                <small style="color: #666;">Model:
+                                    {{ $invoice->order->product->model ?? '-' }}</small><br>
+                                <small style="color: #666;">Jenis Kayu:
+                                    {{ $invoice->order->product->wood_type ?? '-' }}</small><br>
+                                <small style="color: #666;">Detail:
+                                    {{ $invoice->order->product->details ?? '-' }}</small>
+                            @else
+                                <small style="color: #666;">Produk Tetap</small>
+                            @endif
+                        @endif
                     </td>
                     <td class="text-center">{{ $invoice->order->quantity }} pcs</td>
                     <td class="text-right">Rp
-                        {{ number_format($invoice->order->unit_price ?? ($invoice->order->total_price ?? 0), 0, ',', '.') }}
+                        {{ number_format($invoice->order->product_type === 'custom' ? $invoice->subtotal / $invoice->order->quantity : $invoice->order->total_price ?? 0, 0, ',', '.') }}
                     </td>
                     <td class="text-right">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
                 </tr>
@@ -458,36 +477,82 @@
                     <td class="total-amount">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td class="total-label">Biaya Kirim:</td>
+                    <td class="total-label">Biaya Pengiriman:</td>
                     <td class="total-amount">Rp {{ number_format($invoice->shipping_cost ?? 0, 0, ',', '.') }}</td>
                 </tr>
-                <tr>
-                    <td class="total-label"><strong>TOTAL:</strong></td>
-                    <td class="total-amount" style="color: #2563eb;"><strong>Rp
-                            {{ number_format($invoice->total_amount, 0, ',', '.') }}</strong></td>
-                </tr>
+                @if ($invoice->order->product_type !== 'custom')
+                    <tr>
+                        <td class="total-label"><strong>TOTAL:</strong></td>
+                        <td class="total-amount" style="color: #2563eb;"><strong>Rp
+                                {{ number_format($invoice->total_amount, 0, ',', '.') }}</strong></td>
+                    </tr>
+                @else
+                    <tr>
+                        <td class="total-label"><strong>HARGA AKAN DIHITUNG:</strong></td>
+                        <td class="total-amount" style="color: #dc2626; font-style: italic;"><strong>Akan dihitung
+                                setelah produksi selesai.</strong></td>
+                    </tr>
+                @endif
             </table>
         </div>
 
-        <!-- Payment Methods -->
-        <div class="payment-section">
-            <div class="payment-title">Metode Pembayaran</div>
-            <div class="payment-method">
-                <div class="method-name">Transfer Bank BCA</div>
+        @if ($invoice->order->product_type === 'custom')
+            <!-- Payment Information for Custom Products -->
+            <div class="payment-section">
+                <div class="payment-title">Informasi Pembayaran</div>
+                <div class="payment-method">
+                    <div class="method-name">Status Pembayaran</div>
+                    <div class="method-details">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Total DP yang sudah dibayar:</span>
+                            <span style="font-weight: bold; color: #059669;">Rp
+                                {{ number_format($invoice->paid_amount, 0, ',', '.') }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Status:</span>
+                            <span
+                                style="font-weight: bold; color: #2563eb;">{{ $invoice->payment_status_display }}</span>
+                        </div>
+                        <div
+                            style="margin-top: 10px; padding: 8px; background: #fef3c7; border-radius: 4px; font-size: 11px; color: #92400e;">
+                            <strong>Info:</strong> Harga final akan dihitung setelah produksi
+                            selesai.
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        @else
+            <!-- Payment Methods for Fixed Products -->
+            <div class="payment-section">
+                <div class="payment-title">Metode Pembayaran</div>
+                <div class="payment-method">
+                    <div class="method-name">{{ $invoice->payment_method_display ?? 'Transfer Bank BCA' }}</div>
+                    @if ($invoice->bank_name && $invoice->account_number)
+                        <div class="method-details">
+                            Bank: {{ $invoice->bank_name }}<br>
+                            No. Rek: {{ $invoice->account_number }}<br>
+                            Atas Nama: {{ $invoice->account_holder ?? 'Idefu Furniture' }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <!-- Terms and Conditions -->
         <div class="terms-section">
             <div class="terms-title">Syarat dan Ketentuan</div>
             <div class="terms-content">
-                <ul>
-                    <li>Pembayaran harus dilakukan sebelum tanggal jatuh tempo yang tertera pada invoice.</li>
-                    <li>Barang yang sudah dipesan dan diproduksi tidak dapat dibatalkan atau dikembalikan.</li>
-                    <li>Perubahan spesifikasi setelah produksi dimulai akan dikenakan biaya tambahan.</li>
-                    <li>Waktu pengerjaan dihitung setelah pembayaran diterima dan spesifikasi final disetujui.</li>
-                    <li>Segala perselisihan akan diselesaikan secara musyawarah atau melalui arbitrase.</li>
-                </ul>
+                @if ($invoice->terms_conditions)
+                    {!! nl2br(e($invoice->terms_conditions)) !!}
+                @else
+                    <ul>
+                        <li>Pembayaran harus dilakukan sebelum tanggal jatuh tempo yang tertera pada invoice.</li>
+                        <li>Barang yang sudah dipesan dan diproduksi tidak dapat dibatalkan atau dikembalikan.</li>
+                        <li>Perubahan spesifikasi setelah produksi dimulai akan dikenakan biaya tambahan.</li>
+                        <li>Waktu pengerjaan dihitung setelah pembayaran diterima dan spesifikasi final disetujui.</li>
+                        <li>Segala perselisihan akan diselesaikan secara musyawarah atau melalui arbitrase.</li>
+                    </ul>
+                @endif
             </div>
         </div>
 

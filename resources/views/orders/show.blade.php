@@ -16,7 +16,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}', purchaseMode: 'single' }">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8" x-data="{ tab: '{{ session('active_tab', 'info') }}', purchaseMode: 'single', showInvoiceForm: false }">
 
             @if (session('success'))
                 <div x-data="{ show: true }" x-show="show"
@@ -1586,25 +1586,65 @@
                                         </div>
                                         @php
                                             $invoiceStatusClass = 'px-3 py-1 rounded-full text-sm font-medium';
-                                            if ($invoice->status === 'Paid') {
+                                            if ($invoice->payment_status === 'Paid') {
                                                 $invoiceStatusClass .= ' bg-emerald-100 text-emerald-800';
-                                            } elseif ($invoice->status === 'Overdue') {
+                                            } elseif ($invoice->payment_status === 'Partial') {
+                                                $invoiceStatusClass .= ' bg-amber-100 text-amber-800';
+                                            } elseif ($invoice->payment_status === 'Unpaid') {
                                                 $invoiceStatusClass .= ' bg-red-100 text-red-800';
-                                            } elseif ($invoice->status === 'Sent') {
-                                                $invoiceStatusClass .= ' bg-blue-100 text-blue-800';
                                             } else {
                                                 $invoiceStatusClass .= ' bg-gray-100 text-gray-800';
                                             }
                                         @endphp
                                         <span class="{{ $invoiceStatusClass }}">
-                                            {{ $invoice->status }}
+                                            {{ $invoice->payment_status_display }}
                                         </span>
                                     </div>
 
                                     <div class="mb-4">
-                                        <p class="text-2xl font-bold text-emerald-600">
-                                            Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
-                                        </p>
+                                        @if($invoice->order->product_type === 'custom')
+                                            @php
+                                                $totalPembelian = $invoice->order->purchases->sum(function ($purchase) {
+                                                    return $purchase->quantity * $purchase->price;
+                                                });
+                                                $totalBiayaProduksi = $invoice->order->productionCosts->sum('amount');
+                                                $totalHPP = $totalPembelian + $totalBiayaProduksi;
+                                            @endphp
+                                            @if($totalHPP > 0)
+                                                <p class="text-2xl font-bold text-blue-600">
+                                                    HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    + Margin (akan ditentukan)
+                                                </p>
+                                            @else
+                                                <p class="text-2xl font-bold text-gray-500">
+                                                    Rp 0
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    Harga akan dihitung setelah produksi selesai
+                                                </p>
+                                            @endif
+                                        @else
+                                            <p class="text-2xl font-bold text-emerald-600">
+                                                Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}
+                                            </p>
+                                        @endif
+                                        @if($invoice->payment_status !== 'Unpaid')
+                                            <p class="text-sm text-gray-600">
+                                                Dibayar: Rp {{ number_format($invoice->order->incomes->sum('amount'), 0, ',', '.') }}
+                                                @php
+                                                    $totalOrderValue = $invoice->order->product_type === 'custom' ? 
+                                                        ($invoice->subtotal > 0 ? $invoice->subtotal : 0) : 
+                                                        ($invoice->order->total_price * $invoice->order->quantity);
+                                                    $totalPaid = $invoice->order->incomes->sum('amount');
+                                                    $remainingAmount = $totalOrderValue - $totalPaid;
+                                                @endphp
+                                                @if($remainingAmount > 0)
+                                                    <span class="text-red-600">(Sisa: Rp {{ number_format($remainingAmount, 0, ',', '.') }})</span>
+                                                @endif
+                                            </p>
+                                        @endif
                                     </div>
 
                                     <div class="flex space-x-2">
@@ -1612,7 +1652,7 @@
                                             class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
                                             Detail
                                         </a>
-                                        @if ($invoice->status !== 'Paid')
+                                        @if ($invoice->payment_status !== 'Paid')
                                             <a href="{{ route('invoices.download', $invoice) }}"
                                                 class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-colors text-sm font-medium text-center">
                                                 Download
@@ -1634,25 +1674,171 @@
                                 </svg>
                             </div>
                             <p class="text-gray-500 text-lg font-medium mb-4">Belum ada invoice untuk order ini</p>
-                            @if ($order->isInvoiceAllowed())
-                                <form action="{{ route('invoices.generate', $order) }}" method="POST"
-                                    class="inline">
-                                    @csrf
-                                    <input type="hidden" name="current_tab" value="invoice">
-                                    <button type="submit"
-                                        class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
-                                        Generate Invoice
-                                    </button>
-                                </form>
+                            @if ($order->incomes->count() > 0)
+                                <button @click="showInvoiceForm = true"
+                                    class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium">
+                                    Buat Invoice Baru
+                                </button>
                             @else
                                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 max-w-md mx-auto">
                                     <p class="text-sm text-amber-800">
-                                        Invoice dapat dibuat setelah order selesai dan harga jual ditentukan.
+                                        Invoice dapat dibuat setelah ada input pemasukan (DP/Cicilan/Lunas).
                                     </p>
                                 </div>
                             @endif
                         </div>
                     @endif
+                </div>
+
+                <!-- Generate Invoice Form Card -->
+                <div x-show="showInvoiceForm" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6" x-data="{ 
+                    activeSection: 'basic',
+                    sections: ['basic', 'shipping', 'payment']
+                }">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">Buat Invoice Baru</h3>
+                        </div>
+                        <button @click="showInvoiceForm = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Section Navigation -->
+                    <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-xl">
+                        <button @click="activeSection = 'basic'" 
+                            :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'basic', 'text-gray-600': activeSection !== 'basic' }"
+                            class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Dasar
+                        </button>
+                        <button @click="activeSection = 'shipping'" 
+                            :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'shipping', 'text-gray-600': activeSection !== 'shipping' }"
+                            class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Pengiriman
+                        </button>
+                        <button @click="activeSection = 'payment'" 
+                            :class="{ 'bg-white text-blue-600 shadow-sm': activeSection === 'payment', 'text-gray-600': activeSection !== 'payment' }"
+                            class="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            Pembayaran
+                        </button>
+                    </div>
+
+                    <form action="{{ route('invoices.generate', $order) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="current_tab" value="invoice">
+
+                        <!-- Basic Section -->
+                        <div x-show="activeSection === 'basic'" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Jatuh Tempo (Hari)</label>
+                                    <input type="number" name="due_days" value="30" min="1" max="365"
+                                        class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Biaya Pengiriman</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                                        <input type="text" name="shipping_cost" value="0"
+                                            class="w-full pl-12 pr-4 py-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                            placeholder="0" oninput="formatNumber(this)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                                <textarea name="notes" rows="3"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="Catatan tambahan untuk invoice..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Section -->
+                        <div x-show="activeSection === 'shipping'" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Pengiriman</label>
+                                <textarea name="shipping_address" rows="3"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="Alamat pengiriman...">{{ $order->customer->address ?? '' }}</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pengiriman</label>
+                                <input type="text" name="shipping_method"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="Contoh: JNE, SiCepat, dll" />
+                            </div>
+                        </div>
+
+                        <!-- Payment Section -->
+                        <div x-show="activeSection === 'payment'" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Metode Pembayaran</label>
+                                <select name="payment_method"
+                                    class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    <option value="">-- Pilih Metode --</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="transfer BCA">Transfer BCA</option>
+                                    <option value="transfer BRI">Transfer BRI</option>
+                                    <option value="transfer Mandiri">Transfer Mandiri</option>
+                                    <option value="transfer paypal">Transfer PayPal</option>
+                                    <option value="E-wallet">E-Wallet</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bank</label>
+                                    <input type="text" name="bank_name" value="BCA"
+                                        class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Rekening</label>
+                                    <input type="text" name="account_number"
+                                        class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        placeholder="1234567890" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Atas Nama</label>
+                                    <input type="text" name="account_holder"
+                                        class="w-full border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        placeholder="Nama pemilik rekening" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
+                            <button type="button" @click="activeSection = sections[Math.max(0, sections.indexOf(activeSection) - 1)]"
+                                x-show="activeSection !== 'basic'"
+                                class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                                ← Sebelumnya
+                            </button>
+                            <div class="flex space-x-3">
+                                <button type="button" @click="showInvoiceForm = false"
+                                    class="px-6 py-2 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors">
+                                    Batal
+                                </button>
+                                <button type="button" @click="activeSection = sections[Math.min(sections.length - 1, sections.indexOf(activeSection) + 1)]"
+                                    x-show="activeSection !== 'payment'"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors">
+                                    Selanjutnya →
+                                </button>
+                                <button type="submit" x-show="activeSection === 'payment'"
+                                    class="px-6 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                                    Buat Invoice
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Invoice Info Card -->
@@ -1670,27 +1856,27 @@
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-blue-50 p-4 rounded-xl">
-                            <h4 class="font-semibold text-blue-900 mb-3">Cara Kerja Invoice:</h4>
+                            <h4 class="font-semibold text-blue-900 mb-3">Fitur Invoice Fleksibel:</h4>
                             <ul class="text-sm text-blue-800 space-y-2">
                                 <li class="flex items-start">
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                    Invoice dibuat otomatis setelah order selesai
+                                    Invoice dapat dibuat setelah ada input pemasukan (DP/Cicilan/Lunas)
                                 </li>
                                 <li class="flex items-start">
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                    Nomor invoice: INV-YYYYMMDD-XXXX
+                                    Otomatis sync dengan data pemasukan untuk tracking pembayaran
                                 </li>
                                 <li class="flex items-start">
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                    Jatuh tempo default: 30 hari
+                                    Form sederhana dengan 3 tab: Dasar, Pengiriman, Pembayaran
                                 </li>
                                 <li class="flex items-start">
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                    Status: Draft → Sent → Paid
+                                    Data perusahaan dan kustom otomatis dari sistem
                                 </li>
                                 <li class="flex items-start">
                                     <span class="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                    Invoice dapat didownload sebagai PDF
+                                    Tracking pembayaran real-time
                                 </li>
                             </ul>
                         </div>
@@ -1715,6 +1901,59 @@
                                         <span class="text-xl font-bold text-emerald-800">
                                             Rp {{ number_format($order->total_price * $order->quantity, 0, ',', '.') }}
                                         </span>
+                                    </div>
+                                    @if($order->incomes->count() > 0)
+                                        <hr class="border-emerald-200">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-emerald-700">Sudah Dibayar:</span>
+                                            <span class="font-medium text-emerald-600">
+                                                Rp {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @elseif($order->isCustomProduct())
+                            <div class="bg-blue-50 p-4 rounded-xl">
+                                <h4 class="font-semibold text-blue-900 mb-3">Produk Custom - Kalkulasi HPP:</h4>
+                                @php
+                                    $totalPembelian = $order->purchases->sum(function ($purchase) {
+                                        return $purchase->quantity * $purchase->price;
+                                    });
+                                    $totalBiayaProduksi = $order->productionCosts->sum('amount');
+                                    $totalHPP = $totalPembelian + $totalBiayaProduksi;
+                                @endphp
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-700">Total Pembelian Material:</span>
+                                        <span class="font-medium text-blue-800">Rp {{ number_format($totalPembelian, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-700">Total Biaya Produksi:</span>
+                                        <span class="font-medium text-blue-800">Rp {{ number_format($totalBiayaProduksi, 0, ',', '.') }}</span>
+                                    </div>
+                                    <hr class="border-blue-200">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-semibold text-blue-700">Total HPP:</span>
+                                        <span class="text-lg font-bold text-blue-800">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-blue-700">Quantity:</span>
+                                        <span class="font-medium text-blue-800">{{ $order->quantity }} pcs</span>
+                                    </div>
+                                    @if($order->incomes->count() > 0)
+                                        <hr class="border-blue-200">
+                                        <div class="flex justify-between">
+                                            <span class="text-sm text-blue-700">Sudah Dibayar:</span>
+                                            <span class="font-medium text-blue-600">
+                                                Rp {{ number_format($order->incomes->sum('amount'), 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                    <div class="mt-3 p-2 bg-blue-100 rounded-lg">
+                                        <p class="text-xs text-blue-800">
+                                            <strong>Info:</strong> Harga jual akan dihitung otomatis dari HPP + margin saat membuat invoice.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -1894,6 +2133,60 @@
                         <h3 class="text-lg font-semibold text-gray-900">Analisis Margin, Laba/Rugi & Status</h3>
                     </div>
 
+                    @if($order->isCustomProduct())
+                    <!-- Margin Calculator for Custom Products -->
+                    <div class="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-6">
+                        <h4 class="font-semibold text-blue-900 mb-4">Margin Calculator (Alat Bantu Perhitungan)</h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-blue-700 mb-2">Margin (%)</label>
+                                <div class="relative">
+                                    <input type="number" id="margin_percentage" value="30" min="0" max="100" step="0.1"
+                                        class="w-full pr-8 border-blue-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        oninput="updateMarginCalculation()" />
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500">%</span>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-1">Atur margin sesuai kebutuhan untuk perhitungan</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <h5 class="text-sm font-semibold text-blue-900 mb-3">Hasil Perhitungan:</h5>
+                                @php
+                                    $totalPembelian = $order->purchases->sum(function ($purchase) {
+                                        return $purchase->quantity * $purchase->price;
+                                    });
+                                    $totalBiayaProduksi = $order->productionCosts->sum('amount');
+                                    $totalHPP = $totalPembelian + $totalBiayaProduksi;
+                                    $marginPercentage = 30;
+                                    $marginAmount = $totalHPP * ($marginPercentage / 100);
+                                    $totalHargaPerhitungan = $totalHPP + $marginAmount;
+                                @endphp
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Total HPP:</span>
+                                        <span class="font-medium" id="total_hpp">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-600">Margin (<span id="margin_percent">{{ $marginPercentage }}</span>%):</span>
+                                        <span class="text-blue-600 font-medium" id="margin_amount">Rp {{ number_format($marginAmount, 0, ',', '.') }}</span>
+                                    </div>
+                                    <hr class="border-blue-200">
+                                    <div class="flex justify-between">
+                                        <span class="text-blue-900 font-semibold">Harga Jual (Perhitungan):</span>
+                                        <span class="text-blue-900 font-bold" id="total_harga_invoice">Rp {{ number_format($totalHargaPerhitungan, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-100 rounded-lg">
+                            <p class="text-xs text-blue-800">
+                                <strong>Info:</strong> Alat bantu perhitungan margin untuk membantu penjual menentukan harga jual. 
+                                Hasil perhitungan ini tidak otomatis digunakan untuk invoice. 
+                                Invoice akan menggunakan margin default 30% atau sesuai input saat membuat invoice.
+                            </p>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="space-y-4">
                             <div class="flex justify-between items-center py-3 border-b border-gray-100">
@@ -1986,6 +2279,19 @@
                         value = parseInt(value).toLocaleString('id-ID');
                     }
                     input.value = value;
+                }
+
+                // Margin calculation for custom products
+                function updateMarginCalculation() {
+                    const marginPercentage = parseFloat(document.getElementById('margin_percentage').value) || 0;
+                    const totalHPP = {{ $order->isCustomProduct() ? $order->purchases->sum(function ($purchase) { return $purchase->quantity * $purchase->price; }) + $order->productionCosts->sum('amount') : 0 }};
+                    
+                    const marginAmount = totalHPP * (marginPercentage / 100);
+                    const totalHargaInvoice = totalHPP + marginAmount;
+                    
+                    document.getElementById('margin_percent').textContent = marginPercentage.toFixed(1);
+                    document.getElementById('margin_amount').textContent = 'Rp ' + marginAmount.toLocaleString('id-ID');
+                    document.getElementById('total_harga_invoice').textContent = 'Rp ' + totalHargaInvoice.toLocaleString('id-ID');
                 }
 
                 // Validate price form before submission

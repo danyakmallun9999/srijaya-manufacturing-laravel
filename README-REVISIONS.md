@@ -111,6 +111,32 @@
   - Reset form functionality
   - Upload foto nota untuk semua pembelian sekaligus
 
+#### L. Fitur Invoice Fleksibel:
+- ✅ **Migration**: `2025_08_25_083110_add_flexible_fields_to_invoices_table.php`
+- ✅ **Ditambahkan**: 25 field baru untuk invoice fleksibel
+- ✅ **Model**: Invoice model dengan methods untuk payment tracking dan revision
+- ✅ **Controller**: InvoiceController dengan fitur generate, update, dan revise
+- ✅ **View**: Form wizard dengan 5 section (Dasar, Perusahaan, Pengiriman, Pembayaran, Kustom)
+- ✅ **PDF**: Template PDF yang menggunakan field dinamis dari database
+- ✅ **Fitur**:
+  - Invoice dapat dibuat kapan saja setelah harga ditentukan
+  - Otomatis sync dengan data pemasukan (DP/Lunas)
+  - Dapat direvisi jika ada perubahan harga
+  - Include foto produk dan logo perusahaan
+  - Tracking pembayaran real-time
+  - Form wizard yang user-friendly
+
+#### M. Fitur Invoice Produk Custom:
+- ✅ **Controller**: InvoiceController dengan auto-calculation HPP + margin
+- ✅ **View**: Form dengan margin calculator dan HPP breakdown
+- ✅ **PDF**: Template dengan breakdown HPP untuk produk custom
+- ✅ **Fitur**:
+  - Auto-calculate harga dari total biaya produksi + margin
+  - Margin percentage yang dapat dikustomisasi (default 30%)
+  - HPP breakdown yang detail (pembelian + biaya produksi)
+  - Invoice dapat dibuat tanpa perlu set harga manual
+  - PDF menampilkan breakdown HPP yang transparan
+
 ### ✅ 3. Menyederhanakan Form Tambah Order
 
 #### A. Menyederhanakan Form (Dengan Tetap Mendukung Produk Custom):
