@@ -139,11 +139,11 @@ class InvoiceController extends Controller
                 
                 // Product and company information (default values)
                 'product_image' => $order->image, // Use order image as product image
-                'company_name' => 'Idefu Furniture',
-                'company_address' => 'Office : Jl. Hugeng Imam Santoso Km.09 NGabul Tahunan Jepara, Central Java Indonesia. Workshop : Bawu Rt 10/02 Batealit Jepara.',
-                'company_phone' => '+6285741555089',
-                'company_email' => 'idesign@idefu.co.id',
-                'company_website' => 'idefu.co.id',
+                'company_name' => 'CV. Srijaya Indo Furniture',
+                'company_address' => 'Office : Jl. Lembah II Rt 01 Rw 02 Kelurahan Sukodono, Kec. Tahunan Kab. Jepara.',
+                'company_phone' => '+6282230020606',
+                'company_email' => 'cs.srijayafurniture@gmail.com',
+                'company_website' => 'https://indosrijayafurniture.com',
                 
                 // Shipping information
                 'shipping_address' => $request->input('shipping_address', $order->customer->address ?? ''),
@@ -158,7 +158,7 @@ class InvoiceController extends Controller
                 
                 // Invoice customization (default values)
                 'po_number' => 'PO-' . date('Y') . '-' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
-                'seller_name' => 'Manager SIM Make To Order',
+                'seller_name' => 'CV. Srijaya Indo Furniture',
                 'terms_conditions' => 'Pembayaran harus dilakukan sebelum tanggal jatuh tempo yang tertera pada invoice. Barang yang sudah dipesan dan diproduksi tidak dapat dibatalkan atau dikembalikan. Perubahan spesifikasi setelah produksi dimulai akan dikenakan biaya tambahan. Waktu pengerjaan dihitung setelah pembayaran diterima dan spesifikasi final disetujui. Segala perselisihan akan diselesaikan secara musyawarah atau melalui arbitrase.',
                 'notes_customer' => $request->input('notes_customer'),
                 

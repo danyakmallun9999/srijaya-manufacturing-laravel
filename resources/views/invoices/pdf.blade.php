@@ -370,17 +370,18 @@
                                             style="width: 100px; height: 100px; object-fit: contain; border-radius: 10px;">
                                     @else
                                         <div class="logo-placeholder">
-                                            IDEFU
+                                            SRIJAYA
                                         </div>
                                     @endif
                                 </td>
                                 <td class="company-details">
-                                    <div class="company-name">{{ $invoice->company_name ?? 'Idefu Furniture' }}</div>
+                                    <div class="company-name">
+                                        {{ $invoice->company_name ?? 'CV. Srijaya Indo Furniture' }}</div>
                                     <div class="company-address">
-                                        {{ $invoice->company_address ?? 'Office : Jl. Hugeng Imam Santoso Km.09 NGabul Tahunan Jepara, Central Java Indonesia. Workshop : Bawu Rt 10/02 Batealit Jepara.' }}<br>
-                                        Telp: {{ $invoice->company_phone ?? '+6285741555089' }} | Email:
-                                        {{ $invoice->company_email ?? 'idesign@idefu.co.id' }} |
-                                        {{ $invoice->company_website ?? 'idefu.co.id' }}
+                                        {{ $invoice->company_address ?? 'Office : Jl. Lembah II Rt 01 Rw 02 Kelurahan Sukodono, Kec. Tahunan Kab. Jepara' }}<br>
+                                        Telp: {{ $invoice->company_phone ?? '+6282230020606' }} | Email:
+                                        {{ $invoice->company_email ?? 'cs.srijayafurniture@gmail.com' }} |
+                                        {{ $invoice->company_website ?? 'https://indosrijayafurniture.com' }}
                                     </div>
                                 </td>
                             </tr>
@@ -576,7 +577,7 @@
                     <td>
                         <div class="signature-title">Penjual</div>
                         <div class="signature-line">
-                            <strong>{{ $invoice->seller_name ?? 'Idefu Furniture' }}</strong><br>
+                            <strong>{{ $invoice->seller_name ?? 'CV. Srijaya Indo Furniture' }}</strong><br>
                             Tanggal: ___________
                         </div>
                     </td>
@@ -595,7 +596,7 @@
         <div class="footer">
             <p><strong>Terima kasih telah mempercayakan bisnis Anda kepada kami.</strong></p>
             <p>Invoice ini dibuat secara elektronik dan sah tanpa tanda tangan basah.</p>
-            <p>Untuk pertanyaan mengenai invoice ini, hubungi kami di idesign@idefu.co.id atau +6285741555089</p>
+            <p>Untuk pertanyaan mengenai invoice ini, hubungi kami di indosrijayafurniture.com atau +6282230020606</p>
         </div>
     </div>
 </body>
