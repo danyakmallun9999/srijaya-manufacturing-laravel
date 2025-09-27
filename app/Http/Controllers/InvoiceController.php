@@ -159,7 +159,7 @@ class InvoiceController extends Controller
                 // Invoice customization (default values)
                 'po_number' => 'PO-' . date('Y') . '-' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
                 'seller_name' => 'CV. Srijaya Indo Furniture',
-                'terms_conditions' => 'Pembayaran harus dilakukan sebelum tanggal jatuh tempo yang tertera pada invoice. Barang yang sudah dipesan dan diproduksi tidak dapat dibatalkan atau dikembalikan. Perubahan spesifikasi setelah produksi dimulai akan dikenakan biaya tambahan. Waktu pengerjaan dihitung setelah pembayaran diterima dan spesifikasi final disetujui. Segala perselisihan akan diselesaikan secara musyawarah atau melalui arbitrase.',
+                'terms_conditions' => 'Payment must be made before the due date specified on the invoice. Items that have been ordered and produced cannot be cancelled or returned. Specification changes after production has started will incur additional costs. Production time is calculated after payment is received and final specifications are approved. All disputes will be resolved through mutual agreement or arbitration.',
                 'notes_customer' => $request->input('notes_customer'),
                 
                 // Payment tracking

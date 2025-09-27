@@ -66,9 +66,9 @@ class Invoice extends Model
 
     // Payment status constants
     const PAYMENT_STATUSES = [
-        'Unpaid' => 'Belum Dibayar',
-        'Partial' => 'Bayar Sebagian',
-        'Paid' => 'Lunas'
+        'Unpaid' => 'Unpaid',
+        'Partial' => 'Partial Payment',
+        'Paid' => 'Paid'
     ];
 
     // Payment method constants
