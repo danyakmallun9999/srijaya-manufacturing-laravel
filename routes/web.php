@@ -68,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Pemasukan (Income)
     Route::post('/orders/{order}/incomes', [IncomeController::class, 'store'])->name('incomes.store');
     Route::delete('/incomes/{income}', [IncomeController::class, 'destroy'])->name('incomes.destroy');
-    
+
     // Invoice (Finance/Admin/Staff only)
     Route::middleware(['role:admin,finance,staff'])->group(function () {
         Route::post('/orders/{order}/generate-invoice', [InvoiceController::class, 'generate'])->name('invoices.generate');

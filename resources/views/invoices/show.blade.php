@@ -64,6 +64,13 @@
                                 <p class="font-semibold">{{ $invoice->order->product_name }}</p>
                             </div>
                             <div>
+                                <p class="text-sm text-gray-600">Gambar Produk:</p>
+                                <div class="mt-2">
+                                    <img src="{{ $invoice->product_image_url }}" alt="Product Image" 
+                                         class="w-32 h-32 object-cover rounded-lg border border-gray-200 shadow-sm">
+                                </div>
+                            </div>
+                            <div>
                                 <p class="text-sm text-gray-600">Jumlah:</p>
                                 <p class="font-semibold">{{ $invoice->order->quantity }} pcs</p>
                             </div>

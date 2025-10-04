@@ -103,11 +103,17 @@ class Invoice extends Model
      */
     public function getProductImageUrlAttribute()
     {
+        // Priority 1: Use stored product_image from invoice
         if ($this->product_image) {
             return asset('storage/' . $this->product_image);
         }
         
-        // Fallback to order image if available
+        // Priority 2: Get from product model if it's a fixed product
+        if ($this->order && $this->order->product_type === 'tetap' && $this->order->product && $this->order->product->image) {
+            return asset('storage/' . $this->order->product->image);
+        }
+        
+        // Priority 3: Fallback to order image if available
         if ($this->order && $this->order->image) {
             return asset('storage/' . $this->order->image);
         }

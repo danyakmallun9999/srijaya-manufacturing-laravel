@@ -15,6 +15,9 @@ class InvoiceController extends Controller
      */
     public function generate(Order $order, Request $request)
     {
+        // Load necessary relationships
+        $order->load(['product', 'customer', 'incomes', 'purchases', 'productionCosts']);
+        
         // Add logging for debugging
         \Log::info('Invoice generation started', [
             'order_id' => $order->id,
@@ -138,7 +141,7 @@ class InvoiceController extends Controller
                 'notes' => $request->input('notes'),
                 
                 // Product and company information (default values)
-                'product_image' => $order->image, // Use order image as product image
+                'product_image' => $this->getProductImage($order), // Get product image from product or order
                 'company_name' => 'CV. Srijaya Indo Furniture',
                 'company_address' => 'Office : Jl. Lembah II Rt 01 Rw 02 Kelurahan Sukodono, Kec. Tahunan Kab. Jepara.',
                 'company_phone' => '+6282230020606',
@@ -200,7 +203,7 @@ class InvoiceController extends Controller
      */
     public function show(Invoice $invoice)
     {
-        $invoice->load(['order.customer']);
+        $invoice->load(['order.customer', 'order.product', 'order.incomes', 'order.purchases', 'order.productionCosts']);
         return view('invoices.show', compact('invoice'));
     }
 
@@ -311,13 +314,16 @@ class InvoiceController extends Controller
      */
     public function download(Invoice $invoice)
     {
-        $invoice->load(['order.customer']);
+        $invoice->load(['order.customer', 'order.product']);
         
         // Prepare logo data for PDF
         $logoBase64 = $this->getLogoAsBase64($invoice);
         
+        // Prepare product image data for PDF
+        $productImageBase64 = $this->getProductImageAsBase64($invoice);
+        
         // Generate PDF using DomPDF with logo data and optimized margins
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice', 'logoBase64'))
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice', 'logoBase64', 'productImageBase64'))
             ->setOption('isHtml5ParserEnabled', true)
             ->setOption('isRemoteEnabled', true)
             ->setOption('dpi', 150)
@@ -330,6 +336,53 @@ class InvoiceController extends Controller
         
         // Return PDF for download
         return $pdf->download($invoice->invoice_number . '.pdf');
+    }
+
+    /**
+     * Get product image from order (either from product model or order image)
+     */
+    private function getProductImage($order)
+    {
+        // For fixed products, get image from product model
+        if ($order->product_type === 'tetap' && $order->product && $order->product->image) {
+            return $order->product->image;
+        }
+        
+        // For custom products or fallback, use order image
+        return $order->image;
+    }
+
+    /**
+     * Get product image as base64 encoded string
+     */
+    private function getProductImageAsBase64($invoice)
+    {
+        // Priority 1: Check if invoice has product_image from storage
+        if ($invoice->product_image) {
+            $imagePath = storage_path('app/public/' . $invoice->product_image);
+            if (file_exists($imagePath)) {
+                return $this->encodeImageToBase64($imagePath);
+            }
+        }
+        
+        // Priority 2: Get from product model if it's a fixed product
+        if ($invoice->order && $invoice->order->product_type === 'tetap' && $invoice->order->product && $invoice->order->product->image) {
+            $imagePath = storage_path('app/public/' . $invoice->order->product->image);
+            if (file_exists($imagePath)) {
+                return $this->encodeImageToBase64($imagePath);
+            }
+        }
+        
+        // Priority 3: Fallback to order image if available
+        if ($invoice->order && $invoice->order->image) {
+            $imagePath = storage_path('app/public/' . $invoice->order->image);
+            if (file_exists($imagePath)) {
+                return $this->encodeImageToBase64($imagePath);
+            }
+        }
+        
+        // Return null if no image found
+        return null;
     }
 
     /**

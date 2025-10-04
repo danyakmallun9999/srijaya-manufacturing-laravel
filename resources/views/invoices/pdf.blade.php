@@ -206,38 +206,7 @@
         }
 
         .totals-section {
-            display: flex;
-            justify-content: flex-end;
             margin-bottom: 20px;
-        }
-
-        .totals-table {
-            min-width: 350px;
-        }
-
-        .totals-table tr {
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .totals-table tr:last-child {
-            border-bottom: 3px solid #2563eb;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .totals-table td {
-            padding: 10px 15px;
-            font-size: 15px;
-        }
-
-        .total-label {
-            text-align: right;
-            color: #374151;
-        }
-
-        .total-amount {
-            text-align: right;
-            font-weight: 600;
         }
 
         .payment-section {
@@ -445,7 +414,8 @@
             <thead>
                 <tr>
                     <th width="5%">#</th>
-                    <th width="40%">Product Description</th>
+                    <th width="15%">Image</th>
+                    <th width="25%">Product Description</th>
                     <th width="10%" class="text-center">Qty</th>
                     <th width="15%" class="text-right">Unit Price</th>
                     <th width="15%" class="text-right">Total</th>
@@ -454,7 +424,17 @@
             <tbody>
                 <tr>
                     <td class="text-center">1</td>
-                    <td>
+                    <td class="text-center">
+                        @if ($productImageBase64)
+                            <img src="{{ $productImageBase64 }}" alt="Product Image" 
+                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        @else
+                            <div style="width: 80px; height: 80px; background: #f3f4f6; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 12px;">
+                                No Image
+                            </div>
+                        @endif
+                    </td>
+                    <td class="text-center">
                         <strong style="font-size: 16px;">{{ $invoice->order->product_name }}</strong><br>
                         @if ($invoice->order->product_type === 'custom')
                             <small style="color: #666; font-size: 13px;">Specifications:
@@ -485,26 +465,24 @@
 
         <!-- Totals Section -->
         <div class="totals-section">
-            <table class="totals-table">
+            <table class="totals-table" style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td class="total-label">Subtotal:</td>
-                    <td class="total-amount">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
+                    <td style="width: 70%; text-align: right; padding: 10px 15px; font-size: 15px; color: #374151;">Subtotal:</td>
+                    <td style="width: 30%; text-align: right; padding: 10px 15px; font-size: 15px; font-weight: 600;">Rp {{ number_format($invoice->subtotal, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td class="total-label">Shipping Cost:</td>
-                    <td class="total-amount">Rp {{ number_format($invoice->shipping_cost ?? 0, 0, ',', '.') }}</td>
+                    <td style="width: 70%; text-align: right; padding: 10px 15px; font-size: 15px; color: #374151;">Shipping Cost:</td>
+                    <td style="width: 30%; text-align: right; padding: 10px 15px; font-size: 15px; font-weight: 600;">Rp {{ number_format($invoice->shipping_cost ?? 0, 0, ',', '.') }}</td>
                 </tr>
                 @if ($invoice->order->product_type !== 'custom')
-                    <tr>
-                        <td class="total-label"><strong>TOTAL:</strong></td>
-                        <td class="total-amount" style="color: #2563eb;"><strong>Rp
-                                {{ number_format($invoice->total_amount, 0, ',', '.') }}</strong></td>
+                    <tr style="border-top: 3px solid #2563eb;">
+                        <td style="width: 70%; text-align: right; padding: 10px 15px; font-size: 18px; font-weight: bold; color: #374151;">TOTAL:</td>
+                        <td style="width: 30%; text-align: right; padding: 10px 15px; font-size: 18px; font-weight: bold; color: #2563eb;">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</td>
                     </tr>
                 @else
-                    <tr>
-                        <td class="total-label"><strong>PRICE TO BE CALCULATED:</strong></td>
-                        <td class="total-amount" style="color: #dc2626; font-style: italic;"><strong>Will be calculated
-                                after production is completed.</strong></td>
+                    <tr style="border-top: 3px solid #dc2626;">
+                        <td style="width: 70%; text-align: right; padding: 10px 15px; font-size: 18px; font-weight: bold; color: #374151;">PRICE TO BE CALCULATED:</td>
+                        <td style="width: 30%; text-align: right; padding: 10px 15px; font-size: 18px; font-weight: bold; color: #dc2626; font-style: italic;">Will be calculated after production is completed.</td>
                     </tr>
                 @endif
             </table>
